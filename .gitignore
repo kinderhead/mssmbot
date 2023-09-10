@@ -5,3 +5,5 @@ logs/
 .env~
 config.json
 prisma/migrations
+memory.json
+queue.json
