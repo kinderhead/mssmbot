@@ -1,0 +1,147 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model UserData {
+    id String @unique @id
+
+    bio String @default("")
+
+    embeds String[]
+    mod_application String @default("")
+
+    questions QuestionData[]
+    polls PollData[]
+    poll_answers PollQuestionData[]
+
+    xp Int @default(0)
+    need_message Boolean @default(false)
+
+    times_counted Int @default(0)
+    times_failed Int @default(0)
+    saves Float @default(1)
+
+    uno_wins Int @default(0)
+    uno_losses Int @default(0)
+
+    chess_games_white ChessData[] @relation("white")
+    chess_games_black ChessData[] @relation("black")
+
+    mega_poll_answers MegaPollOption[]
+
+    starboard StarboardMessage[]
+
+    // Settings
+    levelup_ping Boolean @default(true)
+}
+
+model QuestionData {
+    id Int @id @default(autoincrement())
+
+    date DateTime?
+
+    question String
+    asked Boolean @default(false)
+    isEmbed Boolean @default(false)
+
+    link String @default("")
+
+    author UserData @relation(fields: [authorId], references: [id])
+    authorId String
+}
+
+model PollData {
+    id Int @id @default(autoincrement())
+
+    date DateTime?
+
+    title String
+    options PollQuestionData[]
+    asked Boolean @default(false)
+    open Boolean @default(true)
+    meta_is_done Boolean @default(false)
+
+    channel String @default("942269186061774870")
+    link String @default("")
+    results_link String @default("")
+
+    author UserData @relation(fields: [authorId], references: [id])
+    authorId String
+}
+
+model ChessData {
+    id Int @id @default(autoincrement())
+    pgn String
+
+    lichess String?
+
+    white UserData @relation("white", fields: [whiteId], references: [id])
+    whiteId String
+
+    black UserData @relation("black", fields: [blackId], references: [id])
+    blackId String
+}
+
+model PollQuestionData {
+    id Int @id @default(autoincrement())
+    option String
+    selected UserData[]
+
+    poll PollData @relation(fields: [pollId], references: [id])
+    pollId Int
+}
+
+model MetaQuestion {
+    id Int @id @default(autoincrement())
+    
+    question String
+    link String
+
+    active Boolean @default(true)
+}
+
+model MegaPoll {
+    id Int @id @default(autoincrement())
+
+    title String
+    date DateTime
+
+    channel String
+    link String
+    buttonId String
+
+    open Boolean @default(true)
+
+    options MegaPollOption[]
+}
+
+model MegaPollOption {
+    id Int @id @default(autoincrement())
+
+    option String
+
+    poll MegaPoll @relation(fields: [pollId], references: [id])
+    pollId Int
+
+    selected UserData[]
+}
+
+model StarboardMessage {
+    id String @id
+    channelId String
+
+    author UserData @relation(fields: [authorId], references: [id])
+    authorId String
+
+    starboardMessageId String
+    stars Int
+    date DateTime
+}

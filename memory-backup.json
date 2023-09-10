@@ -1,0 +1,20 @@
+{
+    "infoid": "1127742900789317642",
+    "infochannelid": "1127742548287422534",
+    "games": {},
+    "countingchannelid": "742500057143574648",
+    "count": 1522,
+    "lasttocount": "512721284228972544",
+    "highscore": 1520,
+    "metaid": "1139636520224043139",
+    "changelogthreadid": "1141371554077348021",
+    "changeloglastdesc": "\n* Game threads will not lock when they are finished\n* Game !help command will now only show commands that that user can run\n        ",
+    "changeloglastdate": "9.1.2023",
+    "changelognumdate": 1,
+    "messagestoday": 112,
+    "latestmessagedate": "9/2/2023",
+    "modinfoid": "1142789705646227539",
+    "modinfochannelid": "1142784444978167832",
+    "poop": 11,
+    "ruleschannelid": ""
+}

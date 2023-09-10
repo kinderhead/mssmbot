@@ -1,0 +1,159 @@
+{
+    "infoid": "1127742900789317642",
+    "infochannelid": "1127742548287422534",
+    "games": {},
+    "countingchannelid": "742500057143574648",
+    "count": 1870,
+    "lasttocount": "900913111853301811",
+    "highscore": 1847,
+    "metaid": "1139636520224043139",
+    "changelogthreadid": "1141371554077348021",
+    "changeloglastdesc": "\n* /counting check now shows the correct last user to count\n        ",
+    "changeloglastdate": "9.7.2023",
+    "changelognumdate": 2,
+    "messagestoday": 127,
+    "latestmessagedate": "9/8/2023",
+    "modinfoid": "1142789705646227539",
+    "modinfochannelid": "1142784444978167832",
+    "poop": 11,
+    "ruleschannelid": "1142784444978167832",
+    "rulesmessageids": [
+        "1149129986037518356",
+        "1149129987320987720",
+        "1149129988528943134",
+        "1149129989657198702"
+    ],
+    "rulesmessages": [
+        {
+            "title": "General Rules",
+            "description": "General rules for the whole server.\nPunishments will be done case by case.",
+            "fields": [
+                {
+                    "name": "Rule 1",
+                    "value": "Don't impersonate anyone."
+                },
+                {
+                    "name": "Rule 2",
+                    "value": "Don't use slurs."
+                },
+                {
+                    "name": "Rule 3",
+                    "value": "Don't send NSFW content, even if you blur it out. If you think you need to blur something out then don't post it."
+                },
+                {
+                    "name": "Rule 4",
+                    "value": "Avoid making fun of people."
+                },
+                {
+                    "name": "Rule 5",
+                    "value": "Be (mostly) respectful."
+                },
+                {
+                    "name": "Rule 6",
+                    "value": "No racism, sexism, homophobia, transphobia, etc."
+                },
+                {
+                    "name": "Rule 7",
+                    "value": "Don't give yourself roles that don't apply to you, and make sure the important roles are up to date."
+                },
+                {
+                    "name": "Rule 8",
+                    "value": "All you tech people, DO!"
+                }
+            ],
+            "author": null
+        },
+        {
+            "title": "Policy on Shifting Conversation Topics",
+            "description": "In general, if the topic of the conversation changes then consider moving to the correct channel.\n\nIf more than one channel appropriate conversation is occurring in the same channel at the same time then make them threads.\nIn the case of #general, consider using #general-random.",
+            "author": null,
+            "fields": [
+                {
+                    "name": "#question-of-the-day",
+                    "value": "As long as the conversation is related to the question, you should not switch to a different channel."
+                },
+                {
+                    "name": "#politics",
+                    "value": "If anything starts getting political (except qotd if it's related to the question) then it should be moved to the #politics channel."
+                },
+                {
+                    "name": "Arts and Media Channels",
+                    "value": "Keep pictures in #pictures and music in #music etc."
+                },
+                {
+                    "name": "#welcome",
+                    "value": "This channel is only for welcoming people, so any conversations should be moved."
+                },
+                {
+                    "name": "#suggestions",
+                    "value": "This is for server suggestions. Don't message here unless it's a suggestion or commenting about another suggestion."
+                }
+            ]
+        },
+        {
+            "title": "Channel Specific Rules",
+            "description": "Some channels are more equal than others.",
+            "fields": [
+                {
+                    "name": "#vent",
+                    "value": "For venting only. No namedropping in vent."
+                },
+                {
+                    "name": "#politics",
+                    "value": "For political conversations."
+                },
+                {
+                    "name": "#cat",
+                    "value": "Cat only (or else)",
+                    "inline": true
+                },
+                {
+                    "name": "#h",
+                    "value": "H",
+                    "inline": true
+                },
+                {
+                    "name": "#anti-h",
+                    "value": "No h",
+                    "inline": true
+                },
+                {
+                    "name": "#discord-games",
+                    "value": "Keep all games in this channel."
+                },
+                {
+                    "name": "#bots",
+                    "value": "Most bot commands should be sent here."
+                }
+            ],
+            "author": null
+        },
+        {
+            "title": "Bot Rules",
+            "description": "Bot information in <#1127742548287422534>\n\nDon't spam commands. Especially if they return an error.",
+            "fields": [
+                {
+                    "name": "QOTD",
+                    "value": "Try to make each post a question."
+                },
+                {
+                    "name": "Counting",
+                    "value": "Do not purposefully ruin the counting chain, even if you have saves to spare."
+                },
+                {
+                    "name": "`/anon`",
+                    "value": "Do not abuse `/anon`. If this becomes a problem then it will be restricted to #vent."
+                },
+                {
+                    "name": "XP",
+                    "value": "Don't try to farm xp whether it be through spamming message or rigged games."
+                },
+                {
+                    "name": "`/play`",
+                    "value": "If you know you don't need to ping everyone when you start a game then set the `quiet` argument to `true`."
+                }
+            ],
+            "author": null
+        }
+    ]
+}
