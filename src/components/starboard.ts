@@ -1,4 +1,4 @@
-import { MessageReaction, PartialMessageReaction, User, PartialUser, Message, EmbedBuilder, channelMention, TextChannel, Awaitable } from "discord.js";
+import { MessageReaction, PartialMessageReaction, User, PartialUser, Message, EmbedBuilder, channelMention, TextChannel, Awaitable, Attachment } from "discord.js";
 import Component from "../lib/component.js";
 
 export default class Starboard extends Component {
@@ -29,11 +29,12 @@ export default class Starboard extends Component {
             var data = await this.bot.db.starboardMessage.findUnique({ where: { id: reaction.message.id } });
             if (data) {
                 this.log.info(`Starboard message "${msg.content}" now has ${count} stars`);
-                (await this.starboardChannel.messages.fetch(data.starboardMessageId)).edit({ embeds: [this.getStarMessage(msg, count)] });
+                (await this.starboardChannel.messages.fetch(data.starboardMessageId)).edit({ embeds: [this.getStarMessage(msg, count)[0]] });
                 await this.bot.db.starboardMessage.update({ where: { id: data.id }, data: { stars: count } });
             } else if (count >= 4) {
                 this.log.info(`Message "${msg.content}" was sent to starboard with ${count} stars`);
-                var starMsg = await this.starboardChannel.send({ embeds: [this.getStarMessage(msg, count)] });
+                var msgData = this.getStarMessage(msg, count);
+                var starMsg = await this.starboardChannel.send({ embeds: [msgData[0]], files: msgData[1] === null ? [] : [msgData[1]] });
                 try {
                     await this.bot.db.userData.update({ where: { id: msg.author.id }, data: { starboard: { create: { id: reaction.message.id, channelId: reaction.message.id, starboardMessageId: starMsg.id, date: new Date(), stars: count } } } });
                 } catch {
@@ -68,8 +69,8 @@ export default class Starboard extends Component {
         return count;
     }
 
-    public getStarMessage(msg: Message, count: number) {
-        var embed = this.bot.createEmbedFromMessage(msg);
+    public getStarMessage(msg: Message, count: number): [EmbedBuilder, Attachment] {
+        var [embed, attachment] = this.bot.createEmbedFromMessage(msg);
         var emoji = this.starEmojis[0];
 
         if (count >= 16) {
@@ -84,6 +85,6 @@ export default class Starboard extends Component {
         embed.setURL(msg.url);
         embed.setTimestamp(msg.createdAt);
 
-        return embed;
+        return [embed, attachment];
     }
 }

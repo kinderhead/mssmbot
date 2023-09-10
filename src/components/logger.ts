@@ -1,4 +1,4 @@
-import { Message, PartialMessage, Awaitable, EmbedBuilder, channelMention } from "discord.js";
+import { Message, PartialMessage, Awaitable, EmbedBuilder, channelMention, Attachment } from "discord.js";
 import LogCommand from "../commands/log.js";
 import Component from "../lib/component.js";
 
@@ -11,17 +11,15 @@ export default class BotLogger extends Component {
         try {
             if (edited.author?.bot) return;
 
-            var user = this.bot.getUser(edited)
-            var embed = new EmbedBuilder().setAuthor({ name: user.displayName, iconURL: user.displayAvatarURL() }).setTitle(`Message edited in ${channelMention(edited.channelId)}`).setColor(user.displayColor).addFields(
+            edited = await edited.fetch();
+
+            var data = this.bot.createEmbedFromMessage(edited);
+            var embed = data[0].setTitle(`Message edited in ${channelMention(edited.channelId)}`).setFields(
                 { name: "Old", value: old.content === "" ? "No text" : old.content, inline: true },
                 { name: "New", value: edited.content === "" ? "No text" : edited.content, inline: true }
             );
 
-            if (edited.attachments.size != 0) {
-                embed.setImage(edited.attachments.first().url);
-            }
-
-            this.bot.logChannel.send({ embeds: [embed] });
+            this.bot.logChannel.send({ embeds: [embed], files: data[1] == null ? [] : [data[1]] });
         } catch(e) {
             this.log.error(e);
         }
@@ -32,10 +30,10 @@ export default class BotLogger extends Component {
             if (msg.author?.bot) return;
 
             var embed: EmbedBuilder;
+            var data: [EmbedBuilder, Attachment?] = undefined;
             if (msg.author != null) {
-                var user = this.bot.getUser(msg);
-
-                embed = new EmbedBuilder().setAuthor({ name: user.displayName, iconURL: user.displayAvatarURL() }).setTitle(`Message deleted in ${channelMention(msg.channelId)}`).setDescription(msg.content === "" ? "No text" : msg.content).setColor(user.displayColor);
+                data = this.bot.createEmbedFromMessage(msg);
+                embed = data[0].setTitle(`Message deleted in ${channelMention(msg.channelId)}`);
             
                 if (msg.attachments.size != 0) {
                     embed.setImage(msg.attachments.first().url);
@@ -44,7 +42,7 @@ export default class BotLogger extends Component {
                 embed = new EmbedBuilder().setTitle(`Unknown message deleted in ${channelMention(msg.channelId)}`).setDescription("Message was posted before the bot was on. Cope.").setColor("Random");
             }
 
-            this.bot.logChannel.send({ embeds: [embed] });
+            this.bot.logChannel.send({ embeds: [embed], files: (!data || data[1] == null) ? [] : [data[1]] });
         } catch (e) {
             this.log.error(e);
         }

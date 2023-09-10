@@ -1,5 +1,5 @@
 import { MegaPoll, MegaPollOption, PollData, PrismaClient, UserData } from '@prisma/client';
-import { APIEmbed, CacheType, ChatInputCommandInteraction, Client, ComponentType, EmbedBuilder, Events, GatewayIntentBits, GuildBasedChannel, GuildMember, Interaction, Message, MessageReaction, PartialGuildMember, PartialMessageReaction, PartialUser, Partials, REST, ReactionCollector, Routes, SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextChannel, ThreadAutoArchiveDuration, User, channelMention, roleMention, userMention } from 'discord.js';
+import { APIEmbed, Attachment, CacheType, ChatInputCommandInteraction, Client, ComponentType, EmbedBuilder, Events, GatewayIntentBits, GuildBasedChannel, GuildMember, Interaction, Message, MessageReaction, PartialGuildMember, PartialMessageReaction, PartialUser, Partials, REST, ReactionCollector, Routes, SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextChannel, ThreadAutoArchiveDuration, User, channelMention, roleMention, userMention } from 'discord.js';
 import fs from 'fs';
 
 import util from 'node:util';
@@ -39,7 +39,7 @@ import { getInfoEmbeds, getModInfoEmbeds } from './lib/info_messages.js';
 import Lichess from './lib/lichess.js';
 import { EmbedResource, StringOpts, StringResource } from './lib/resource.js';
 import { Memory, Poll, Question, QueueDataStorage, Storage } from './lib/storage.js';
-import { InteractionSendable, createCustomId, quickActionRow, shorten } from './lib/utils.js';
+import { InteractionSendable, createCustomId, isValidUrl, quickActionRow, shorten } from './lib/utils.js';
 import SetRulesCommand from './commands/set_rules.js';
 import EditRulesCommand from './commands/edit_rules.js';
 import Component from './lib/component.js';
@@ -432,16 +432,41 @@ export default class MSSM {
         throw "Unable to find channel with id " + id;
     }
 
-    public createEmbedFromMessage(msg: Message) {
+    public createEmbedFromMessage(msg: Message): [EmbedBuilder, Attachment?] {
         var user = this.getUser(msg);
 
-        var embed = new EmbedBuilder().setAuthor({ name: user.displayName, iconURL: user.displayAvatarURL() }).setTitle(`Message in ${channelMention(msg.channelId)}`).setDescription(msg.content === "" ? "No text" : msg.content).setColor(user.displayColor);
+        var embed = new EmbedBuilder().setAuthor({ name: user.displayName, iconURL: user.displayAvatarURL() }).setTitle(`Message in ${channelMention(msg.channelId)}`).setColor(user.displayColor);
 
-        if (msg.attachments.size != 0) {
-            embed.setImage(msg.attachments.first().url);
+        if (isValidUrl(msg.content)) {
+            embed.setImage(msg.content);
+        } else if (msg.content !== "") {
+            embed.setDescription(msg.content);
         }
 
-        return embed;
+        var sendoff: Attachment = null;
+        if (msg.attachments.size != 0) {
+            var attachment = msg.attachments.first();
+
+            if (attachment.contentType.includes("image/")) {
+                embed.setImage(attachment.url);
+            } else {
+                sendoff = attachment;
+            }
+        } else if (msg.stickers.size != 0) {
+            embed.setImage(msg.stickers.first().url);
+        } else if (msg.embeds.length != 0) {
+            var e = msg.embeds[0];
+            if (e.title == null && e.description == null && e.thumbnail != null) {
+                embed.setImage(e.thumbnail.url);
+            } else {
+                embed.setDescription(`**${e.title ? e.title : ""}**\n\n${e.description ? e.description : ""}`);
+                if (e.fields?.length != 0) embed.setFields(e.fields);
+                if (e.image) embed.setImage(e.image.url);
+                if (e.thumbnail) embed.setThumbnail(e.thumbnail.url);
+            }
+        }
+
+        return [embed, sendoff];
     }
 
     public getUser(id: string): GuildMember
@@ -485,7 +510,7 @@ export default class MSSM {
         this.memory.changeloglastdate = date;
 
         var desc = `
-* /counting check now shows the correct last user to count
+* Made starboard messages better
         `;
 
         if (this.memory.changeloglastdesc === desc) return;

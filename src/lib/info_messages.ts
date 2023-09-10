@@ -59,7 +59,8 @@ export function getInfoEmbeds(bot: MSSM) {
                 { name: "`/leaderboard`", value: "Shows various leaderboards" },
                 { name: "`/anon`", value: "Send an anonymous message. Good for <#739955844837277717>." },
                 { name: "`/tools embed-builder`", value: "Create and save special bot messages." },
-                { name: "`/tools message-count`", value: "Displays the number of messages sent today" },
+                { name: "`/tools message-count`", value: "Displays the number of messages sent today." },
+                { name: "`/tools msg-converter`", value: "Transforms the last sent message into an embed." },
                 { name: "`/help`", value: "Displays this message." }
             )
     ];
