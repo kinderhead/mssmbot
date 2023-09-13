@@ -3,6 +3,8 @@ import LogCommand from "../commands/log.js";
 import Component from "../lib/component.js";
 
 export default class BotLogger extends Component {
+    public ignoreIds: string[] = [];
+
     public init() {
         this.bot.registerCommand(new LogCommand());
     }
@@ -10,6 +12,11 @@ export default class BotLogger extends Component {
     public async onMessageEdit(old: Message<boolean> | PartialMessage, edited: Message<boolean> | PartialMessage) {
         try {
             if (edited.author?.bot) return;
+
+            if (this.ignoreIds.includes(edited.id)) {
+                this.ignoreIds.splice(this.ignoreIds.indexOf(edited.id), 1);
+                return;
+            }
 
             edited = await edited.fetch();
 
@@ -28,6 +35,11 @@ export default class BotLogger extends Component {
     public async onMessageDelete(msg: Message<boolean>) {
         try {
             if (msg.author?.bot) return;
+
+            if (this.ignoreIds.includes(msg.id)) {
+                this.ignoreIds.splice(this.ignoreIds.indexOf(msg.id), 1);
+                return;
+            }
 
             var embed: EmbedBuilder;
             var data: [EmbedBuilder, Attachment?] = undefined;

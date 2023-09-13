@@ -345,6 +345,7 @@ export default abstract class Game<TOpts extends BasicOpts = BasicOpts> extends 
                 const res = this.join(i);
 
                 if (res === "DONE") {
+                    this.bot.logging.ignoreIds.push(msg.id);
                     msg.delete();
                 } else {
                     msg.reply(res);
@@ -355,6 +356,7 @@ export default abstract class Game<TOpts extends BasicOpts = BasicOpts> extends 
                 const res = this.leave(i);
 
                 if (res === "DONE") {
+                    this.bot.logging.ignoreIds.push(msg.id);
                     msg.delete();
                 } else {
                     msg.reply(res);

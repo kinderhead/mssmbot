@@ -381,12 +381,14 @@ export default class MSSM {
     public starboard: Starboard;
     public counting: Counting;
     public qotd: QOTD;
+    public logging: BotLogger;
     public addComponent(component: Component) {
         this.components.push(component);
 
         if (component instanceof Starboard) this.starboard = component;
         if (component instanceof Counting) this.counting = component;
         if (component instanceof QOTD) this.qotd = component;
+        if (component instanceof BotLogger) this.logging = component;
     }
 
     public registerCommand(command: Command) {
