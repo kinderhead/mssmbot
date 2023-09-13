@@ -20,7 +20,7 @@ export function getInfoEmbeds(bot: MSSM) {
             .addFields(
                 { name: "`/qotd ask <question>`", value: "Adds a question to the queue. This gives 5 xp." },
                 { name: "`/qotd ask-fancy`", value: "Adds a customized question to the queue. This gives 5 xp." },
-                { name: "`/qotd poll <title> <options>`", value: "Adds a poll to the queue. `options` is a maximum of 9 options separated by a `|`. Example: `Option 1|Option 2|Option 3`. This gives 8 xp. Answering polls gives 3 xp and .25 counting saves." },
+                { name: "`/qotd poll <title> [option1] [option2] [option3] [option4] [option5] [option6] [option7] [option8] [option9]`", value: "Adds a poll to the queue. This gives 8 xp. Answering polls gives 3 xp and .25 counting saves." },
                 { name: "`/qotd manage`", value: "Accidentally put a typo in your question? Forgot to add an option to your poll? Just want to see your questions before they are posted? Use this command to manage all your question and poll needs.\n\nNote: the bot tries to cover all edge cases, but sometimes errors do happen. Don't try anything weird. Due to Discord's limitations, you will have to copy your question's or poll's title and options before editing. Always press cancel before running the command again, and beware that there is a time limit to make changes." },
                 { name: "`/qotd doomsday`", value: "Finds the last day there will be a QOTD post if no more are added." }
             ),

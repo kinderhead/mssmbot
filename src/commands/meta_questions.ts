@@ -116,7 +116,9 @@ export default class MetaQuestionsCommand extends Command {
             const opt = await buttonHelper(new EmbedBuilder().setTitle("Choose").setDescription(choice.title), args, msg.editReply.bind(msg));
             if (opt === "resolve") {
                 var message = await bot.qotd.metaQuestionsChannel.messages.fetch(choice.link);
-                await message.thread.setLocked(true);
+                if (!message.thread.archived) {
+                    await message.thread.setLocked(true);
+                }
                 await message.delete();
                 await msg.editReply({ content: "Done", embeds: [] });
                 await bot.db.pollData.update({ where: { id: choice.id }, data: { open: false, meta_is_done: true } });

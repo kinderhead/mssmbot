@@ -25,7 +25,16 @@ export default class QOTDCommand extends Command {
                 .setName("poll")
                 .setDescription("Creates a poll which will close the following day")
                 .addStringOption(opt => opt.setName("title").setDescription("Title").setRequired(true))
-                .addStringOption(opt => opt.setName("options").setDescription("A maximum of 9 options separated by a |. Example: Option 1|Option 2|Option 3").setRequired(true)))
+                .addStringOption(opt => opt.setName("option1").setDescription("Option 1").setRequired(false))
+                .addStringOption(opt => opt.setName("option2").setDescription("Option 2").setRequired(false))
+                .addStringOption(opt => opt.setName("option3").setDescription("Option 3").setRequired(false))
+                .addStringOption(opt => opt.setName("option4").setDescription("Option 4").setRequired(false))
+                .addStringOption(opt => opt.setName("option5").setDescription("Option 5").setRequired(false))
+                .addStringOption(opt => opt.setName("option6").setDescription("Option 6").setRequired(false))
+                .addStringOption(opt => opt.setName("option7").setDescription("Option 7").setRequired(false))
+                .addStringOption(opt => opt.setName("option8").setDescription("Option 8").setRequired(false))
+                .addStringOption(opt => opt.setName("option9").setDescription("Option 9").setRequired(false))
+            )
             .addSubcommand(sbc => sbc
                 .setName("manage")
                 .setDescription("Edit qotd posts before they are sent"))
@@ -113,8 +122,13 @@ export default class QOTDCommand extends Command {
 
     private async poll(data: UserData, msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
         const title = msg.options.getString("title");
-        const rawOptions = msg.options.getString("options").replace(/^\|+|\|+$/g, '');
-        const options = rawOptions.split("|");
+        var options: string[] = [];
+
+        for (let i = 1; i < 10; i++) {
+            options.push(msg.options.getString(`option${i}`, false));
+        }
+
+        options = options.filter(i => i !== undefined && i !== null);
 
         if (title.length > 256) {
             await msg.reply({ content: "Title is too long", ephemeral: true });

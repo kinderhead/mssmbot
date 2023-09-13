@@ -510,7 +510,7 @@ export default class MSSM {
         this.memory.changeloglastdate = date;
 
         var desc = `
-* Made starboard messages better
+* /qotd poll is good now
         `;
 
         if (this.memory.changeloglastdesc === desc) return;
