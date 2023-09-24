@@ -85,37 +85,62 @@ export async function embedPager(pages: EmbedBuilder[], msg: InteractionSendable
 }
 
 export type SettingsArgType<T> = { default: T, name: string, desc: string, on_change: (i: T) => void | Promise<void | any> };
-export async function settingsHelper(user: GuildMember, msg: InteractionSendable, bot: MSSM, embed: EmbedBuilder, options: SettingsArgType<boolean>[], ephemeral: boolean = true) {
+export async function settingsHelper(user: GuildMember, msg: InteractionSendable, bot: MSSM, embed: EmbedBuilder, options: (SettingsArgType<boolean> | SettingsArgType<string>)[], ephemeral: boolean = true) {
     var custom = createCustomId();
+    var doneId = createCustomId();
 
     var int: ButtonInteraction = undefined;
     var message: InteractionResponse | Message = undefined;
 
     while (true) {
         embed.setFields(...options.map(i => {
-            return { name: i.name + ": " + i.default, value: i.desc };
+            if (typeof i.default === "boolean") {
+                return { name: i.name + ": " + i.default, value: i.desc, inline: true };
+            } else if (typeof i.default === "string") {
+                return { name: i.name, value: i.default, inline: true };
+            }
         }));
 
-        var row = quickActionRow(...options.map(i => new ButtonBuilder().setCustomId(custom + i.name).setLabel(`Toggle ${i.name.toLowerCase()}`).setStyle(i.default ? ButtonStyle.Success : ButtonStyle.Danger)));
+        var row = quickActionRow(...options.map(i => {
+            if (typeof i.default === "boolean") {
+                return new ButtonBuilder().setCustomId(custom + i.name).setLabel(`Toggle ${i.name.toLowerCase()}`).setStyle(i.default ? ButtonStyle.Success : ButtonStyle.Danger);
+            } else if (typeof i.default === "string") {
+                return new ButtonBuilder().setCustomId(custom + i.name).setLabel(`Set ${i.name.toLowerCase()}`).setStyle(ButtonStyle.Primary);
+            }
+        }));
+
+        row.addComponents(new ButtonBuilder().setCustomId(doneId).setLabel("Done").setStyle(ButtonStyle.Secondary));
 
         if (int === undefined) {
             message = await msg({ embeds: [embed], components: [row], ephemeral: true });
-        } else {
+        } else if (!int.replied) {
             message = await int.update({ embeds: [embed], components: [row] });
+        } else {
+            message = await int.editReply({ embeds: [embed], components: [row] });
         }
 
         try {
-            int = await message.awaitMessageComponent({ filter: i => i.user.id === user.id && options.map(i => custom + i.name).includes(i.customId), componentType: ComponentType.Button });
+            int = await message.awaitMessageComponent({ filter: i => i.user.id === user.id && (i.customId === doneId || options.map(i => custom + i.name).includes(i.customId)), componentType: ComponentType.Button });
         } catch (e) {
             DEFAULT_LOGGER.error(e);
             await message.edit({ embeds: [embed], components: [] });
             return;
         }
+
+        if (int.customId === doneId) {
+            await int.update({ embeds: [embed], components: [] });
+            return;
+        }
         
         for (const i of options) {
             if (int.customId === custom + i.name) {
-                i.default = !i.default;
-                await i.on_change(i.default);
+                if (typeof i.default === "boolean") {
+                    i.default = !i.default;
+                    await i.on_change(i.default);
+                } else if (typeof i.default === "string") {
+                    i.default = await quickModal(`Set ${i.name.toLowerCase()}`, "Value", i.default, TextInputStyle.Paragraph, int);
+                    await i.on_change(i.default);
+                }
 
                 break;
             }

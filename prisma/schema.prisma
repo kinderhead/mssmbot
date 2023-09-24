@@ -39,6 +39,9 @@ model UserData {
 
     starboard StarboardMessage[]
 
+    officer_of ClubData[] @relation("officers")
+    manager_of ClubData[] @relation("managers")
+
     // Settings
     levelup_ping Boolean @default(true)
 }
@@ -144,4 +147,22 @@ model StarboardMessage {
     starboardMessageId String
     stars Int
     date DateTime
+}
+
+model ClubData {
+    id Int @id @default(autoincrement())
+    name String
+    desc String @default("TBD")
+
+    infomsg String @default("")
+    channel String
+    role String
+
+    manager UserData @relation("managers", fields: [managerId], references: [id])
+    managerId String
+
+    meetingTime String?
+    meetingLocation String?
+
+    officers UserData[] @relation("officers")
 }

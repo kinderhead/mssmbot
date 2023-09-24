@@ -1,5 +1,5 @@
 import { MegaPoll, MegaPollOption, PollData, PrismaClient, UserData } from '@prisma/client';
-import { APIEmbed, Attachment, CacheType, ChatInputCommandInteraction, Client, ComponentType, EmbedBuilder, Events, GatewayIntentBits, GuildBasedChannel, GuildMember, Interaction, Message, MessageReaction, PartialGuildMember, PartialMessageReaction, PartialUser, Partials, REST, ReactionCollector, Routes, SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextChannel, ThreadAutoArchiveDuration, User, channelMention, roleMention, userMention } from 'discord.js';
+import { APIEmbed, Attachment, CacheType, ChatInputCommandInteraction, Client, ComponentType, EmbedBuilder, Events, GatewayIntentBits, GuildBasedChannel, GuildMember, Interaction, Message, MessageReaction, PartialGuildMember, PartialMessageReaction, PartialUser, Partials, REST, ReactionCollector, Role, Routes, SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextChannel, ThreadAutoArchiveDuration, User, channelMention, roleMention, userMention } from 'discord.js';
 import fs from 'fs';
 
 import util from 'node:util';
@@ -49,6 +49,7 @@ import CatHandler from './components/cat.js';
 import H from './components/h.js';
 import Counting from './components/counting.js';
 import QOTD from './components/qotd.js';
+import Clubs from './components/clubs.js';
 
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -136,6 +137,7 @@ export default class MSSM {
         this.addComponent(new H(this));
         this.addComponent(new Counting(this));
         this.addComponent(new QOTD(this));
+        this.addComponent(new Clubs(this));
 
         this.registerCommand(new StatusCommand());
         this.registerCommand(new RoleRemoverCommand());
@@ -382,6 +384,7 @@ export default class MSSM {
     public counting: Counting;
     public qotd: QOTD;
     public logging: BotLogger;
+    public clubs: Clubs;
     public addComponent(component: Component) {
         this.components.push(component);
 
@@ -389,6 +392,7 @@ export default class MSSM {
         if (component instanceof Counting) this.counting = component;
         if (component instanceof QOTD) this.qotd = component;
         if (component instanceof BotLogger) this.logging = component;
+        if (component instanceof Clubs) this.clubs = component;
     }
 
     public registerCommand(command: Command) {
@@ -498,6 +502,16 @@ export default class MSSM {
         throw "Unable to find user with id " + id;
     }
 
+    public getRole(id: string): Role {
+        for (const i of this.client.guilds.cache.values()) {
+            if (i.roles.cache.has(id)) {
+                return i.roles.cache.get(id);
+            }
+        }
+
+        throw "Unable to find role with id " + id;
+    }
+
     public sendChangelog() {
         var title = "Update ";
         var date = new Date().toLocaleDateString().replaceAll("/", ".");
@@ -512,7 +526,7 @@ export default class MSSM {
         this.memory.changeloglastdate = date;
 
         var desc = `
-* /qotd poll is good now
+* Clubs :)
         `;
 
         if (this.memory.changeloglastdesc === desc) return;

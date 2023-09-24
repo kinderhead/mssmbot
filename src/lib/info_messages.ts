@@ -1,4 +1,4 @@
-import { EmbedBuilder, channelMention } from "discord.js";
+import { EmbedBuilder, channelMention, roleMention } from "discord.js";
 import MSSM from "../bot.js";
 
 export function getInfoEmbeds(bot: MSSM) {
@@ -37,6 +37,16 @@ export function getInfoEmbeds(bot: MSSM) {
                 { name: "\u200B", value: "**Games**" },
                 { name: "`uno`", value: "Max players: 16\n\nUno. Don't forget to say uno! If someone forgets remind them by saying uno. Winners gain 5 xp + the amount of people in the game." },
                 { name: "`chess`", value: "Max players: 2\n\nChess. Games are uploaded to Lichess when completed. Time limits and score are WIP." }
+            ),
+        
+        new EmbedBuilder()
+            .setTitle("Clubs")
+            .setDescription(`Some clubs have decided to move to Discord. The list of clubs can be found in <#1155497438623305769>`)
+            .setColor("Blue")
+            .addFields(
+                { name: "`/clubs join <club>`", value: "Join club." },
+                { name: "`/clubs leave <club>`", value: "Leave club." },
+                { name: "`/clubs manage <club>`", value: "Manage club. Only available to club managers (you know who you are)." },
             ),
 
         new EmbedBuilder()
@@ -117,4 +127,10 @@ export function getModInfoEmbeds(bot: MSSM) {
                 { name: "`/log <message> [severity]`", value: "Sends a message in #bot-log." },
         ),
     ];
+}
+
+export function getClubEmbed() {
+    return new EmbedBuilder()
+        .setTitle("Clubs")
+        .setDescription("These clubs have decided to be added to the MSSM Discord server. Message a mod if you want your club to be added.\n\nTo join a club use `/join club`.")
 }

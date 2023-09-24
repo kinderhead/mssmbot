@@ -82,31 +82,34 @@ export class GameData {
 }
 
 export class Memory {
-    infoid: string = "";
-    infochannelid: string = "";
-    modinfoid: string = "";
-    modinfochannelid: string = "";
+    infoid = "";
+    infochannelid = "";
+    modinfoid = "";
+    modinfochannelid = "";
 
-    changelogthreadid: string = "";
-    changeloglastdesc: string = "";
-    changeloglastdate: string = "";
-    changelognumdate: number = 1;
+    changelogthreadid = "";
+    changeloglastdesc = "";
+    changeloglastdate = "";
+    changelognumdate = 1;
 
     ruleschannelid: string = "";
     rulesmessageids: string[] = [];
     rulesmessages: APIEmbed[] = [];
 
-    metaid: string = "";
+    clubchannelid = "";
+    clubmessageid = "";
 
-    countingchannelid: string = "";
-    count: number = 0;
-    lasttocount: string = "";
-    highscore: number = 0;
+    metaid = "";
+
+    countingchannelid = "";
+    count = 0;
+    lasttocount = "";
+    highscore = 0;
 
     games: { [channelID: string]: GameData } = {};
 
-    messagestoday: number = 0;
-    latestmessagedate: string = "";
+    messagestoday = 0;
+    latestmessagedate = "";
 
-    poop: number = 0;
+    poop = 0;
 }
