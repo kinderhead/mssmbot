@@ -31,5 +31,7 @@ export default class CreateClubCommand extends Command {
         });
         
         await msg.editReply("Done");
+
+        await bot.clubs.refreshClubs();
     }
 }

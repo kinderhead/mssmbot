@@ -41,7 +41,7 @@ export function getInfoEmbeds(bot: MSSM) {
         
         new EmbedBuilder()
             .setTitle("Clubs")
-            .setDescription(`Some clubs have decided to move to Discord. The list of clubs can be found in <#1155497438623305769>`)
+            .setDescription(`Some clubs have decided to move to Discord. The list of clubs can be found in <#1155497438623305769>.`)
             .setColor("Blue")
             .addFields(
                 { name: "`/clubs join <club>`", value: "Join club." },

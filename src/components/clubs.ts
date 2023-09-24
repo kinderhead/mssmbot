@@ -20,7 +20,7 @@ export default class Clubs extends Component {
         const role = this.bot.getRole(club.role);
         return new EmbedBuilder()
             .setTitle(club.name)
-            .setDescription(`${club.desc}\n\nMember count: ${role.members.size}\nClub channel: ${channelMention(club.channel)} (join to view)`)
+            .setDescription(`${club.desc}\n\nMember count: ${role.members.size}\nJoin to view club channel: ${channelMention(club.channel)}`)
             .setColor(role.color)
             .addFields(
                 { name: "Time", value: club.meetingTime ?? "TBD", inline: true },

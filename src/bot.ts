@@ -526,7 +526,7 @@ export default class MSSM {
         this.memory.changeloglastdate = date;
 
         var desc = `
-* Clubs :)
+* Clubs refresh when someone joins or leaves
         `;
 
         if (this.memory.changeloglastdesc === desc) return;

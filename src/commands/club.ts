@@ -68,6 +68,8 @@ export default class ClubCommand extends Command {
         await msg.editReply(`Joined club! Check out their channel: ${channelMention(channel.id)}`);
 
         this.log.info(`${user.displayName} has joined ${club.name}`);
+
+        await bot.clubs.refreshClubs();
     }
 
     public async leave(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
@@ -94,6 +96,8 @@ export default class ClubCommand extends Command {
         await msg.editReply(`Left club :(`);
 
         this.log.info(`${user.displayName} has left ${club.name}`);
+
+        await bot.clubs.refreshClubs();
     }
 
     public async view(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
