@@ -15,6 +15,6 @@ export default class RefreshCommand extends Command {
     public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
         await msg.deferReply();
         await bot.refreshCommands();
-        msg.editReply("Refreshed commands");
+        await msg.editReply("Refreshed commands");
     }
 }

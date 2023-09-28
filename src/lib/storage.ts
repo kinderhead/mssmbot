@@ -112,4 +112,6 @@ export class Memory {
     latestmessagedate = "";
 
     poop = 0;
+
+    lastredditcheck = Date.now();
 }

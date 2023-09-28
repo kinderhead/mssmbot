@@ -2,6 +2,7 @@ import { CacheType, ChatInputCommandInteraction, SlashCommandBuilder } from "dis
 import MSSM from "../bot.js";
 import Command from "../command.js";
 import { embedBuilder } from "../lib/utils.js";
+import Reddit from "../lib/reddit.js";
 
 export default class ToolsCommand extends Command {
     public getName() { return "tools"; }
@@ -18,7 +19,11 @@ export default class ToolsCommand extends Command {
                 .setDescription("Displays the number of messages sent today"))
             .addSubcommand(sbc => sbc
                 .setName("msg-converter")
-                .setDescription("Transforms the last sent message into an embed"));
+                .setDescription("Transforms the last sent message into an embed"))
+            .addSubcommand(sbc => sbc
+                .setName("reddit")
+                .setDescription("Creates an embed for a reddit post")
+                .addStringOption(opt => opt.setName("url").setDescription("Url with .json at the end").setRequired(true)));
     }
 
     public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
@@ -34,6 +39,9 @@ export default class ToolsCommand extends Command {
             var data = bot.createEmbedFromMessage(lastMsg);
             data[0].setURL(lastMsg.url);
             await msg.editReply({ embeds: [data[0]], files: data[1] === null ? [] : [data[1]] });
+        } else if (msg.options.getSubcommand() === "reddit") {
+            await msg.deferReply();
+            await msg.editReply({ embeds: [Reddit.getEmbedForPost(await Reddit.getPost(msg.options.getString("url")))] });
         }
     }
 }

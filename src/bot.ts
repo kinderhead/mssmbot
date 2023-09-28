@@ -50,6 +50,8 @@ import H from './components/h.js';
 import Counting from './components/counting.js';
 import QOTD from './components/qotd.js';
 import Clubs from './components/clubs.js';
+import Reddit from './lib/reddit.js';
+import RedditComponent from './components/reddit.js';
 
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -138,6 +140,7 @@ export default class MSSM {
         this.addComponent(new Counting(this));
         this.addComponent(new QOTD(this));
         this.addComponent(new Clubs(this));
+        this.addComponent(new RedditComponent(this));
 
         this.registerCommand(new StatusCommand());
         this.registerCommand(new RoleRemoverCommand());
