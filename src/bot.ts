@@ -52,6 +52,7 @@ import QOTD from './components/qotd.js';
 import Clubs from './components/clubs.js';
 import Reddit from './lib/reddit.js';
 import RedditComponent from './components/reddit.js';
+import SyscallCommand from './commands/syscall.js';
 
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -164,6 +165,7 @@ export default class MSSM {
         this.registerCommand(new ArchiveCommand());
         this.registerCommand(new SetRulesCommand());
         this.registerCommand(new EditRulesCommand());
+        this.registerCommand(new SyscallCommand());
 
         this.registerGame(UnoGame, "uno");
         this.registerGame(ChessGame, "chess");
