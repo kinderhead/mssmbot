@@ -531,7 +531,11 @@ export default class MSSM {
         this.memory.changeloglastdate = date;
 
         var desc = `
-* Clubs refresh when someone joins or leaves
+* Open source!
+* Added a link to starboard posts (there already was a link)
+* Bug fixes
+    * /status and starboard are fixed
+    * /qotd ask-fancy keeps messages private now
         `;
 
         if (this.memory.changeloglastdesc === desc) return;

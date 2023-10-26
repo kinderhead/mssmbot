@@ -156,7 +156,7 @@ export async function embedBuilder(user: GuildMember, msg: InteractionSendable, 
         var checkId = createCustomId();
         const checkButton = new ButtonBuilder().setLabel("Set title").setCustomId(checkId).setStyle(ButtonStyle.Success);
 
-        var i = await msg({ content: "Warning: you are already performing this action. By continuing you run the risk of losing progress if you interact with the previous session.", components: [new ActionRowBuilder<ButtonBuilder>().addComponents(checkButton)] });
+        var i = await msg({ content: "Warning: you are already performing this action. By continuing you run the risk of losing progress if you interact with the previous session.", components: [new ActionRowBuilder<ButtonBuilder>().addComponents(checkButton)], ephemeral: true });
         await i.awaitMessageComponent({ filter: i => i.customId === checkId });
     }
 

@@ -5,7 +5,7 @@ export function getInfoEmbeds(bot: MSSM) {
     return [
         new EmbedBuilder()
             .setTitle("MSSM Bot Info")
-            .setDescription("MSSM Bot is still in beta and I add new features all the time. There will be issues.\nIf you see any MSSM Bot commands not listed here, then you are likely not supposed to see them.\n\nThere's room for more features, so if you come up with anything then tell the mods.\n\n<#1141371554077348021> is underneath this message.\n\nReport any bugs to <@861608223597002773>")
+            .setDescription("MSSM Bot is still in beta and I add new features all the time. There will be issues.\nIf you see any MSSM Bot commands not listed here, then you are likely not supposed to see them.\n\nThere's room for more features, so if you come up with anything then tell the mods.\n\n<#1141371554077348021> is underneath this message.\n\nReport any bugs to <@861608223597002773>\nSource code: https://github.com/kinderhead/mssmbot")
             .setThumbnail(bot.client.user.displayAvatarURL())
             .setColor("White")
             .addFields(

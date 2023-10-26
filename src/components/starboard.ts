@@ -36,7 +36,7 @@ export default class Starboard extends Component {
                 var msgData = this.getStarMessage(msg, count);
                 var starMsg = await this.starboardChannel.send({ embeds: [msgData[0]], files: msgData[1] === null ? [] : [msgData[1]] });
                 try {
-                    await this.bot.db.userData.update({ where: { id: msg.author.id }, data: { starboard: { create: { id: reaction.message.id, channelId: reaction.message.id, starboardMessageId: starMsg.id, date: new Date(), stars: count } } } });
+                    await this.bot.db.userData.update({ where: { id: msg.author.id }, data: { starboard: { create: { id: reaction.message.id, channelId: reaction.message.channelId, starboardMessageId: starMsg.id, date: new Date(), stars: count } } } });
                 } catch {
                     this.log.warn("Marius Cartography rapid fire starboard avoidance technique");
                     return;
@@ -83,6 +83,7 @@ export default class Starboard extends Component {
 
         embed.setTitle(`${count} ${emoji} ${channelMention(msg.channelId)}`);
         embed.setURL(msg.url);
+        embed.addFields({ name: "Link", value: `[here](${msg.url})` });
         embed.setTimestamp(msg.createdAt);
 
         return [embed, attachment];
