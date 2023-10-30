@@ -1,6 +1,24 @@
 import { TextInputBuilder } from "@discordjs/builders";
-import { ActionRowBuilder, APIEmbedField, APIModalInteractionResponseCallbackData, APIEmbed, AwaitModalSubmitOptions, WebhookMessageEditOptions, StringSelectMenuOptionBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, CacheType, CommandInteraction, ComponentType, Embed, EmbedBuilder, GuildMember, InteractionReplyOptions, InteractionResponse, JSONEncodable, Message, MessagePayload, ModalActionRowComponent, ModalActionRowComponentBuilder, ModalBuilder, ModalComponentData, ModalSubmitInteraction, TextInputStyle, AnyComponentBuilder, StringSelectMenuInteraction } from "discord.js";
+import { ActionRowBuilder, APIEmbedField, APIModalInteractionResponseCallbackData, APIEmbed, AwaitModalSubmitOptions, WebhookMessageEditOptions, StringSelectMenuOptionBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, CacheType, CommandInteraction, ComponentType, Embed, EmbedBuilder, GuildMember, InteractionReplyOptions, InteractionResponse, JSONEncodable, Message, MessagePayload, ModalActionRowComponent, ModalActionRowComponentBuilder, ModalBuilder, ModalComponentData, ModalSubmitInteraction, TextInputStyle, AnyComponentBuilder, StringSelectMenuInteraction, AutocompleteInteraction } from "discord.js";
 import MSSM, { DEFAULT_LOGGER } from "../bot.js";
+import { diffChars } from "diff";
+
+export function discordDiff(a: string, b: string) {
+    var diff = diffChars(escapeMarkdown(a), escapeMarkdown(b));
+    var res = "";
+
+    for (const i of diff) {
+        if (i.added) {
+            res += `**${i.value}**`;
+        } else if (i.removed) {
+            res += `~~${i.value}~~`;
+        } else {
+            res += i.value;
+        }
+    }
+
+    return res;
+}
 
 export async function expandAndHandleEmbed(base: EmbedBuilder, fields: APIEmbedField[], chunkSize: number, msg: InteractionSendable) {
     const pages = [];
@@ -12,6 +30,13 @@ export async function expandAndHandleEmbed(base: EmbedBuilder, fields: APIEmbedF
     }
 
     await embedPager(pages, msg);
+}
+
+// https://stackoverflow.com/questions/39542872/escaping-discord-subset-of-markdown
+export function escapeMarkdown(text: string) {
+    var unescaped = text.replace(/\\(\*|_|`|~|\\)/g, '$1');
+    var escaped = unescaped.replace(/(\*|_|`|~|\\)/g, '\\$1');
+    return escaped;
 }
 
 export async function embedPager(pages: EmbedBuilder[], msg: InteractionSendable, ephemeral: boolean = false, content: string = "", additionalButtons: ButtonBuilder[] = [], callbacks: { [name: string]: (page: number, interaction: ButtonInteraction) => boolean | Promise<boolean> } = {}) {
@@ -43,7 +68,7 @@ export async function embedPager(pages: EmbedBuilder[], msg: InteractionSendable
     if (pages.length == 0) {
         reply = await msg({ content: content, components: row.data.components == undefined ? []: [row], ephemeral: ephemeral });
     } else {
-        reply = await msg({ content: content, embeds: [pages[0]], components: [row], ephemeral: ephemeral });
+        reply = await msg({ content: content, embeds: [pages[0]], components: row.components.length > 0 ? [row] : [], ephemeral: ephemeral });
     }
 
     const collector = reply.createMessageComponentCollector({ componentType: ComponentType.Button, time: 300000 });
@@ -468,6 +493,21 @@ export function isValidUrl(urlString: string) {
         '(\\?[;&a-z\\d%_.~+=-]*)?' +
         '(\\#[-a-z\\d_]*)?$', 'i');
     return !!urlPattern.test(urlString);
+}
+
+export async function autocompleteOptions(cmd: AutocompleteInteraction<CacheType>, choices: string[]) {
+    const focusedValue = cmd.options.getFocused();
+    const filtered = choices.filter(choice => choice.startsWith(focusedValue));
+
+    await cmd.respond(
+        filtered.map(choice => ({ name: choice, value: choice })),
+    );
+}
+
+export function getNextDayOfWeek(date: Date, dayOfWeek: number) {
+    date = new Date(date.getTime());
+    date.setDate(date.getDate() + (dayOfWeek + 7 - date.getDay()) % 7);
+    return date;
 }
 
 export var createCustomId = () => Math.random().toString();

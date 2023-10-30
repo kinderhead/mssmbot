@@ -1,6 +1,7 @@
 import { Message, PartialMessage, Awaitable, EmbedBuilder, channelMention, Attachment } from "discord.js";
 import LogCommand from "../commands/log.js";
 import Component from "../lib/component.js";
+import { discordDiff } from "../lib/utils.js";
 
 export default class BotLogger extends Component {
     public ignoreIds: string[] = [];
@@ -11,7 +12,7 @@ export default class BotLogger extends Component {
 
     public async onMessageEdit(old: Message<boolean> | PartialMessage, edited: Message<boolean> | PartialMessage) {
         try {
-            if (edited.author?.bot) return;
+            if (edited.author?.bot || Date.now() - edited.createdAt?.getTime() < 1000) return;
 
             if (this.ignoreIds.includes(edited.id)) {
                 this.ignoreIds.splice(this.ignoreIds.indexOf(edited.id), 1);
@@ -21,10 +22,8 @@ export default class BotLogger extends Component {
             edited = await edited.fetch();
 
             var data = this.bot.createEmbedFromMessage(edited);
-            var embed = data[0].setTitle(`Message edited in ${channelMention(edited.channelId)}`).setFields(
-                { name: "Old", value: old.content === "" ? "No text" : old.content, inline: true },
-                { name: "New", value: edited.content === "" ? "No text" : edited.content, inline: true }
-            );
+            var embed = data[0].setTitle(`Message edited in ${channelMention(edited.channelId)}`);
+            embed.setDescription(discordDiff(old.content === "" ? "No text" : old.content, edited.content === "" ? "No text" : edited.content))
 
             this.bot.logChannel.send({ embeds: [embed], files: data[1] == null ? [] : [data[1]] });
         } catch(e) {

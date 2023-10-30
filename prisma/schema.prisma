@@ -166,3 +166,10 @@ model ClubData {
 
     officers UserData[] @relation("officers")
 }
+
+model MuckbangGameData {
+    id Int @id @default(autoincrement())
+    name String
+    downloadLink String
+    imageLink String
+}

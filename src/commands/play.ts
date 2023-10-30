@@ -1,6 +1,7 @@
 import { AutocompleteInteraction, CacheType, ChatInputCommandInteraction, SlashCommandBuilder, TextChannel } from "discord.js";
 import MSSM from "../bot.js";
 import Command from "../command.js";
+import { autocompleteOptions } from "../lib/utils.js";
 
 export default class PlayCommand extends Command {
     public getName() { return "play"; }
@@ -43,12 +44,6 @@ export default class PlayCommand extends Command {
     }
 
     public async autocomplete(cmd: AutocompleteInteraction<CacheType>, bot: MSSM): Promise<void> {
-        const focusedValue = cmd.options.getFocused();
-        const choices = Object.keys(bot.games);
-        const filtered = choices.filter(choice => choice.startsWith(focusedValue));
-
-        await cmd.respond(
-            filtered.map(choice => ({ name: choice, value: choice })),
-        );
+        await autocompleteOptions(cmd, Object.keys(bot.games));
     }
 }

@@ -53,6 +53,7 @@ import Clubs from './components/clubs.js';
 import Reddit from './lib/reddit.js';
 import RedditComponent from './components/reddit.js';
 import SyscallCommand from './commands/syscall.js';
+import Muckbang from './components/muckbang.js';
 
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -142,6 +143,7 @@ export default class MSSM {
         this.addComponent(new QOTD(this));
         this.addComponent(new Clubs(this));
         this.addComponent(new RedditComponent(this));
+        this.addComponent(new Muckbang(this));
 
         this.registerCommand(new StatusCommand());
         this.registerCommand(new RoleRemoverCommand());
@@ -390,6 +392,7 @@ export default class MSSM {
     public qotd: QOTD;
     public logging: BotLogger;
     public clubs: Clubs;
+    public muckbang: Muckbang;
     public addComponent(component: Component) {
         this.components.push(component);
 
@@ -398,6 +401,7 @@ export default class MSSM {
         if (component instanceof QOTD) this.qotd = component;
         if (component instanceof BotLogger) this.logging = component;
         if (component instanceof Clubs) this.clubs = component;
+        if (component instanceof Muckbang) this.muckbang = component;
     }
 
     public registerCommand(command: Command) {
@@ -432,7 +436,7 @@ export default class MSSM {
         return false;
     }
 
-    public getChannel<T extends GuildBasedChannel = TextChannel>(id: string) {
+    public getChannel<T extends GuildBasedChannel = TextChannel>(id: string) : T {
         for (const i of this.client.guilds.cache.values()) {
             var ret = i.channels.cache.get(id) as T;
             if (ret !== undefined) {
@@ -531,6 +535,9 @@ export default class MSSM {
         this.memory.changeloglastdate = date;
 
         var desc = `
+Something happened to the changelog thread, so it should be fixed now
+
+* Previous update:
 * Open source!
 * Added a link to starboard posts (there already was a link)
 * Bug fixes
@@ -547,7 +554,7 @@ export default class MSSM {
             .setColor("Green");
 
         this.log.info("Sending changelog");
-        this.getChannel(this.memory.infochannelid).threads.cache.get(this.memory.changelogthreadid).send({ embeds: [embed] });
+        this.getChannel(this.memory.infochannelid).threads.fetch(this.memory.changelogthreadid).then(i => i.send({ embeds: [embed] }));
 
         this.memory.changelognumdate++;
 
