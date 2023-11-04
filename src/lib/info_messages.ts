@@ -129,6 +129,26 @@ export function getModInfoEmbeds(bot: MSSM) {
     ];
 }
 
+export function getMinecraftEmbeds() {
+    return [
+        new EmbedBuilder()
+            .setTitle("Skyfactory 4 Server")
+            .setColor("DarkGold")
+            .setDescription("[Modpack download link](https://legacy.curseforge.com/minecraft/modpacks/skyfactory-4)\nIp address: <it's waiting time>\n\nFor the time being, you need a Minecraft account to join (rip Xavier)."),
+        new EmbedBuilder()
+            .setTitle("Commands")
+            .setColor("Green")
+            .addFields(
+                { name: "`/topography spawn`", value: "Teleport to spawn. Players are encouraged to build around spawn." },
+                { name: "`/topography home`", value: "Teleport to your island. This will create an island if you don't have one." },
+                { name: "`/topography invite <player>`", value: "Invite a player to your island." },
+                { name: "`/topography accept`", value: "Accept a player's invite." },
+                { name: "`/tofe invite <player>`", value: "Invite a player to share achievements with you. I'd recommend doing this if you invite a player to join your island." },
+                { name: "`/tofe info`", value: "Shows info about your team." },
+            )
+    ];
+}
+
 export function getClubEmbed() {
     return new EmbedBuilder()
         .setTitle("Clubs")

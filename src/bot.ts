@@ -35,7 +35,7 @@ import WhoIsCommand from './commands/whois.js';
 import Game from './game.js';
 import ChessGame from './games/chess.js';
 import UnoGame from './games/uno.js';
-import { getInfoEmbeds, getModInfoEmbeds } from './lib/info_messages.js';
+import { getInfoEmbeds, getMinecraftEmbeds, getModInfoEmbeds } from './lib/info_messages.js';
 import Lichess from './lib/lichess.js';
 import { EmbedResource, StringOpts, StringResource } from './lib/resource.js';
 import { Memory, Poll, Question, QueueDataStorage, Storage } from './lib/storage.js';
@@ -259,6 +259,12 @@ export default class MSSM {
             var channel = this.getChannel(this.memory.modinfochannelid);
             var msg = await channel.messages.fetch(this.memory.modinfoid);
             msg.edit({ embeds: getModInfoEmbeds(this) });
+        }
+
+        if (this.memory.minecraftchannelid !== "") {
+            var channel = this.getChannel(this.memory.minecraftchannelid);
+            var msg = await channel.messages.fetch(this.memory.minecraftid);
+            msg.edit({ embeds: getMinecraftEmbeds() });
         }
 
         this.sendChangelog();

@@ -1,7 +1,7 @@
 import { CacheType, ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import MSSM from "../bot.js";
 import Command from "../command.js";
-import { getInfoEmbeds, getModInfoEmbeds } from "../lib/info_messages.js";
+import { getInfoEmbeds, getMinecraftEmbeds, getModInfoEmbeds } from "../lib/info_messages.js";
 
 export default class SetInfoCommand extends Command {
     public getName() { return "set-info"; }
@@ -13,6 +13,7 @@ export default class SetInfoCommand extends Command {
             .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
             .addSubcommand(sbc => sbc.setName("mod").setDescription("Mod only commands"))
             .addSubcommand(sbc => sbc.setName("pleb").setDescription("Pleb only commands"))
+            .addSubcommand(sbc => sbc.setName("minecraft").setDescription("Minecraft info"));
     }
 
     public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
@@ -21,17 +22,19 @@ export default class SetInfoCommand extends Command {
 
             bot.memory.infochannelid = info.channelId;
             bot.memory.infoid = info.id;
-            bot.memory.save();
-
-            await msg.reply({ ephemeral: true, content: "Done" });
-        } else {
+        } else if (msg.options.getSubcommand() === "mod") {
             const info = await msg.channel.send({ embeds: getModInfoEmbeds(bot) });
 
             bot.memory.modinfochannelid = info.channelId;
             bot.memory.modinfoid = info.id;
-            bot.memory.save();
+        } else if (msg.options.getSubcommand() === "minecraft") {
+            const info = await msg.channel.send({ embeds: getMinecraftEmbeds() });
 
-            await msg.reply({ ephemeral: true, content: "Done" });
+            bot.memory.minecraftchannelid = info.channelId;
+            bot.memory.minecraftid = info.id;
         }
+        
+        bot.memory.save();
+        await msg.reply({ ephemeral: true, content: "Done" });
     }
 }

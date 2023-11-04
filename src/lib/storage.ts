@@ -96,6 +96,9 @@ export class Memory {
     rulesmessageids: string[] = [];
     rulesmessages: APIEmbed[] = [];
 
+    minecraftchannelid: string = "";
+    minecraftid: string = "";
+
     clubchannelid = "";
     clubmessageid = "";
 
