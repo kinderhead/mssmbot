@@ -262,9 +262,7 @@ export default class MSSM {
         }
 
         if (this.memory.minecraftchannelid !== "") {
-            var channel = this.getChannel(this.memory.minecraftchannelid);
-            var msg = await channel.messages.fetch(this.memory.minecraftid);
-            msg.edit({ embeds: getMinecraftEmbeds() });
+            await this.refreshMinecraft();
         }
 
         this.sendChangelog();
@@ -418,6 +416,14 @@ export default class MSSM {
         this.games[name] = game;
     }
 
+    public async refreshMinecraft() {
+        var channel = this.getChannel(this.memory.minecraftchannelid);
+        var msg = await channel.messages.fetch(this.memory.minecraftid);
+        await msg.edit({ embeds: await getMinecraftEmbeds(this) });
+
+        setTimeout(this.refreshMinecraft.bind(this), 30000);
+    }
+
     public async refreshCommands() {
         const rest = new REST().setToken(this.secret);
 
@@ -541,14 +547,7 @@ export default class MSSM {
         this.memory.changeloglastdate = date;
 
         var desc = `
-Something happened to the changelog thread, so it should be fixed now
-
-* Previous update:
-* Open source!
-* Added a link to starboard posts (there already was a link)
-* Bug fixes
-    * /status and starboard are fixed
-    * /qotd ask-fancy keeps messages private now
+* Added Minecraft usernames to /status customize
         `;
 
         if (this.memory.changeloglastdesc === desc) return;

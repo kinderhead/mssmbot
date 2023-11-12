@@ -42,6 +42,8 @@ model UserData {
     officer_of ClubData[] @relation("officers")
     manager_of ClubData[] @relation("managers")
 
+    minecraft_username String @default("")
+
     // Settings
     levelup_ping Boolean @default(true)
 }

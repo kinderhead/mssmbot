@@ -28,7 +28,7 @@ export default class SetInfoCommand extends Command {
             bot.memory.modinfochannelid = info.channelId;
             bot.memory.modinfoid = info.id;
         } else if (msg.options.getSubcommand() === "minecraft") {
-            const info = await msg.channel.send({ embeds: getMinecraftEmbeds() });
+            const info = await msg.channel.send({ embeds: await getMinecraftEmbeds(bot) });
 
             bot.memory.minecraftchannelid = info.channelId;
             bot.memory.minecraftid = info.id;

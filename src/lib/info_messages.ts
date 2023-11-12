@@ -1,5 +1,7 @@
-import { EmbedBuilder, channelMention, roleMention } from "discord.js";
+import { APIEmbedField, ColorResolvable, EmbedBuilder, channelMention, roleMention, userMention } from "discord.js";
 import MSSM from "../bot.js";
+import mc from "minecraftstatuspinger";
+import { ServerStatus } from "minecraftstatuspinger/dist/types.js";
 
 export function getInfoEmbeds(bot: MSSM) {
     return [
@@ -129,18 +131,50 @@ export function getModInfoEmbeds(bot: MSSM) {
     ];
 }
 
-export function getMinecraftEmbeds() {
+export async function getMinecraftEmbeds(bot: MSSM) {
+    var res: ServerStatus;
+    var color: ColorResolvable;
+    var desc: string;
+    var fields: APIEmbedField[] = [];
+
+    try {
+        res = await mc.lookup({ host: "24.39.61.178" });
+        color = "Green";
+        desc = `${res.status.players.online}/${res.status.players.max}`;
+
+        if (res.status.players.sample) {
+            for (const i of res.status.players.sample) {
+                var user = await bot.db.userData.findFirst({ where: { minecraft_username: i.name } });
+
+                if (user) {
+                    fields.push({ name: i.name, value: userMention(user.id), inline: true });
+                } else {
+                    fields.push({ name: i.name, value: "\u200B", inline: true });
+                }
+            }
+        }
+    } catch {
+        color = "Red";
+        desc = "Server offline";
+    }
+
     return [
         new EmbedBuilder()
             .setTitle("Skyfactory 4 Server")
             .setColor("DarkGold")
-            .setDescription("[Modpack download link](https://legacy.curseforge.com/minecraft/modpacks/skyfactory-4)\nIp address: <it's waiting time>\n\nFor the time being, you need a Minecraft account to join (rip Xavier)."),
+            .setDescription("[Modpack download link](https://legacy.curseforge.com/minecraft/modpacks/skyfactory-4)\nNon MSSM ip address: 24.39.61.178\nLocal MSSM ip address: 192.168.15.254\n\nFor the time being, you need a Minecraft account to join (rip Xavier)."),
+        new EmbedBuilder()
+            .setTitle("Server Status")
+            .setColor(color)
+            .setDescription(desc)
+            .setFields(...fields)
+            .setFooter({ text: "To connect your Minecraft and Discord accounts just customize your /status" }),
         new EmbedBuilder()
             .setTitle("Commands")
-            .setColor("Green")
+            .setColor("Blue")
             .addFields(
                 { name: "`/topography spawn`", value: "Teleport to spawn. Players are encouraged to build around spawn." },
-                { name: "`/topography home`", value: "Teleport to your island. This will create an island if you don't have one." },
+                { name: "`/topography island home`", value: "Teleport to your island. This will create an island if you don't have one." },
                 { name: "`/topography invite <player>`", value: "Invite a player to your island." },
                 { name: "`/topography accept`", value: "Accept a player's invite." },
                 { name: "`/tofe invite <player>`", value: "Invite a player to share achievements with you. I'd recommend doing this if you invite a player to join your island." },

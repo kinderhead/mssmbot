@@ -2,7 +2,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, CacheType, ChatInputComma
 import MSSM from "../bot.js";
 import Command from "../command.js";
 import { calcWinLoss } from "../games/chess.js";
-import { createCustomId, shorten } from "../lib/utils.js";
+import { createCustomId, quickModal, shorten } from "../lib/utils.js";
 
 export default class StatusCommand extends Command {
     public getName() { return "status"; }
@@ -31,7 +31,7 @@ export default class StatusCommand extends Command {
         const defaultEmbed = new EmbedBuilder()
             .setTitle(user.displayName)
             .setThumbnail(user.displayAvatarURL())
-            .setDescription(data.bio + (data.bio !== "" ? "\n\n" : "") + "Member since " + user.joinedAt.toLocaleDateString())
+            .setDescription(data.bio + (data.bio !== "" ? "\n\n" : "") + (data.minecraft_username !== "" ? "Minecraft username: **" + data.minecraft_username + "**\n\n" : "") + "Member since " + user.joinedAt.toLocaleDateString())
             .setColor(user.displayHexColor)
             .addFields(
                 { name: "Level", value: level.toString(), inline: true },
@@ -152,10 +152,12 @@ export default class StatusCommand extends Command {
         collector.on("collect", async i => {
             if (i.customId === "customize" && i.user.id === user.id) {
                 var bioInit = createCustomId();
+                var minecraftId = createCustomId();
 
                 const bio = new ButtonBuilder().setLabel("Change bio").setCustomId(bioInit).setStyle(ButtonStyle.Primary);
+                const minecraft = new ButtonBuilder().setLabel("Set Minecraft username").setCustomId(minecraftId).setStyle(ButtonStyle.Primary);
             
-                const chooser = await i.reply({ ephemeral: true, content: "Customize your `/status`", components: [new ActionRowBuilder<ButtonBuilder>().addComponents(bio)] });
+                const chooser = await i.reply({ ephemeral: true, content: "Customize your `/status`", components: [new ActionRowBuilder<ButtonBuilder>().addComponents(bio, minecraft)] });
                 var customCollector = chooser.createMessageComponentCollector({ componentType: ComponentType.Button, time: 300000, filter: e => e.user.id === i.user.id });
 
                 customCollector.on("collect", async choice => {
@@ -186,6 +188,10 @@ export default class StatusCommand extends Command {
                         } catch (e) {
                             this.log.error(e);
                         }
+                    }
+                    else if (choice.customId === minecraftId) {
+                        var name = await quickModal("Set Minecraft username", "Username", data.minecraft_username, TextInputStyle.Short, choice);
+                        data = await bot.db.userData.update({ where: { id: data.id }, data: { minecraft_username: name }, include: { questions: true, polls: { where: { channel: "942269186061774870" } }, poll_answers: { where: { poll: { channel: "942269186061774870" } } }, starboard: true, _count: true } });
                     }
                 });
 
