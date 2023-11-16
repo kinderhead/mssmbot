@@ -547,7 +547,7 @@ export default class MSSM {
         this.memory.changeloglastdate = date;
 
         var desc = `
-* Added Minecraft usernames to /status customize
+* Switched up how /status is customized
         `;
 
         if (this.memory.changeloglastdesc === desc) return;

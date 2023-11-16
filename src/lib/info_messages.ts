@@ -66,7 +66,7 @@ export function getInfoEmbeds(bot: MSSM) {
             .addFields(
                 // { name: "`/apply`", value: "Apply for mod." },
                 { name: "`/settings`", value: "Various MSSM Bot settings." },
-                { name: "`/status <user>`", value: "Shows information about the user. If you check your own status you can customize it." },
+                { name: "`/status <user>`", value: "Shows information about the user." },
                 { name: "`/whois <user>`", value: "Checks who a user is. Basically status with only the bio." },
                 { name: "`/leaderboard`", value: "Shows various leaderboards" },
                 { name: "`/anon`", value: "Send an anonymous message. Good for <#739955844837277717>." },

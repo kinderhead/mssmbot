@@ -2,7 +2,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, CacheType, ChatInputComma
 import MSSM from "../bot.js";
 import Command from "../command.js";
 import { calcWinLoss } from "../games/chess.js";
-import { createCustomId, quickModal, shorten } from "../lib/utils.js";
+import { createCustomId, embedPager, quickModal, shorten } from "../lib/utils.js";
 
 export default class StatusCommand extends Command {
     public getName() { return "status"; }
@@ -120,95 +120,6 @@ export default class StatusCommand extends Command {
                 starboardPosts
         );
         
-        const next = new ButtonBuilder()
-            .setCustomId("next")
-            .setLabel("Next")
-            .setStyle(ButtonStyle.Primary);
-
-        const previous = new ButtonBuilder()
-            .setCustomId("previous")
-            .setLabel("Previous")
-            .setStyle(ButtonStyle.Primary);
-        
-        const customize = new ButtonBuilder()
-            .setCustomId("customize")
-            .setLabel("Customize")
-            .setStyle(ButtonStyle.Success);
-
-        var rows: ActionRowBuilder<ButtonBuilder>[] = [];
-        rows.push(new ActionRowBuilder<ButtonBuilder>().addComponents(previous, next));
-        
-        if (user.id === msg.user.id) {
-            rows.push(new ActionRowBuilder<ButtonBuilder>().addComponents(customize));
-        }
-
-        var pageIndex = 0;
-        var pages = [defaultEmbed, qotdEmbed, gameEmbed, countingEmbed, starboardEmbed];
-
-        const reply = await msg.editReply({ embeds: [defaultEmbed], components: rows });
-
-        const collector = reply.createMessageComponentCollector({ componentType: ComponentType.Button, time: 300000 });
-
-        collector.on("collect", async i => {
-            if (i.customId === "customize" && i.user.id === user.id) {
-                var bioInit = createCustomId();
-                var minecraftId = createCustomId();
-
-                const bio = new ButtonBuilder().setLabel("Change bio").setCustomId(bioInit).setStyle(ButtonStyle.Primary);
-                const minecraft = new ButtonBuilder().setLabel("Set Minecraft username").setCustomId(minecraftId).setStyle(ButtonStyle.Primary);
-            
-                const chooser = await i.reply({ ephemeral: true, content: "Customize your `/status`", components: [new ActionRowBuilder<ButtonBuilder>().addComponents(bio, minecraft)] });
-                var customCollector = chooser.createMessageComponentCollector({ componentType: ComponentType.Button, time: 300000, filter: e => e.user.id === i.user.id });
-
-                customCollector.on("collect", async choice => {
-                    if (choice.customId === bioInit) {
-                        var bioModal = createCustomId();
-
-                        const modal = new ModalBuilder()
-                            .setTitle("Customize")
-                            .setCustomId(bioModal)
-                            .addComponents(new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(new TextInputBuilder().setCustomId("bio").setPlaceholder(shorten(data.bio)).setLabel("Bio").setStyle(TextInputStyle.Paragraph).setRequired(true).setMaxLength(2048)));
-                
-                        await choice.showModal(modal);
-
-                        try {
-                            const res = await i.awaitModalSubmit({ time: 300000, filter: e => e.user.id === i.user.id && e.customId === bioModal });
-
-                            var newBio = res.fields.getTextInputValue("bio");
-                            newBio = newBio === "" ? data.bio : newBio;
-
-                            data = await bot.db.userData.update({ where: { id: data.id }, data: { bio: newBio }, include: { questions: true, polls: { where: { channel: "942269186061774870" } }, poll_answers: { where: { poll: { channel: "942269186061774870" } } }, starboard: true, _count: true } });
-                            defaultEmbed.setDescription(data.bio + (data.bio !== "" ? "\n\n" : "") + "Member since " + user.joinedAt.toLocaleDateString());
-
-                            reply.edit({ embeds: [pages[pageIndex]], components: rows });
-
-                            await (await res.reply({ ephemeral: true, content: "The fitness gram pacer test" })).delete();
-
-                            this.log.info(`${user.displayName} changed their bio to ${data.bio}`);
-                        } catch (e) {
-                            this.log.error(e);
-                        }
-                    }
-                    else if (choice.customId === minecraftId) {
-                        var name = await quickModal("Set Minecraft username", "Username", data.minecraft_username, TextInputStyle.Short, choice);
-                        data = await bot.db.userData.update({ where: { id: data.id }, data: { minecraft_username: name }, include: { questions: true, polls: { where: { channel: "942269186061774870" } }, poll_answers: { where: { poll: { channel: "942269186061774870" } } }, starboard: true, _count: true } });
-                    }
-                });
-
-                customCollector.on("end", async () => {
-                    await chooser.delete();
-                });
-            } else {
-                if (i.customId === "next") pageIndex++;
-                if (i.customId === "previous") pageIndex--;
-                pageIndex = ((pageIndex % pages.length) + pages.length) % pages.length;
-
-                i.update({ embeds: [pages[pageIndex]], components: rows });
-            }
-        });
-
-        collector.on("end", async i => {
-            reply.edit({ embeds: [pages[pageIndex]], components: [] });
-        });
+        await embedPager([defaultEmbed, qotdEmbed, gameEmbed, countingEmbed, starboardEmbed], msg.editReply.bind(msg), false);
     }
 }
