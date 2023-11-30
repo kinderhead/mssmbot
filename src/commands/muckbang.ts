@@ -85,7 +85,7 @@ export default class MuckbangCommand extends Command {
     public async select(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
         await msg.deferReply({ ephemeral: true });
 
-        var gameName = msg.options.getString("select");
+        var gameName = msg.options.getString("game");
 
         if (!gameName) {
             gameName = choose(bot.muckbang.games)

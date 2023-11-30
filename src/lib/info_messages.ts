@@ -168,7 +168,7 @@ export async function getMinecraftEmbeds(bot: MSSM) {
             .setColor(color)
             .setDescription(desc)
             .setFields(...fields)
-            .setFooter({ text: "To connect your Minecraft and Discord accounts just customize your /status" }),
+            .setFooter({ text: "To connect your Minecraft and Discord accounts use /settings" }),
         new EmbedBuilder()
             .setTitle("Commands")
             .setColor("Blue")
