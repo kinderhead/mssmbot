@@ -233,7 +233,7 @@ export default class QOTD extends Component {
 
         if (firstReaction) {
             this.bot.addXP(user.id, 3);
-            this.bot.counting.giveSave(user.id, .25);
+            this.bot.counting.giveSave(this.bot.getUserV2(user.id), .25);
         }
 
         await this.bot.db.pollQuestionData.update({ where: { id: poll.options[index].id }, data: { selected: { connect: { id: user.id } } } });

@@ -1,15 +1,17 @@
 {
-  "compilerOptions": {
-    "module": "NodeNext",
-    "esModuleInterop": true,
-    "target": "ESNext",
-    "moduleResolution": "NodeNext",
-    "outDir": "dist",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "inlineSourceMap": true,
-    "strict": true,
-    "strictNullChecks": false
-  },
-  "lib": ["ES2020"]
+    "compilerOptions": {
+        "module": "NodeNext",
+        "esModuleInterop": true,
+        "target": "ESNext",
+        "moduleResolution": "NodeNext",
+        "outDir": "dist",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "inlineSourceMap": true,
+        "strict": true,
+        "strictNullChecks": false,
+    },
+    "lib": [
+        "ES2020"
+    ]
 }

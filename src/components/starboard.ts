@@ -32,11 +32,15 @@ export default class Starboard extends Component {
                 (await this.starboardChannel.messages.fetch(data.starboardMessageId)).edit({ embeds: [this.getStarMessage(msg, count)[0]] });
                 await this.bot.db.starboardMessage.update({ where: { id: data.id }, data: { stars: count } });
             } else if (count >= 4) {
+                if (!this.bot.userExists(msg.author.id)) {
+                    this.log.info(`Starboard message "${msg.content}" does not have a user`);
+                    return;
+                }
                 this.log.info(`Message "${msg.content}" was sent to starboard with ${count} stars`);
                 var msgData = this.getStarMessage(msg, count);
                 var starMsg = await this.starboardChannel.send({ embeds: [msgData[0]], files: msgData[1] === null ? [] : [msgData[1]] });
                 try {
-                    await this.bot.db.userData.update({ where: { id: msg.author.id }, data: { starboard: { create: { id: reaction.message.id, channelId: reaction.message.channelId, starboardMessageId: starMsg.id, date: new Date(), stars: count } } } });
+                    await this.bot.db.starboardMessage.create({ data: { id: msg.id, channelId: reaction.message.channelId, starboardMessageId: starMsg.id, date: new Date(), stars: count, author: { connect: { id: msg.author.id  } } } });
                 } catch {
                     this.log.warn("Marius Cartography rapid fire starboard avoidance technique");
                     return;

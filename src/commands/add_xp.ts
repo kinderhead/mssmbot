@@ -15,12 +15,10 @@ export default class AddXPCommand extends Command {
     }
 
     public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
-        const user = msg.options.getUser("user");
-        var data = await bot.db.userData.findUnique({ where: { id: user.id } });
+        const user = bot.getUserV2(msg.options.getUser("user").id);
 
-        await bot.addXP(data, msg.options.getInteger("amount"));
+        await bot.addXP(user, msg.options.getInteger("amount"));
 
-        var data = await bot.db.userData.findUnique({ where: { id: user.id } });
-        await msg.reply({ content: `User is now at level ${bot.getLevelFromXP(data.xp)}`, ephemeral: true });
+        await msg.reply({ content: `User is now at level ${bot.getLevelFromXP(user.xp)}`, ephemeral: true });
     }
 }

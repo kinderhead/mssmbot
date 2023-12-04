@@ -3,6 +3,7 @@ import Component from "../lib/component.js";
 
 import { evaluate } from 'mathjs';
 import CountingCommand from "../commands/counting.js";
+import MSSMUser from "../data/user.js";
 
 export default class Counting extends Component {
     public init(): Awaitable<void> {
@@ -74,14 +75,11 @@ export default class Counting extends Component {
         }
     }
 
-    public async giveSave(user: string, amount: number) {
-        const data = await this.bot.db.userData.findUnique({ where: { id: user } });
-        data.saves += amount;
+    public giveSave(user: MSSMUser, amount: number) {
+        user.saves += amount;
 
-        if (data.saves > 3) {
-            data.saves = 3;
+        if (user.saves > 3) {
+            user.saves = 3;
         }
-
-        await this.bot.db.userData.update({ where: { id: user }, data: { saves: data.saves } });
     }
 }

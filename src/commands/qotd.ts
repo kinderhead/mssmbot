@@ -4,6 +4,7 @@ import MSSM from "../bot.js";
 import Command from "../command.js";
 import { Poll, Question } from "../lib/storage.js";
 import { createCustomId, embedBuilder } from "../lib/utils.js";
+import MSSMUser from "../data/user.js";
 
 export default class QOTDCommand extends Command {
     private activeManagers: string[] = [];
@@ -43,7 +44,7 @@ export default class QOTDCommand extends Command {
                 .setDescription("Finds the last day there will be a QOTD post if no more are added"));
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
         var data = await bot.db.userData.findUnique({ where: { id: msg.user.id }, include: { questions: true, polls: { where: { channel: "942269186061774870" } } } });
 
         if (msg.options.getSubcommand() === "ask") {
@@ -83,7 +84,7 @@ export default class QOTDCommand extends Command {
         bot.qotd.questionQueue.queue.push({ type: "question", question: question, id: qdata.id });
         bot.qotd.questionQueue.save();
 
-        var lvlup = await bot.addXP(data, 5);
+        var lvlup = await bot.addXP(bot.getUserV2(data.id), 5);
 
         await msg.reply({ content: "Question queued", ephemeral: true });
 
@@ -111,7 +112,7 @@ export default class QOTDCommand extends Command {
         bot.qotd.questionQueue.queue.push({ type: "question", question: question, id: qdata.id });
         bot.qotd.questionQueue.save();
 
-        var lvlup = await bot.addXP(data, 5);
+        var lvlup = await bot.addXP(bot.getUserV2(data.id), 5);
 
         await msg.editReply({ content: "Question queued", embeds: [], components: [] });
 
@@ -159,7 +160,7 @@ export default class QOTDCommand extends Command {
         bot.qotd.questionQueue.queue.push({ type: "poll", title: title, options: options, id: poll.id });
         bot.qotd.questionQueue.save();
 
-        var lvlup = await bot.addXP(data, 8);
+        var lvlup = await bot.addXP(bot.getUserV2(data.id), 8);
 
         await msg.reply({ content: "Poll queued", ephemeral: true });
 

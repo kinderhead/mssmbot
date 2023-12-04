@@ -1,5 +1,5 @@
 import { MegaPoll, MegaPollOption, PollData, PrismaClient, UserData } from '@prisma/client';
-import { APIEmbed, Attachment, CacheType, ChatInputCommandInteraction, Client, ComponentType, EmbedBuilder, Events, GatewayIntentBits, GuildBasedChannel, GuildMember, Interaction, Message, MessageReaction, PartialGuildMember, PartialMessageReaction, PartialUser, Partials, REST, ReactionCollector, Role, Routes, SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextChannel, ThreadAutoArchiveDuration, User, channelMention, roleMention, userMention } from 'discord.js';
+import { APIEmbed, Attachment, Awaitable, CacheType, ChatInputCommandInteraction, Client, ComponentType, EmbedBuilder, Events, GatewayIntentBits, GuildBasedChannel, GuildMember, Interaction, Message, MessageReaction, PartialGuildMember, PartialMessageReaction, PartialUser, Partials, REST, ReactionCollector, Role, Routes, SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextChannel, ThreadAutoArchiveDuration, User, channelMention, roleMention, userMention } from 'discord.js';
 import fs from 'fs';
 
 import util from 'node:util';
@@ -38,7 +38,7 @@ import UnoGame from './games/uno.js';
 import { getInfoEmbeds, getMinecraftEmbeds, getModInfoEmbeds } from './lib/info_messages.js';
 import Lichess from './lib/lichess.js';
 import { EmbedResource, StringOpts, StringResource } from './lib/resource.js';
-import { Memory, Poll, Question, QueueDataStorage, Storage } from './lib/storage.js';
+import { Memory, Poll, QueueDataStorage, Storage } from './lib/storage.js';
 import { InteractionSendable, createCustomId, isValidUrl, quickActionRow, shorten } from './lib/utils.js';
 import SetRulesCommand from './commands/set_rules.js';
 import EditRulesCommand from './commands/edit_rules.js';
@@ -54,6 +54,8 @@ import Reddit from './lib/reddit.js';
 import RedditComponent from './components/reddit.js';
 import SyscallCommand from './commands/syscall.js';
 import Muckbang from './components/muckbang.js';
+import MSSMUser from './data/user.js';
+import Question from './data/question.js';
 
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -84,6 +86,9 @@ export default class MSSM {
     public lichess: Lichess;
 
     public people: GuildMember[] = [];
+
+    public users: { [id: string]: MSSMUser } = {};
+    public questions: { [id: string]: Question } = {};
 
     public db: PrismaClient;
     public memory = Storage.make<Memory>("memory.json", new Memory());
@@ -205,11 +210,17 @@ export default class MSSM {
             this.log.warn(`${user.displayName}'s bio is too long`);
             await this.levelChannel.send(`${userMention(user.id)}\nYour bio is too long after a change that limits bios to 2048 characters.`);
         }
+        var u = new MSSMUser(this, data);
+        await u.refresh();
+        this.users[data.id] = u;
+        return u;
     }
 
     public async onLogIn(c: Client) {
         this.log.info("Logging in");
         this.log.silly("Bot in " + this.client.guilds.cache.size + " servers");
+
+        var promisesToAwait: (Promise<any> | Awaitable<any>)[] = [];
 
         for (const i of this.client.guilds.cache.values()) {
             this.people = [...(await i.members.fetch()).map(e => e), ...this.people];
@@ -223,11 +234,11 @@ export default class MSSM {
         this.welcomeChannel = this.getChannel("739335818518331496");
 
         for (const i of this.people) {
-            await this.syncUser(i);
+            promisesToAwait.push(this.syncUser(i));
         }
 
         for (const i of this.components) {
-            await i.init();
+            promisesToAwait.push(i.init());
         }
 
         for (const i in this.memory.games) {
@@ -266,6 +277,9 @@ export default class MSSM {
         }
 
         this.sendChangelog();
+
+        this.log.info("Waiting for processes to finish");
+        await Promise.all(promisesToAwait);
 
         this.hasStarted = true;
         this.log.info("Bot slipped on a banana and had to restart. Ready");
@@ -324,15 +338,15 @@ export default class MSSM {
                 await cmd.autocomplete(message, this);
             } else if (message.isChatInputCommand()) {
                 try {
-                    if (cmd.getName() !== "hand") cmd.log.silly(`${this.getUser(message.user).displayName} has run /${cmd.getName()}`);
-                    await cmd.execute(message, this);
+                    if (cmd.getName() !== "hand") cmd.log.silly(`${this.getUser(message).displayName} has run /${cmd.getName()}`);
+                    await cmd.execute(message, this, this.getUserV2(message.user.id));
                 } catch (error) {
                     this.log.error(error);
                     try {
                         if (message.replied || message.deferred) await message.editReply("An error occured running this command");
                         else await message.reply({ content: "An error occured running this command", ephemeral: true });
-                    } catch {
-                        this.log.error("Error reporting error :(");
+                    } catch (e) {
+                        this.log.error("Error reporting error :(", e);
                     }
                 }
             }
@@ -350,32 +364,33 @@ export default class MSSM {
     }
 
     public async addXP(user: string, amount: number): Promise<boolean>;
-    public async addXP(user: UserData, amount: number): Promise<boolean>;
-    public async addXP(user: UserData | string, amount: number): Promise<boolean> {
+    public async addXP(user: MSSMUser, amount: number): Promise<boolean>;
+    public async addXP(user: MSSMUser | string, amount: number): Promise<boolean> {
         var id = typeof (user) === "string" ? user : user.id;
 
-        var data: UserData;
+        var data: MSSMUser;
         if (typeof (user) === "string") {
-            data = await this.db.userData.findUnique({ where: { id: user } });
+            data = this.getUserV2(user);
         } else {
-            data = user
+            data = user;
         }
 
-        const res = await this.db.userData.update({ where: { id: id }, data: { xp: { increment: amount }, need_message: this.getLevelFromXP(data.xp) < this.getLevelFromXP(data.xp + amount) } });
+        data.xp += amount;
+        data.need_message = this.getLevelFromXP(data.xp) < this.getLevelFromXP(data.xp + amount);
 
         if (this.getLevelFromXP(data.xp) < this.getLevelFromXP(data.xp + amount)) {
-            await this.counting.giveSave(res.id, .25);
+            this.counting.giveSave(data, .25);
         }
 
-        this.log.silly(`Giving ${this.getUser(data)} ${amount} xp`);
+        this.log.silly(`Giving ${data.discord.displayName} ${amount} xp`);
 
-        if (res.need_message) {
-            await this.levelChannel.send(`${data.levelup_ping ? userMention(data.id) : this.getUser(data).displayName} has leveled up! They are now level ${this.getLevelFromXP(data.xp) + 1}`);
+        if (data.need_message) {
+            await this.levelChannel.send(`${data.levelup_ping ? userMention(data.id) : data.discord.displayName} has leveled up! They are now level ${this.getLevelFromXP(data.xp) + 1}`);
             await this.clearLevelUp(data.id);
-            this.log.info(`${this.people.find(i => i.id === id).displayName} leveled up`);
+            this.log.info(`${data.discord.displayName} leveled up`);
         }
 
-        return res.need_message;
+        return data.need_message;
     }
 
     public async clearLevelUp(user: string) {
@@ -474,7 +489,7 @@ export default class MSSM {
         if (msg.attachments.size != 0) {
             var attachment = msg.attachments.first();
 
-            if (attachment.contentType.includes("image/")) {
+            if (attachment.contentType?.includes("image/")) {
                 embed.setImage(attachment.url);
             } else {
                 sendoff = attachment;
@@ -494,6 +509,18 @@ export default class MSSM {
         }
 
         return [embed, sendoff];
+    }
+
+    public userExists(id: string) {
+        for (const i of this.client.guilds.cache.values()) {
+            if (i.members.cache.has(id)) return true;
+        }
+
+        return false;
+    }
+
+    public getUserV2(id: string) {
+        return this.users[id];
     }
 
     public getUser(id: string): GuildMember
@@ -520,7 +547,7 @@ export default class MSSM {
             }
         }
 
-        throw "Unable to find user with id " + id;
+        throw new Error("Unable to find user with id " + id);
     }
 
     public getRole(id: string): Role {
@@ -530,7 +557,7 @@ export default class MSSM {
             }
         }
 
-        throw "Unable to find role with id " + id;
+        throw new Error("Unable to find role with id " + id);
     }
 
     public sendChangelog() {
