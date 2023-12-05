@@ -4,10 +4,10 @@ import MSSM from "../bot.js";
 import MSSMUser from "./user.js";
 
 export default class Question extends DataMapper<QuestionData> implements QuestionData {
-    private author: MSSMUser;
+    public author: MSSMUser;
 
     public constructor(bot: MSSM, data: QuestionData) {
-        super(bot, data, bot.questions);
+        super(bot, data, bot.qotd.questions);
     }
 
     protected override set<TKey extends keyof QuestionData>(name: TKey, value: QuestionData[TKey]) {
@@ -17,7 +17,7 @@ export default class Question extends DataMapper<QuestionData> implements Questi
     }
 
     public override async refresh() {
-        this.author = this.bot.getUserV2(this.authorId);
+        this.author = this.bot.getUserV2(this.obj.authorId);
     }
 
     // Type safety stuff

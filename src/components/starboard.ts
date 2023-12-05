@@ -1,9 +1,18 @@
 import { MessageReaction, PartialMessageReaction, User, PartialUser, Message, EmbedBuilder, channelMention, TextChannel, Awaitable, Attachment } from "discord.js";
 import Component from "../lib/component.js";
+import StarboardData from "../data/starboard.js";
 
 export default class Starboard extends Component {
     public readonly starEmojis = ["✨", "⭐", "🌟", "💫"];
     public starboardChannel: TextChannel; 
+
+    public starboardPosts: { [id: string]: StarboardData } = {};
+
+    public async refreshDatamaps() {
+        for (const i in this.starboardPosts) {
+            await this.starboardPosts[i].refresh();
+        }
+    }
 
     public async init() {
         this.starboardChannel = this.bot.getChannel("739336559219703859");
@@ -26,23 +35,26 @@ export default class Starboard extends Component {
             var msg = await reaction.message.fetch();
             var count = await this.countStars(msg);
 
-            var data = await this.bot.db.starboardMessage.findUnique({ where: { id: reaction.message.id } });
+            var data = this.starboardPosts[reaction.message.id];
             if (data) {
                 this.log.info(`Starboard message "${msg.content}" now has ${count} stars`);
                 (await this.starboardChannel.messages.fetch(data.starboardMessageId)).edit({ embeds: [this.getStarMessage(msg, count)[0]] });
-                await this.bot.db.starboardMessage.update({ where: { id: data.id }, data: { stars: count } });
+                data.stars = count;
             } else if (count >= 4) {
                 if (!this.bot.userExists(msg.author.id)) {
                     this.log.info(`Starboard message "${msg.content}" does not have a user`);
                     return;
                 }
+
+                var user = this.bot.getUserV2(msg.author.id);
+
                 this.log.info(`Message "${msg.content}" was sent to starboard with ${count} stars`);
                 var msgData = this.getStarMessage(msg, count);
                 var starMsg = await this.starboardChannel.send({ embeds: [msgData[0]], files: msgData[1] === null ? [] : [msgData[1]] });
                 try {
-                    await this.bot.db.starboardMessage.create({ data: { id: msg.id, channelId: reaction.message.channelId, starboardMessageId: starMsg.id, date: new Date(), stars: count, author: { connect: { id: msg.author.id  } } } });
-                } catch {
-                    this.log.warn("Marius Cartography rapid fire starboard avoidance technique");
+                    await user.createStarboardPost(msg.id, reaction.message.channelId, starMsg.id, new Date(), count);
+                } catch (e) {
+                    this.log.warn("Marius Cartography rapid fire starboard avoidance technique", e);
                     return;
                 }
                 await this.bot.addXP(msg.author.id, 10);

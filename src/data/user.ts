@@ -3,6 +3,8 @@ import DataMapper from "./mapper.js";
 import MSSM from "../bot.js";
 import Question from "./question.js";
 import { GuildMember } from "discord.js";
+import StarboardData from "./starboard.js";
+import PollQuestion from "./pollquestiondata.js";
 
 const fullUser = Prisma.validator<Prisma.UserDataDefaultArgs>()({
     include: {
@@ -20,18 +22,32 @@ const fullUser = Prisma.validator<Prisma.UserDataDefaultArgs>()({
 
 export type FullUser = Prisma.UserDataGetPayload<typeof fullUser>;
 export default class MSSMUser extends DataMapper<UserData> implements UserData {
-    private questions: Question[] = [];
+    public questions: Question[] = [];
+    public starboard: StarboardData[] = [];
+    public poll_answers: PollQuestion[] = [];
 
     public get discord() {
-        return this.bot.getUser(this.id);
+        return this.bot.getUser(this.obj.id);
     }
 
     public constructor(bot: MSSM, data: UserData) {
         super(bot, data, bot.users);
     }
 
+    public async createStarboardPost(id: string, channelId: string, starboardMessageId: string, date: Date, stars: number) {
+        var data = new StarboardData(this.bot, await this.bot.db.starboardMessage.create({ data: { id, channelId, starboardMessageId, date, stars, author: { connect: { id: this.obj.id } } } }));
+        this.starboard.push(data);
+        return data;
+    }
+
     public override async refresh() {
-        this.fetchArrayFactory(this.questions, await this.bot.db.questionData.findMany({ where: { authorId: this.id } }), Question);
+        this.fetchArrayFactory(this.questions, await this.bot.db.questionData.findMany({ where: { authorId: this.obj.id } }), Question);
+        this.fetchArrayFactory(this.starboard, await this.bot.db.starboardMessage.findMany({ where: { authorId: this.obj.id } }), StarboardData);
+        this.fetchArrayFactory(
+            this.poll_answers,
+            (await this.bot.db.userData.findUnique({ where: { id: this.obj.id }, include: { poll_answers: true } })).poll_answers,
+            PollQuestion
+        );
     }
 
     protected set<TKey extends keyof UserData>(name: TKey, value: UserData[TKey]) {

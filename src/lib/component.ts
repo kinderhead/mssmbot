@@ -1,6 +1,7 @@
 import { Awaitable, ClientEvents, Events, GuildEmoji, GuildMember, Message, MessageReaction, PartialGuildMember, PartialMessage, PartialMessageReaction, PartialUser, User } from "discord.js";
 import MSSM from "../bot.js";
 import Loggable from "./logutils.js";
+import DataMapper from "../data/mapper.js";
 
 const typeKey = Symbol("type");
 export function name(type: Events) {
@@ -26,6 +27,8 @@ export default abstract class Component extends Loggable {
             }
         }
     }
+
+    public async refreshDatamaps() { };
 
     public init(): Awaitable<void> { };
 

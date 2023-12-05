@@ -56,6 +56,7 @@ import SyscallCommand from './commands/syscall.js';
 import Muckbang from './components/muckbang.js';
 import MSSMUser from './data/user.js';
 import Question from './data/question.js';
+import StarboardData from './data/starboard.js';
 
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -88,7 +89,6 @@ export default class MSSM {
     public people: GuildMember[] = [];
 
     public users: { [id: string]: MSSMUser } = {};
-    public questions: { [id: string]: Question } = {};
 
     public db: PrismaClient;
     public memory = Storage.make<Memory>("memory.json", new Memory());
@@ -211,9 +211,19 @@ export default class MSSM {
             await this.levelChannel.send(`${userMention(user.id)}\nYour bio is too long after a change that limits bios to 2048 characters.`);
         }
         var u = new MSSMUser(this, data);
-        await u.refresh();
-        this.users[data.id] = u;
         return u;
+    }
+
+    public async setupDataMap() {
+        this.log.info("Setting up datamap");
+
+        for (const i of this.people) {
+            await this.syncUser(i);
+        }
+
+        for (const i of this.components) {
+            await i.refreshDatamaps();
+        }
     }
 
     public async onLogIn(c: Client) {
@@ -233,9 +243,7 @@ export default class MSSM {
         this.logChannel = this.getChannel("739339459161751553");
         this.welcomeChannel = this.getChannel("739335818518331496");
 
-        for (const i of this.people) {
-            promisesToAwait.push(this.syncUser(i));
-        }
+        promisesToAwait.push(this.setupDataMap());
 
         for (const i of this.components) {
             promisesToAwait.push(i.init());

@@ -9,6 +9,10 @@ import ClosePollCommand from "../commands/close_poll.js";
 import QOTDQueueCommand from "../commands/qotd_queue.js";
 import MegaPollCommand from "../commands/mega_poll.js";
 import MetaQuestionsCommand from "../commands/meta_questions.js";
+import QuestionData from "../data/question.js";
+import mPollData from "../data/poll.js";
+import PollQuestion from "../data/pollquestiondata.js";
+import DataMapper from "../data/mapper.js";
 
 export default class QOTD extends Component {
     public qotdChannel: TextChannel;
@@ -16,6 +20,24 @@ export default class QOTD extends Component {
 
     public pollEmojiList = ["🔴", "🔵", "🟣", "🟢", "🟡", "🟠", "🟤", "⚪", "⚫"];
     public questionQueue = Storage.make<QueueDataStorage>("queue.json", { queue: [] });
+
+    public questions: { [id: string]: QuestionData } = {};
+    public polls: { [id: string]: mPollData } = {};
+    public pollQuestions: { [id: string]: PollQuestion } = {};
+
+    public async refreshDatamaps() {
+        for (const i in this.questions) {
+            await this.questions[i].refresh();
+        }
+
+        for (const i in this.polls) {
+            await this.polls[i].refresh();
+        }
+
+        for (const i in this.pollQuestions) {
+            await this.pollQuestions[i].refresh();
+        }
+    }
 
     public async init() {
         this.bot.registerCommand(new QOTDCommand());

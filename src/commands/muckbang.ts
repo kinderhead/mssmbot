@@ -2,6 +2,7 @@ import { AutocompleteInteraction, ButtonInteraction, ButtonStyle, CacheType, Cha
 import MSSM, { choose } from "../bot.js";
 import Command from "../command.js";
 import { autocompleteOptions, buttonHelper, expandAndHandleEmbed, getNextDayOfWeek } from "../lib/utils.js";
+import MSSMUser from "../data/user.js";
 
 export default class MuckbangCommand extends Command {
     public getName() { return "muckbang"; }
@@ -36,16 +37,16 @@ export default class MuckbangCommand extends Command {
         await autocompleteOptions(cmd, bot.muckbang.games);
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
         // Pleb commands
         if (msg.options.getSubcommand() === "list") {
             await this.list(msg, bot);
             return;
         }
 
-        if (!bot.getUser(msg).permissions.has(PermissionFlagsBits.ModerateMembers)) {
+        if (!user.discord.permissions.has(PermissionFlagsBits.ModerateMembers)) {
             await msg.reply("Nuh uh");
-            this.log.info(`${msg.user.username} tried to run a mod command. smh`)
+            this.log.info(`${user.discord.displayName} tried to run a mod command. smh`)
         }
 
         // Mod commands

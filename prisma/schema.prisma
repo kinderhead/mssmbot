@@ -82,6 +82,15 @@ model PollData {
     authorId String
 }
 
+model PollQuestionData {
+    id Int @id @default(autoincrement())
+    option String
+    selected UserData[]
+
+    poll PollData @relation(fields: [pollId], references: [id])
+    pollId Int
+}
+
 model ChessData {
     id Int @id @default(autoincrement())
     pgn String
@@ -93,15 +102,6 @@ model ChessData {
 
     black UserData @relation("black", fields: [blackId], references: [id])
     blackId String
-}
-
-model PollQuestionData {
-    id Int @id @default(autoincrement())
-    option String
-    selected UserData[]
-
-    poll PollData @relation(fields: [pollId], references: [id])
-    pollId Int
 }
 
 model MetaQuestion {

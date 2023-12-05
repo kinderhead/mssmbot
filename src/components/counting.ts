@@ -27,13 +27,15 @@ export default class Counting extends Component {
             }
 
             if (Number.isInteger(num) && num > 0 && this.bot.memory.lasttocount !== msg.author.id) {
+                var user = this.bot.getUserV2(msg.author.id);
+
                 if (num == this.bot.memory.count + 1) {
                     this.bot.memory.lasttocount = msg.author.id;
-                    this.bot.memory.count += 1;
-                    await this.bot.db.userData.update({ where: { id: msg.author.id }, data: { times_counted: { increment: 1 } } });
+                    this.bot.memory.count++;
+                    user.times_counted++;
                     await msg.react("✅");
                 } else {
-                    var data = await this.bot.db.userData.update({ where: { id: msg.author.id }, data: { times_failed: { increment: 1 } } });
+                    user.times_failed++;
                     await msg.reply("It appears that you cannot count.");
                     this.log.info(`Someone can't count lol`);
 
@@ -43,9 +45,9 @@ export default class Counting extends Component {
                         this.log.info("New counting high score", this.bot.memory.highscore);
                     }
 
-                    if (data.saves > 0) {
-                        data = await this.bot.db.userData.update({ where: { id: msg.author.id }, data: { saves: { increment: -1 } } });
-                        msg.channel.send(`${this.bot.getUser(data).displayName} has used up 1 save. They have ${data.saves} remaining. Next number is ${this.bot.memory.count + 1}`);
+                    if (user.saves > 0) {
+                        user.saves--;
+                        msg.channel.send(`${user.discord.displayName} has used up 1 save. They have ${user.saves} remaining. Next number is ${this.bot.memory.count + 1}`);
                     } else {
                         this.bot.memory.count = 0;
                         this.bot.memory.lasttocount = "";
@@ -53,9 +55,9 @@ export default class Counting extends Component {
                         msg.channel.send("Next number is 1");
                     }
 
-                    if (data.times_failed == 10) {
-                        this.bot.getUser(data).roles.add("787148841655992381");
-                        await msg.channel.send(`${this.bot.getUser(data).displayName} has failed to count 10 times and has been given the can't count role`);
+                    if (user.times_failed == 10) {
+                        user.discord.roles.add("787148841655992381");
+                        await msg.channel.send(`${user.discord.displayName} has failed to count 10 times and has been given the can't count role`);
                     }
                 }
 

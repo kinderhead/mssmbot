@@ -6,15 +6,15 @@ export default abstract class DataMapper<TOriginal extends { id: string | number
 
     protected obj: TOriginal;
 
-    public constructor(bot: MSSM, data: TOriginal, singletonMap: { [key: string | number]: DataMapper<TOriginal> }) {
+    public constructor(bot: MSSM, data: TOriginal, registry: { [key: string | number]: DataMapper<TOriginal> }) {
         this.bot = bot;
         this.obj = data;
 
-        if (singletonMap.hasOwnProperty(data.id)) {
-            return singletonMap[data.id];
+        if (registry.hasOwnProperty(data.id)) {
+            return registry[data.id];
         }
 
-        return new Proxy(this, {
+        var proxy = new Proxy(this, {
             get(target, prop) {
                 if (target.obj.hasOwnProperty(prop)) {
                     return target.obj[prop as keyof typeof target.obj];
@@ -30,6 +30,10 @@ export default abstract class DataMapper<TOriginal extends { id: string | number
                 return true;
             }
         });
+
+        registry[data.id] = proxy;
+
+        return proxy;
     }
 
     public abstract refresh(): Promise<void>;
