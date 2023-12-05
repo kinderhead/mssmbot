@@ -129,7 +129,7 @@ export default class ClubCommand extends Command {
         }
 
         await settingsHelper(user, msg.editReply.bind(msg), bot, new EmbedBuilder().setTitle("Club Settings"), [
-            { default: club.desc, name: "Description", desc: "", on_change: i => { club.desc = i } },
+            { default: club.desc, name: "Description", desc: "", on_change: (i: string) => { club.desc = i } },
             { default: club.meetingTime ?? "TBD", name: "Meeting time", desc: "", on_change: (i: string) => { club.meetingTime = i } },
             { default: club.meetingLocation ?? "TBD", name: "Meeting location", desc: "", on_change: (i: string) => { club.meetingLocation = i } },
         ], false);

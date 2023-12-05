@@ -1,6 +1,5 @@
 import ts from "typescript";
 import MSSM from "../bot.js";
-import { $$raw, EmptyDecorator } from "ts-macros";
 
 export default abstract class DataMapper<TOriginal extends { id: string | number }> {
     public bot: MSSM;
