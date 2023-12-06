@@ -55,6 +55,7 @@ export default class Starboard extends Component {
                     await user.createStarboardPost(msg.id, reaction.message.channelId, starMsg.id, new Date(), count);
                 } catch (e) {
                     this.log.warn("Marius Cartography rapid fire starboard avoidance technique", e);
+                    await starMsg.delete();
                     return;
                 }
                 await this.bot.addXP(msg.author.id, 10);

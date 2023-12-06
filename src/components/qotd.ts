@@ -1,18 +1,20 @@
-import { APIEmbed, Awaitable, ComponentType, EmbedBuilder, GuildMember, Message, MessageReaction, ReactionCollector, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextChannel, User, roleMention } from "discord.js";
+import { MegaPoll, MegaPollOption, PollData, UserData } from "@prisma/client";
+import { APIEmbed, ComponentType, EmbedBuilder, GuildMember, Message, MessageReaction, ReactionCollector, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextChannel, User, roleMention } from "discord.js";
+import ClosePollCommand from "../commands/close_poll.js";
+import MegaPollCommand from "../commands/mega_poll.js";
+import MetaQuestionsCommand from "../commands/meta_questions.js";
+import QOTDCommand from "../commands/qotd.js";
+import QOTDQueueCommand from "../commands/qotd_queue.js";
+import QOTDSendCommand from "../commands/qotd_send.js";
+import mPollData from "../data/poll.js";
+import PollQuestion from "../data/poll_question_data.js";
+import QuestionData from "../data/question.js";
 import Component from "../lib/component.js";
 import { Poll, Question, QueueDataStorage, Storage } from "../lib/storage.js";
 import { createCustomId, quickActionRow, shorten } from "../lib/utils.js";
-import { MegaPoll, MegaPollOption, PollData, UserData } from "@prisma/client";
-import QOTDCommand from "../commands/qotd.js";
-import QOTDSendCommand from "../commands/qotd_send.js";
-import ClosePollCommand from "../commands/close_poll.js";
-import QOTDQueueCommand from "../commands/qotd_queue.js";
-import MegaPollCommand from "../commands/mega_poll.js";
-import MetaQuestionsCommand from "../commands/meta_questions.js";
-import QuestionData from "../data/question.js";
-import mPollData from "../data/poll.js";
-import PollQuestion from "../data/pollquestiondata.js";
-import DataMapper from "../data/mapper.js";
+import MetaQuestionData from "../data/meta_question.js";
+import MegaPollData from "../data/mega_poll.js";
+import MegaPollOptionData from "../data/mega_poll_option.js";
 
 export default class QOTD extends Component {
     public qotdChannel: TextChannel;
@@ -21,9 +23,12 @@ export default class QOTD extends Component {
     public pollEmojiList = ["🔴", "🔵", "🟣", "🟢", "🟡", "🟠", "🟤", "⚪", "⚫"];
     public questionQueue = Storage.make<QueueDataStorage>("queue.json", { queue: [] });
 
-    public questions: { [id: string]: QuestionData } = {};
-    public polls: { [id: string]: mPollData } = {};
-    public pollQuestions: { [id: string]: PollQuestion } = {};
+    public questions: { [id: number]: QuestionData } = {};
+    public polls: { [id: number]: mPollData } = {};
+    public pollQuestions: { [id: number]: PollQuestion } = {};
+    public metaQuestions: { [id: number]: MetaQuestionData } = {};
+    public megaPolls: { [id: number]: MegaPollData } = {};
+    public megaPollQuestions: { [id: number]: MegaPollOptionData } = {};
 
     public async refreshDatamaps() {
         for (const i in this.questions) {
@@ -36,6 +41,19 @@ export default class QOTD extends Component {
 
         for (const i in this.pollQuestions) {
             await this.pollQuestions[i].refresh();
+        }
+
+        for (const i of await this.bot.db.metaQuestion.findMany()) {
+            this.metaQuestions[i.id] = new MetaQuestionData(this.bot, i);
+            await this.metaQuestions[i.id].refresh();
+        }
+
+        for (const i in this.megaPolls) {
+            await this.megaPolls[i].refresh();
+        }
+
+        for (const i in this.megaPollQuestions) {
+            await this.megaPollQuestions[i].refresh();
         }
     }
 
@@ -92,16 +110,15 @@ export default class QOTD extends Component {
     public async refreshMetaMessage() {
         this.log.debug("Refresing meta message");
 
-        const questions = await this.bot.db.metaQuestion.findMany({ where: { active: true } });
         const polls = await this.bot.db.pollData.findMany({ where: { open: true, channel: "1139634512230367335" } });
-        const posts = [...questions, ...polls];
+        const length = Object.keys(this.metaQuestions).length + polls.length;
 
-        if (posts.length == 0) {
+        if (length == 0) {
             await (await this.metaQuestionsChannel.messages.fetch(this.bot.memory.metaid)).edit("Nothing here right now. Check back later.");
-        } else if (posts.length == 1) {
-            await (await this.metaQuestionsChannel.messages.fetch(this.bot.memory.metaid)).edit(`There is ${posts.length} active post here.`);
+        } else if (length == 1) {
+            await (await this.metaQuestionsChannel.messages.fetch(this.bot.memory.metaid)).edit(`There is ${length} active post here.`);
         } else {
-            await (await this.metaQuestionsChannel.messages.fetch(this.bot.memory.metaid)).edit(`There are ${posts.length} active posts here.`);
+            await (await this.metaQuestionsChannel.messages.fetch(this.bot.memory.metaid)).edit(`There are ${length} active posts here.`);
         }
     }
 

@@ -23,6 +23,7 @@ export default abstract class DataMapper<TOriginal extends { id: string | number
             },
             set(target, prop, value) {
                 if (target.obj.hasOwnProperty(prop)) {
+                    target.obj[prop as keyof typeof target.obj] = value;
                     target.set(prop as keyof typeof target.obj, value);
                 } else {
                     target[prop as keyof typeof target] = value;

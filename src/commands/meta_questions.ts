@@ -3,6 +3,7 @@ import MSSM from "../bot.js";
 import Command from "../command.js";
 import { ButtonHelperCallback, QuickButton, SelectHelperCallback, buttonHelper, selectHelper, shorten } from "../lib/utils.js";
 import { MetaQuestion, PollData } from "@prisma/client";
+import MetaQuestionData from "../data/meta_question.js";
 
 export default class MetaQuestionsCommand extends Command {
     public getName() { return "meta-board"; }
@@ -51,7 +52,7 @@ export default class MetaQuestionsCommand extends Command {
         const res = await bot.qotd.metaQuestionsChannel.send({ embeds: [embed] });
         const thread = await res.startThread({ name: shorten(msg.options.getString("question")), autoArchiveDuration: ThreadAutoArchiveDuration.OneDay, reason: "Discussion" });
         thread.send(roleMention("1139635551406931990"));
-        await bot.db.metaQuestion.create({ data: { question: msg.options.getString("question"), link: res.id } });
+        await MetaQuestionData.create(bot, msg.options.getString("question"), res.id);
 
         this.log.info(`Posted meta question:`, msg.options.getString("question"));
 

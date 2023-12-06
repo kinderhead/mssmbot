@@ -57,6 +57,7 @@ import Muckbang from './components/muckbang.js';
 import MSSMUser from './data/user.js';
 import Question from './data/question.js';
 import StarboardData from './data/starboard.js';
+import ChessGameData from './data/chess.js';
 
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -79,6 +80,7 @@ export default class MSSM {
     public hands: { [name: string]: (msg: ChatInputCommandInteraction<CacheType>) => Promise<void> | void } = {};
 
     public activeGames: Game[] = [];
+    public chessGames: { [id: number]: ChessGameData } = {};
 
     private secret: string;
     private clientID: string;
@@ -211,6 +213,7 @@ export default class MSSM {
             await this.levelChannel.send(`${userMention(user.id)}\nYour bio is too long after a change that limits bios to 2048 characters.`);
         }
         var u = new MSSMUser(this, data);
+        await u.refresh();
         return u;
     }
 
@@ -223,6 +226,10 @@ export default class MSSM {
 
         for (const i of this.components) {
             await i.refreshDatamaps();
+        }
+
+        for (const i in this.chessGames) {
+            await this.chessGames[i].refresh();
         }
     }
 

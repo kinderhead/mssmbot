@@ -1,10 +1,11 @@
 import { Prisma, UserData } from "@prisma/client";
-import DataMapper from "./mapper.js";
 import MSSM from "../bot.js";
+import ChessGameData from "./chess.js";
+import DataMapper from "./mapper.js";
+import PollQuestion from "./poll_question_data.js";
 import Question from "./question.js";
-import { GuildMember } from "discord.js";
 import StarboardData from "./starboard.js";
-import PollQuestion from "./pollquestiondata.js";
+import MegaPollOptionData from "./mega_poll_option.js";
 
 const fullUser = Prisma.validator<Prisma.UserDataDefaultArgs>()({
     include: {
@@ -25,6 +26,9 @@ export default class MSSMUser extends DataMapper<UserData> implements UserData {
     public questions: Question[] = [];
     public starboard: StarboardData[] = [];
     public poll_answers: PollQuestion[] = [];
+    public chess_games_black: ChessGameData[] = [];
+    public chess_games_white: ChessGameData[] = [];
+    public mega_poll_answers: MegaPollOptionData[] = [];
 
     public get discord() {
         return this.bot.getUser(this.obj.id);
@@ -47,6 +51,13 @@ export default class MSSMUser extends DataMapper<UserData> implements UserData {
             this.poll_answers,
             (await this.bot.db.userData.findUnique({ where: { id: this.obj.id }, include: { poll_answers: true } })).poll_answers,
             PollQuestion
+        );
+        this.fetchArrayFactory(this.chess_games_white, await this.bot.db.chessData.findMany({ where: { whiteId: this.obj.id } }), ChessGameData);
+        this.fetchArrayFactory(this.chess_games_black, await this.bot.db.chessData.findMany({ where: { blackId: this.obj.id } }), ChessGameData);
+        this.fetchArrayFactory(
+            this.mega_poll_answers,
+            (await this.bot.db.userData.findUnique({ where: { id: this.obj.id }, include: { mega_poll_answers: true } })).mega_poll_answers,
+            MegaPollOptionData
         );
     }
 
