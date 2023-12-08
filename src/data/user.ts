@@ -6,6 +6,8 @@ import PollQuestion from "./poll_question_data.js";
 import Question from "./question.js";
 import StarboardData from "./starboard.js";
 import MegaPollOptionData from "./mega_poll_option.js";
+import Poll from "./poll.js";
+import Club from "./club.js";
 
 const fullUser = Prisma.validator<Prisma.UserDataDefaultArgs>()({
     include: {
@@ -24,11 +26,14 @@ const fullUser = Prisma.validator<Prisma.UserDataDefaultArgs>()({
 export type FullUser = Prisma.UserDataGetPayload<typeof fullUser>;
 export default class MSSMUser extends DataMapper<UserData> implements UserData {
     public questions: Question[] = [];
+    public polls: Poll[] = [];
     public starboard: StarboardData[] = [];
     public poll_answers: PollQuestion[] = [];
     public chess_games_black: ChessGameData[] = [];
     public chess_games_white: ChessGameData[] = [];
     public mega_poll_answers: MegaPollOptionData[] = [];
+    public manager_of: Club[] = [];
+    public officer_of: Club[] = [];
 
     public get discord() {
         return this.bot.getUser(this.obj.id);
@@ -46,6 +51,7 @@ export default class MSSMUser extends DataMapper<UserData> implements UserData {
 
     public override async refresh() {
         this.fetchArrayFactory(this.questions, await this.bot.db.questionData.findMany({ where: { authorId: this.obj.id } }), Question);
+        this.fetchArrayFactory(this.polls, await this.bot.db.pollData.findMany({ where: { authorId: this.obj.id } }), Poll);
         this.fetchArrayFactory(this.starboard, await this.bot.db.starboardMessage.findMany({ where: { authorId: this.obj.id } }), StarboardData);
         this.fetchArrayFactory(
             this.poll_answers,
@@ -58,6 +64,16 @@ export default class MSSMUser extends DataMapper<UserData> implements UserData {
             this.mega_poll_answers,
             (await this.bot.db.userData.findUnique({ where: { id: this.obj.id }, include: { mega_poll_answers: true } })).mega_poll_answers,
             MegaPollOptionData
+        );
+        this.fetchArrayFactory(
+            this.manager_of,
+            (await this.bot.db.userData.findUnique({ where: { id: this.obj.id }, include: { manager_of: true } })).manager_of,
+            Club
+        );
+        this.fetchArrayFactory(
+            this.officer_of,
+            (await this.bot.db.userData.findUnique({ where: { id: this.obj.id }, include: { officer_of: true } })).officer_of,
+            Club
         );
     }
 

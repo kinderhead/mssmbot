@@ -76,9 +76,13 @@ export default class StatusCommand extends Command {
         data.starboard.sort((a, b) => a.date.getTime() - b.date.getTime());
 
         for (let i = 0; i < Math.min(5, data._count.starboard); i++) {
-            var starboardMsg = await bot.getChannel(data.starboard[i].channelId).messages.fetch(data.starboard[i].id);
-            var name = starboardMsg.content === "" ? "No text": starboardMsg.content;
-            starboardPosts.push({ name: name, value: `[Link](${starboardMsg.url})` });
+            try {
+                var starboardMsg = await bot.getChannel(data.starboard[i].channelId).messages.fetch(data.starboard[i].id);
+                var name = starboardMsg.content === "" ? "No text" : starboardMsg.content;
+                starboardPosts.push({ name: name, value: `[Link](${starboardMsg.url})` });
+            } catch (e) {
+                this.log.warn(e);
+            }
         }
 
         const qotdEmbed = new EmbedBuilder()

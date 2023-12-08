@@ -48,7 +48,7 @@ export default class CatHandler extends Component {
             }
 
             if (!safe) {
-                this.log.warn(`${this.bot.getUserV2(msg.id).discord.displayName} was very naughty and did not cat.`);
+                this.log.warn(`${this.bot.getUserV2(msg.author.id).discord.displayName} was very naughty and did not cat.`);
                 await msg.delete();
             }
         }

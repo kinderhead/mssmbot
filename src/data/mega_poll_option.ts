@@ -6,7 +6,7 @@ import MSSMUser from "./user.js";
 
 export default class MegaPollOptionData extends DataMapper<MegaPollOption> implements MegaPollOption {
     public poll: MegaPollData;
-    public selected: MSSMUser[];
+    public selected: MSSMUser[] = [];
 
     public constructor(bot: MSSM, data: MegaPollOption) {
         super(bot, data, bot.qotd.megaPollQuestions);

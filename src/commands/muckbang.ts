@@ -1,8 +1,9 @@
 import { AutocompleteInteraction, ButtonInteraction, ButtonStyle, CacheType, ChatInputCommandInteraction, EmbedBuilder, GuildScheduledEventEntityType, GuildScheduledEventPrivacyLevel, GuildVoiceChannelResolvable, PermissionFlagsBits, SlashCommandBuilder, VoiceBasedChannel, channelMention, hideLinkEmbed, time } from "discord.js";
 import MSSM, { choose } from "../bot.js";
 import Command from "../command.js";
-import { autocompleteOptions, buttonHelper, expandAndHandleEmbed, getNextDayOfWeek } from "../lib/utils.js";
+import { autocompleteOptions, buttonHelper, expandAndHandleEmbed, getNextDayOfWeek, getValuesFromObject } from "../lib/utils.js";
 import MSSMUser from "../data/user.js";
+import MuckbangGame from "../data/muckbang_game.js";
 
 export default class MuckbangCommand extends Command {
     public getName() { return "muckbang"; }
@@ -34,7 +35,7 @@ export default class MuckbangCommand extends Command {
     }
 
     public async autocomplete(cmd: AutocompleteInteraction<CacheType>, bot: MSSM) {
-        await autocompleteOptions(cmd, bot.muckbang.games);
+        await autocompleteOptions(cmd, getValuesFromObject(bot.muckbang.games).map(i => i.name));
     }
 
     public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
@@ -69,13 +70,7 @@ export default class MuckbangCommand extends Command {
     public async add(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
         await msg.deferReply({ ephemeral: true });
 
-        var game = await bot.db.muckbangGameData.create({
-            data: {
-                name: msg.options.getString("name"),
-                downloadLink: msg.options.getString("download"),
-                imageLink: msg.options.getString("image")
-            }
-        });
+        var game = await MuckbangGame.create(bot, msg.options.getString("name"), msg.options.getString("download"), msg.options.getString("image"));
 
         await bot.muckbang.channel.send({ content: "New game added to rotation", embeds: [bot.muckbang.getGameEmbed(game)] });
         this.log.info(`Added ${game.name} to muckbang`);
@@ -89,11 +84,10 @@ export default class MuckbangCommand extends Command {
         var gameName = msg.options.getString("game");
 
         if (!gameName) {
-            gameName = choose(bot.muckbang.games)
+            gameName = choose(Object.keys(bot.muckbang.games));
         }
 
-        var game = await bot.db.muckbangGameData.findFirst({ where: { name: gameName } });
-
+        var game = getValuesFromObject(bot.muckbang.games).find(i => i.name === gameName);
         if (!game) {
             await msg.editReply("Invalid game");
         }

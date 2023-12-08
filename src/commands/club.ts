@@ -1,7 +1,7 @@
 import { AutocompleteInteraction, CacheType, ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder, channelMention } from "discord.js";
 import MSSM from "../bot.js";
 import Command from "../command.js";
-import { settingsHelper } from "../lib/utils.js";
+import { getValuesFromObject, settingsHelper } from "../lib/utils.js";
 import MSSMUser from "../data/user.js";
 
 export default class ClubCommand extends Command {
@@ -47,7 +47,7 @@ export default class ClubCommand extends Command {
 
     public async join(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
         await msg.deferReply({ ephemeral: true });
-        var club = await bot.db.clubData.findFirst({ where: { name: msg.options.getString("club") } });
+        var club = getValuesFromObject(bot.clubs.clubData).find(i => i.name === msg.options.getString("club"));
 
         if (!club) {
             await msg.editReply("Club not found");
@@ -74,7 +74,7 @@ export default class ClubCommand extends Command {
 
     public async leave(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
         await msg.deferReply({ ephemeral: true });
-        var club = await bot.db.clubData.findFirst({ where: { name: msg.options.getString("club") } });
+        var club = getValuesFromObject(bot.clubs.clubData).find(i => i.name === msg.options.getString("club"));
 
         if (!club) {
             await msg.editReply("Club not found");
@@ -101,7 +101,7 @@ export default class ClubCommand extends Command {
 
     public async view(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
         await msg.deferReply();
-        var club = await bot.db.clubData.findFirst({ where: { name: msg.options.getString("club") } });
+        var club = getValuesFromObject(bot.clubs.clubData).find(i => i.name === msg.options.getString("club"));
 
         if (!club) {
             await msg.editReply("Club not found");
@@ -113,7 +113,7 @@ export default class ClubCommand extends Command {
 
     public async manage(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
         await msg.deferReply({ ephemeral: true });
-        var club = await bot.db.clubData.findFirst({ where: { name: msg.options.getString("club") } });
+        var club = getValuesFromObject(bot.clubs.clubData).find(i => i.name === msg.options.getString("club"));
 
         if (!club) {
             await msg.editReply("Club not found");
@@ -130,8 +130,7 @@ export default class ClubCommand extends Command {
             { default: club.meetingTime ?? "TBD", name: "Meeting time", desc: "", on_change: (i: string) => { club.meetingTime = i } },
             { default: club.meetingLocation ?? "TBD", name: "Meeting location", desc: "", on_change: (i: string) => { club.meetingLocation = i } },
         ], false);
-
-        await bot.db.clubData.update({ where: { id: club.id }, data: club });
+        
         await bot.clubs.refreshClubs();
     }
 

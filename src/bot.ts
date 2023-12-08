@@ -58,6 +58,7 @@ import MSSMUser from './data/user.js';
 import Question from './data/question.js';
 import StarboardData from './data/starboard.js';
 import ChessGameData from './data/chess.js';
+import Club from './data/club.js';
 
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -381,8 +382,6 @@ export default class MSSM {
     public async addXP(user: string, amount: number): Promise<boolean>;
     public async addXP(user: MSSMUser, amount: number): Promise<boolean>;
     public async addXP(user: MSSMUser | string, amount: number): Promise<boolean> {
-        var id = typeof (user) === "string" ? user : user.id;
-
         var data: MSSMUser;
         if (typeof (user) === "string") {
             data = this.getUserV2(user);
@@ -400,7 +399,7 @@ export default class MSSM {
         this.log.silly(`Giving ${data.discord.displayName} ${amount} xp`);
 
         if (data.need_message) {
-            await this.levelChannel.send(`${data.levelup_ping ? userMention(data.id) : data.discord.displayName} has leveled up! They are now level ${this.getLevelFromXP(data.xp) + 1}`);
+            await this.levelChannel.send(`${data.levelup_ping ? userMention(data.id) : data.discord.displayName} has leveled up! They are now level ${this.getLevelFromXP(data.xp)}`);
             await this.clearLevelUp(data.id);
             this.log.info(`${data.discord.displayName} leveled up`);
         }
@@ -486,7 +485,7 @@ export default class MSSM {
             }
         }
 
-        throw "Unable to find channel with id " + id;
+        throw new Error("Unable to find channel with id " + id);
     }
 
     public createEmbedFromMessage(msg: Message): [EmbedBuilder, Attachment?] {

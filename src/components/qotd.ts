@@ -48,12 +48,12 @@ export default class QOTD extends Component {
             await this.metaQuestions[i.id].refresh();
         }
 
-        for (const i in this.megaPolls) {
-            await this.megaPolls[i].refresh();
-        }
-
         for (const i in this.megaPollQuestions) {
             await this.megaPollQuestions[i].refresh();
+        }
+
+        for (const i in this.megaPolls) {
+            await this.megaPolls[i].refresh();
         }
     }
 

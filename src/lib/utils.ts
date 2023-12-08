@@ -510,6 +510,17 @@ export function getNextDayOfWeek(date: Date, dayOfWeek: number) {
     return date;
 }
 
+export function getValuesFromObject<T>(obj: { [key: number | string]: T }) {
+    var array: T[] = [];
+    for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            array.push(obj[key]);
+        }
+    }
+
+    return array;
+}
+
 export var createCustomId = () => Math.random().toString();
 
 export type InteractionSendable = (content: string | MessagePayload | InteractionReplyOptions) => Promise<InteractionResponse | Message>;

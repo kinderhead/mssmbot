@@ -4,19 +4,20 @@ import ClubCommand from "../commands/club.js";
 import CreateClubCommand from "../commands/create_club.js";
 import Component from "../lib/component.js";
 import SetClubsCommand from "../commands/set_clubs.js";
+import Club from "../data/club.js";
+import { getValuesFromObject } from "../lib/utils.js";
 
 export default class Clubs extends Component {
     public clubs: string[] = [];
+    public clubData: { [id: number]: Club } = {};
 
     public async init() {
         this.bot.registerCommand(new ClubCommand());
         this.bot.registerCommand(new CreateClubCommand());
         this.bot.registerCommand(new SetClubsCommand());
-
-        await this.refreshClubs();
     }
 
-    public getClubEmbed(club: ClubData) {
+    public getClubEmbed(club: Club) {
         const role = this.bot.getRole(club.role);
         return new EmbedBuilder()
             .setTitle(club.name)
@@ -30,7 +31,7 @@ export default class Clubs extends Component {
 
     public async refreshClubs() {
         this.log.info("Refreshing club names for autocomplete");
-        var data = await this.bot.db.clubData.findMany();
+        var data = getValuesFromObject(this.clubData);
         
         this.clubs = [];
         for (const i of data) {
@@ -40,10 +41,18 @@ export default class Clubs extends Component {
 
             if (i.infomsg === "") {
                 var msg = await this.bot.getChannel(this.bot.memory.clubchannelid).send({ embeds: [this.getClubEmbed(i)] });
-                await this.bot.db.clubData.update({ where: { id: i.id }, data: { infomsg: msg.id } });
+                i.infomsg = msg.id;
             } else {
                 (await this.bot.getChannel(this.bot.memory.clubchannelid).messages.fetch(i.infomsg)).edit(({ embeds: [this.getClubEmbed(i)] }));
             }
         }
+    }
+
+    public async refreshDatamaps() {
+        for (const i in this.clubData) {
+            await this.clubData[i].refresh();
+        }
+
+        await this.refreshClubs();
     }
 }
