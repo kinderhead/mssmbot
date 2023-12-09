@@ -20,9 +20,19 @@ export default class Club extends DataMapper<ClubData> implements ClubData {
         );
     }
 
+    public async reload() {
+        this.obj = await this.bot.db.clubData.findUnique({ where: { id: this.obj.id } })
+    }
+
+    public static async create(bot: MSSM, name: string, channel: string, role: string, manager: MSSMUser) {
+        var club = new Club(bot, await bot.db.clubData.create({ data: { name, channel, role, manager: { connect: { id: manager.id } } } }));
+        await club.refresh();
+        return club;
+    }
+
     protected set<TKey extends keyof ClubData>(name: TKey, value: ClubData[TKey]): void {
         (async () => {
-            this.obj = await this.bot.db.clubData.update({ where: { id: this.obj.id }, data: { [name]: value } });
+            await this.bot.db.clubData.update({ where: { id: this.obj.id }, data: { [name]: value } });
         })();
     }
 

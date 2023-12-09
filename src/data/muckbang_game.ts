@@ -11,9 +11,13 @@ export default class MuckbangGame extends DataMapper<MuckbangGameData> implement
 
     }
 
+    public async reload() {
+        this.obj = await this.bot.db.muckbangGameData.findUnique({ where: { id: this.obj.id } })
+    }
+
     protected set<TKey extends keyof MuckbangGameData>(name: TKey, value: MuckbangGameData[TKey]): void {
         (async () => {
-            this.obj = await this.bot.db.muckbangGameData.update({ where: { id: this.obj.id }, data: { [name]: value } });
+            await this.bot.db.muckbangGameData.update({ where: { id: this.obj.id }, data: { [name]: value } });
         })();
     }
 

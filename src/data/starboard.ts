@@ -12,12 +12,16 @@ export default class StarboardData extends DataMapper<StarboardMessage> implemen
 
     protected override set<TKey extends keyof StarboardMessage>(name: TKey, value: StarboardMessage[TKey]) {
         (async () => {
-            this.obj = await this.bot.db.starboardMessage.update({ where: { id: this.obj.id }, data: { [name]: value } });
+            await this.bot.db.starboardMessage.update({ where: { id: this.obj.id }, data: { [name]: value } });
         })();
     }
 
     public override async refresh() {
         this.author = this.bot.getUserV2(this.obj.authorId);
+    }
+
+    public async reload() {
+        this.obj = await this.bot.db.starboardMessage.findUnique({ where: { id: this.obj.id } })
     }
 
     // Type safety

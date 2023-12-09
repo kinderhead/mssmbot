@@ -12,12 +12,16 @@ export default class Poll extends DataMapper<PollData> implements PollData {
 
     protected override set<TKey extends keyof PollData>(name: TKey, value: PollData[TKey]) {
         (async () => {
-            this.obj = await this.bot.db.pollData.update({ where: { id: this.obj.id }, data: { [name]: value } });
+            await this.bot.db.pollData.update({ where: { id: this.obj.id }, data: { [name]: value } });
         })();
     }
 
     public override async refresh() {
         this.author = this.bot.getUserV2(this.obj.authorId);
+    }
+
+    public async reload() {
+        this.obj = await this.bot.db.pollData.findUnique({ where: { id: this.obj.id } })
     }
 
     // Type safety stuff

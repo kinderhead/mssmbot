@@ -11,9 +11,13 @@ export default class MetaQuestionData extends DataMapper<MetaQuestion> implement
         
     }
 
+    public async reload() {
+        this.obj = await this.bot.db.metaQuestion.findUnique({ where: { id: this.obj.id } })
+    }
+
     protected set<TKey extends keyof MetaQuestion>(name: TKey, value: MetaQuestion[TKey]): void {
         (async () => {
-            this.obj = await this.bot.db.metaQuestion.update({ where: { id: this.obj.id }, data: { [name]: value } });
+            await this.bot.db.metaQuestion.update({ where: { id: this.obj.id }, data: { [name]: value } });
         })();
     }
 

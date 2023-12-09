@@ -14,7 +14,7 @@ export default class PollQuestion extends DataMapper<PollQuestionData> implement
     
     protected override set<TKey extends keyof PollQuestionData>(name: TKey, value: PollQuestionData[TKey]) {
         (async () => {
-            this.obj = await this.bot.db.pollQuestionData.update({ where: { id: this.obj.id }, data: { [name]: value } });
+            await this.bot.db.pollQuestionData.update({ where: { id: this.obj.id }, data: { [name]: value } });
         })();
     }
 
@@ -25,6 +25,10 @@ export default class PollQuestion extends DataMapper<PollQuestionData> implement
             (await this.bot.db.pollQuestionData.findUnique({ where: { id: this.obj.id }, include: { selected: true } })).selected,
             MSSMUser
         );
+    }
+
+    public async reload() {
+        this.obj = await this.bot.db.pollQuestionData.findUnique({ where: { id: this.obj.id } })
     }
 
     id: number;

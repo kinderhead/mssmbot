@@ -16,9 +16,13 @@ export default class ChessGameData extends DataMapper<ChessData> implements Ches
         this.black = this.bot.getUserV2(this.obj.blackId);
     }
 
+    public async reload() {
+        this.obj = await this.bot.db.chessData.findUnique({ where: { id: this.obj.id } })
+    }
+
     protected set<TKey extends keyof ChessData>(name: TKey, value: ChessData[TKey]): void {
         (async () => {
-            this.obj = await this.bot.db.chessData.update({ where: { id: this.obj.id }, data: { [name]: value } });
+            await this.bot.db.chessData.update({ where: { id: this.obj.id }, data: { [name]: value } });
         })();
     }
     

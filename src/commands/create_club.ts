@@ -1,6 +1,7 @@
 import { CacheType, ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import MSSM from "../bot.js";
 import Command from "../command.js";
+import Club from "../data/club.js";
 
 export default class CreateClubCommand extends Command {
     public getName() { return "create-club"; }
@@ -18,20 +19,8 @@ export default class CreateClubCommand extends Command {
 
     public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
         await msg.deferReply({ ephemeral: true });
-
-        await bot.db.clubData.create({
-            data: {
-                name: msg.options.getString("name"),
-                channel: msg.options.getChannel("channel").id,
-                role: msg.options.getRole("role").id,
-                manager: {
-                    connect: { id: msg.options.getUser("manager").id }
-                }
-            }
-        });
-        
+        await Club.create(bot, msg.options.getString("name"), msg.options.getChannel("channel").id, msg.options.getRole("role").id, bot.getUserV2(msg.options.getUser("manager").id));
         await msg.editReply("Done");
-
         await bot.clubs.refreshClubs();
     }
 }

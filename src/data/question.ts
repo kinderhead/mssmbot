@@ -12,12 +12,16 @@ export default class Question extends DataMapper<QuestionData> implements Questi
 
     protected override set<TKey extends keyof QuestionData>(name: TKey, value: QuestionData[TKey]) {
         (async () => {
-            this.obj = await this.bot.db.questionData.update({ where: { id: this.obj.id }, data: { [name]: value } });
+            await this.bot.db.questionData.update({ where: { id: this.obj.id }, data: { [name]: value } });
         })();
     }
 
     public override async refresh() {
         this.author = this.bot.getUserV2(this.obj.authorId);
+    }
+
+    public async reload() {
+        this.obj = await this.bot.db.questionData.findUnique({ where: { id: this.obj.id } })
     }
 
     // Type safety stuff

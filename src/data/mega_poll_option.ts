@@ -21,9 +21,13 @@ export default class MegaPollOptionData extends DataMapper<MegaPollOption> imple
         );
     }
 
+    public async reload() {
+        this.obj = await this.bot.db.megaPollOption.findUnique({ where: { id: this.obj.id } })
+    }
+
     protected set<TKey extends keyof MegaPollOption>(name: TKey, value: MegaPollOption[TKey]): void {
         (async () => {
-            this.obj = await this.bot.db.megaPollOption.update({ where: { id: this.obj.id }, data: { [name]: value } });
+            await this.bot.db.megaPollOption.update({ where: { id: this.obj.id }, data: { [name]: value } });
         })();
     }
 

@@ -75,11 +75,23 @@ export default class MSSMUser extends DataMapper<UserData> implements UserData {
             (await this.bot.db.userData.findUnique({ where: { id: this.obj.id }, include: { officer_of: true } })).officer_of,
             Club
         );
+
+        if (this.obj.saves > 3) {
+            this.obj.saves = 3;
+            this.set("saves", 3);
+        } else if (this.obj.saves < 0) {
+            this.obj.saves = 0;
+            this.set("saves", 0);
+        }
+    }
+
+    public async reload() {
+        this.obj = await this.bot.db.userData.findUnique({ where: { id: this.obj.id } })
     }
 
     protected set<TKey extends keyof UserData>(name: TKey, value: UserData[TKey]) {
         (async () => {
-            this.obj = await this.bot.db.userData.update({ where: { id: this.obj.id }, data: { [name]: value } });
+            await this.bot.db.userData.update({ where: { id: this.obj.id }, data: { [name]: value } });
         })();
     }
 

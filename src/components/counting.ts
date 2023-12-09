@@ -49,6 +49,7 @@ export default class Counting extends Component {
                         user.saves--;
                         msg.channel.send(`${user.discord.displayName} has used up 1 save. They have ${user.saves} remaining. Next number is ${this.bot.memory.count + 1}`);
                     } else {
+                        user.saves = 0;
                         this.bot.memory.count = 0;
                         this.bot.memory.lasttocount = "";
 

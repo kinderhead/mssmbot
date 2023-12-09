@@ -2,7 +2,7 @@ import { APIEmbedField, ActionRowBuilder, ButtonBuilder, ButtonStyle, CacheType,
 import MSSM from "../bot.js";
 import Command from "../command.js";
 import { calcWinLoss } from "../games/chess.js";
-import { expandAndHandleEmbed } from "../lib/utils.js";
+import { expandAndHandleEmbed, getValuesFromObject } from "../lib/utils.js";
 
 interface Position {
     user: string;
@@ -66,7 +66,7 @@ export default class LeaderboardCommand extends Command {
     public async getLevels(bot: MSSM): Promise<Position[]> {
         var score: Position[] = [];
 
-        const people = await bot.db.userData.findMany();
+        const people = getValuesFromObject(bot.users);
 
         for (const i of people) {
             score.push({ user: i.id, value: i.xp, display: `Level ${bot.getLevelFromXP(i.xp)} (${i.xp}|${bot.getXPFromLevel(bot.getLevelFromXP(i.xp) + 1) + 1})` });
@@ -78,7 +78,7 @@ export default class LeaderboardCommand extends Command {
     public async getUno(bot: MSSM): Promise<Position[]> {
         var score: Position[] = [];
 
-        const people = await bot.db.userData.findMany();
+        const people = getValuesFromObject(bot.users);
 
         for (const i of people) {
             score.push({ user: i.id, value: i.uno_wins, display: `${i.uno_wins} wins` });
@@ -90,7 +90,7 @@ export default class LeaderboardCommand extends Command {
     public async getStars(bot: MSSM): Promise<Position[]> {
         var score: Position[] = [];
 
-        const people = await bot.db.userData.findMany({ include: { starboard: true } });
+        const people = getValuesFromObject(bot.users);
 
         for (const i of people) {
             var totalStars = 0;
@@ -108,7 +108,7 @@ export default class LeaderboardCommand extends Command {
     public async getChess(bot: MSSM): Promise<Position[]> {
         var score: Position[] = [];
 
-        const people = await bot.db.userData.findMany();
+        const people = getValuesFromObject(bot.users);
 
         for (const i of people) {
             var [wins, _] = await calcWinLoss(i.id, bot);
