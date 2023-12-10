@@ -50,10 +50,17 @@ export default class MSSMUser extends DataMapper<UserData> implements UserData {
         return data;
     }
 
-    public async createPoll(title: string, date: Date, channel: string, asked: boolean, options: string[]) {
+    public async createPoll(title: string, options: string[], date: Date | null = null, channel: string = "942269186061774870", asked: boolean = false) {
         var data = new Poll(this.bot, await this.bot.db.pollData.create({ data: { title, date, channel, asked, author: { connect: { id: this.obj.id } }, options: { createMany: { data: options.map(i => { return { option: i } }) } } } }));
         await data.refresh();
         this.polls.push(data);
+        return data;
+    }
+
+    public async createQuestion(question: string, isEmbed: boolean = false) {
+        var data = new Question(this.bot, await this.bot.db.questionData.create({ data: { question, isEmbed, author: { connect: { id: this.obj.id } } } }));
+        await data.refresh();
+        this.questions.push(data);
         return data;
     }
 

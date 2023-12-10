@@ -1,5 +1,5 @@
-import { MegaPoll, MegaPollOption, PollData, PrismaClient, UserData } from '@prisma/client';
-import { APIEmbed, ActivityType, Attachment, Awaitable, CacheType, ChatInputCommandInteraction, Client, ComponentType, EmbedBuilder, Events, GatewayIntentBits, GuildBasedChannel, GuildMember, Interaction, Message, MessageReaction, PartialGuildMember, PartialMessageReaction, PartialUser, Partials, REST, ReactionCollector, Role, Routes, SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextChannel, ThreadAutoArchiveDuration, User, channelMention, roleMention, userMention } from 'discord.js';
+import { PrismaClient, UserData } from '@prisma/client';
+import { APIEmbed, ActivityType, Attachment, Awaitable, CacheType, ChatInputCommandInteraction, Client, EmbedBuilder, Events, GatewayIntentBits, GuildBasedChannel, GuildMember, Interaction, Message, PartialGuildMember, Partials, REST, Role, Routes, SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder, TextChannel, ThreadAutoArchiveDuration, User, channelMention, roleMention, userMention } from 'discord.js';
 import fs from 'fs';
 
 import util from 'node:util';
@@ -10,55 +10,45 @@ import AddXPCommand from './commands/add_xp.js';
 import AnonCommand from './commands/anon.js';
 import ApplyCommand from './commands/apply.js';
 import ArchiveCommand from './commands/archive.js';
-import ClosePollCommand from './commands/close_poll.js';
+import EditRulesCommand from './commands/edit_rules.js';
 import GamesCommand from './commands/games.js';
 import HandCommand from './commands/hand.js';
 import HelpCommand from './commands/help.js';
 import KillCommand from './commands/kill.js';
 import LeaderboardCommand from './commands/leaderboard.js';
-import MegaPollCommand from './commands/mega_poll.js';
-import MetaQuestionsCommand from './commands/meta_questions.js';
 import ModAppsCommand from './commands/mod_apps.js';
 import PlayCommand from './commands/play.js';
 import PoopCommand from './commands/poop.js';
-import QOTDCommand from './commands/qotd.js';
-import QOTDQueueCommand from './commands/qotd_queue.js';
-import QOTDSendCommand from './commands/qotd_send.js';
 import RefreshCommand from './commands/refresh.js';
 import RoleRemoverCommand from './commands/role_remover.js';
 import SetCountCommand from './commands/set_count.js';
 import SetInfoCommand from './commands/set_info.js';
+import SetRulesCommand from './commands/set_rules.js';
 import SettingsCommand from './commands/settings.js';
 import StatusCommand from './commands/status.js';
+import SyscallCommand from './commands/syscall.js';
 import ToolsCommand from './commands/tools.js';
 import WhoIsCommand from './commands/whois.js';
+import CatHandler from './components/cat.js';
+import Clubs from './components/clubs.js';
+import Counting from './components/counting.js';
+import H from './components/h.js';
+import BotLogger from './components/logger.js';
+import Muckbang from './components/muckbang.js';
+import QOTD from './components/qotd.js';
+import RedditComponent from './components/reddit.js';
+import Starboard from './components/starboard.js';
+import ChessGameData from './data/chess.js';
+import MSSMUser from './data/user.js';
 import Game from './game.js';
 import ChessGame from './games/chess.js';
 import UnoGame from './games/uno.js';
+import Component from './lib/component.js';
 import { getInfoEmbeds, getMinecraftEmbeds, getModInfoEmbeds } from './lib/info_messages.js';
 import Lichess from './lib/lichess.js';
 import { EmbedResource, StringOpts, StringResource } from './lib/resource.js';
-import { Memory, Poll, QueueDataStorage, Storage } from './lib/storage.js';
-import { InteractionSendable, createCustomId, getValuesFromObject, isValidUrl, quickActionRow, shorten } from './lib/utils.js';
-import SetRulesCommand from './commands/set_rules.js';
-import EditRulesCommand from './commands/edit_rules.js';
-import Component from './lib/component.js';
-import Starboard from './components/starboard.js';
-import BotLogger from './components/logger.js';
-import CatHandler from './components/cat.js';
-import H from './components/h.js';
-import Counting from './components/counting.js';
-import QOTD from './components/qotd.js';
-import Clubs from './components/clubs.js';
-import Reddit from './lib/reddit.js';
-import RedditComponent from './components/reddit.js';
-import SyscallCommand from './commands/syscall.js';
-import Muckbang from './components/muckbang.js';
-import MSSMUser from './data/user.js';
-import Question from './data/question.js';
-import StarboardData from './data/starboard.js';
-import ChessGameData from './data/chess.js';
-import Club from './data/club.js';
+import { Memory, Storage } from './lib/storage.js';
+import { InteractionSendable, isValidUrl, values } from './lib/utils.js';
 
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -308,6 +298,7 @@ export default class MSSM {
         if (DEBUG) {
             this.log.info("Debugging bot. Ready");
             this.client.user.setPresence({ activities: [{ name: "Debugging", type: ActivityType.Custom }] });
+            this.client.user.setStatus("dnd");
         } else {
             this.log.info("Bot slipped on a banana and had to restart. Ready");
         }
@@ -485,7 +476,7 @@ export default class MSSM {
         return false;
     }
 
-    public getChannel<T extends GuildBasedChannel = TextChannel>(id: string) : T {
+    public getChannel<T extends GuildBasedChannel = TextChannel>(id: string): T {
         for (const i of this.client.guilds.cache.values()) {
             var ret = i.channels.cache.get(id) as T;
             if (ret !== undefined) {
@@ -547,7 +538,7 @@ export default class MSSM {
 
     public getAllMembers() {
         var users: MSSMUser[] = [];
-        for (const i of getValuesFromObject(this.users)) {
+        for (const i of values(this.users)) {
             if (this.userExists(i.id)) users.push(i);
         }
         return users;

@@ -1,11 +1,10 @@
-import { ClubData } from "@prisma/client";
 import { EmbedBuilder, channelMention } from "discord.js";
 import ClubCommand from "../commands/club.js";
 import CreateClubCommand from "../commands/create_club.js";
-import Component from "../lib/component.js";
 import SetClubsCommand from "../commands/set_clubs.js";
 import Club from "../data/club.js";
-import { getValuesFromObject } from "../lib/utils.js";
+import Component from "../lib/component.js";
+import { values } from "../lib/utils.js";
 
 export default class Clubs extends Component {
     public clubs: string[] = [];
@@ -31,8 +30,8 @@ export default class Clubs extends Component {
 
     public async refreshClubs() {
         this.log.info("Refreshing club names for autocomplete");
-        var data = getValuesFromObject(this.clubData);
-        
+        var data = values(this.clubData);
+
         this.clubs = [];
         for (const i of data) {
             this.clubs.push(i.name);

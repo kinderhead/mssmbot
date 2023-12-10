@@ -18,6 +18,16 @@ export default class PollQuestion extends DataMapper<PollQuestionData> implement
         })();
     }
 
+    public async select(user: MSSMUser) {
+        await this.bot.db.pollQuestionData.update({ where: { id: this.obj.id }, data: { selected: { connect: { id: user.id } } } });
+        this.selected.push(user);
+    }
+
+    public async deselect(user: MSSMUser) {
+        await this.bot.db.pollQuestionData.update({ where: { id: this.obj.id }, data: { selected: { disconnect: { id: user.id } } } });
+        this.selected.splice(this.selected.findIndex(i => i.id === user.id), 1);
+    }
+
     public override async refresh() {
         this.poll = this.fetchFactory(await this.bot.db.pollData.findUnique({ where: { id: this.obj.pollId } }), Poll, this.bot.qotd.polls);
         this.selected = this.fetchArrayFactory(

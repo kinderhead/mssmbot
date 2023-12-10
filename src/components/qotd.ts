@@ -1,4 +1,4 @@
-import { MegaPoll, MegaPollOption, PollData, UserData } from "@prisma/client";
+import { PollData } from "@prisma/client";
 import { APIEmbed, ComponentType, EmbedBuilder, GuildMember, Message, MessageReaction, ReactionCollector, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextChannel, User, roleMention } from "discord.js";
 import ClosePollCommand from "../commands/close_poll.js";
 import MegaPollCommand from "../commands/mega_poll.js";
@@ -6,15 +6,15 @@ import MetaQuestionsCommand from "../commands/meta_questions.js";
 import QOTDCommand from "../commands/qotd.js";
 import QOTDQueueCommand from "../commands/qotd_queue.js";
 import QOTDSendCommand from "../commands/qotd_send.js";
+import MegaPollData from "../data/mega_poll.js";
+import MegaPollOptionData from "../data/mega_poll_option.js";
+import MetaQuestionData from "../data/meta_question.js";
 import mPollData from "../data/poll.js";
 import PollQuestion from "../data/poll_question_data.js";
 import QuestionData from "../data/question.js";
 import Component from "../lib/component.js";
 import { Poll, Question, QueueDataStorage, Storage } from "../lib/storage.js";
-import { createCustomId, getValuesFromObject, quickActionRow, shorten } from "../lib/utils.js";
-import MetaQuestionData from "../data/meta_question.js";
-import MegaPollData from "../data/mega_poll.js";
-import MegaPollOptionData from "../data/mega_poll_option.js";
+import { createCustomId, quickActionRow, shorten, values } from "../lib/utils.js";
 
 export default class QOTD extends Component {
     public qotdChannel: TextChannel;
@@ -76,17 +76,7 @@ export default class QOTD extends Component {
 
         this.refreshMetaMessage();
 
-        for (const i of await this.bot.db.questionData.findMany({ where: { asked: true, date: null } })) {
-            await this.bot.db.questionData.update({ where: { id: i.id }, data: { date: (await this.qotdChannel.messages.fetch(i.link)).createdAt } });
-            this.log.info("Fixed question: " + i.question);
-        }
-
-        for (const i of await this.bot.db.pollData.findMany({ where: { asked: true, date: null } })) {
-            await this.bot.db.pollData.update({ where: { id: i.id }, data: { date: (await this.qotdChannel.messages.fetch(i.link)).createdAt } });
-            this.log.info("Fixed poll: " + i.title);
-        }
-
-        const activePolls = await this.bot.db.pollData.findMany({ where: { asked: true, open: true } });
+        const activePolls = this.getActivePolls();
 
         for (const i of activePolls) {
             this.log.info("Connecting to active poll: " + i.title);
@@ -99,8 +89,8 @@ export default class QOTD extends Component {
             }
         }
 
-        for (const i of await this.bot.db.megaPoll.findMany({ where: { open: true }, include: { options: { include: { selected: true } } } })) {
-            this.handleMegaPoll(this.megaPolls[i.id]);
+        for (const i of this.getActiveMegaPolls()) {
+            this.handleMegaPoll(i);
             this.log.info("Connecting to mega poll: " + i.title);
         }
 
@@ -110,7 +100,7 @@ export default class QOTD extends Component {
     public async refreshMetaMessage() {
         this.log.debug("Refresing meta message");
 
-        const polls = await this.bot.db.pollData.findMany({ where: { open: true, channel: "1139634512230367335" } });
+        const polls = this.getActiveMetaPolls();
         const length = Object.keys(this.metaQuestions).length + polls.length;
 
         if (length == 0) {
@@ -123,11 +113,23 @@ export default class QOTD extends Component {
     }
 
     public getActiveMetaQuestions() {
-        return getValuesFromObject(this.metaQuestions).filter(i => i.active);
+        return values(this.metaQuestions).filter(i => i.active);
     }
 
     public getActiveMetaPolls() {
-        return getValuesFromObject(this.polls).filter(i => !i.meta_is_done && i.channel == "1139634512230367335");
+        return values(this.polls).filter(i => !i.meta_is_done && i.channel == "1139634512230367335");
+    }
+
+    public getActivePolls() {
+        return values(this.polls).filter(i => i.asked && i.open);
+    }
+
+    public getActiveQOTDPolls() {
+        return values(this.polls).filter(i => i.asked && i.open && i.channel === "942269186061774870");
+    }
+
+    public getActiveMegaPolls() {
+        return values(this.megaPolls).filter(i => i.open);
     }
 
     public scheduleQotd() {
@@ -138,9 +140,9 @@ export default class QOTD extends Component {
         next.setHours(12, 0, 0, 0);
 
         setTimeout(async () => {
-            const activePolls = await this.bot.db.pollData.findMany({ where: { asked: true, open: true, channel: "942269186061774870" } });
+            const activePolls = this.getActiveQOTDPolls();
             for (const i of activePolls) {
-                await this.closePoll(i.id);
+                await this.closePoll(i);
             }
 
             await this.qotdSend();
@@ -161,7 +163,7 @@ export default class QOTD extends Component {
 
             if (thing.type == "question") {
                 const question = thing as Question;
-                const data = await this.bot.db.questionData.findUnique({ where: { id: question.id } });
+                const data = this.questions[question.id];
                 author = this.bot.getUser(data.authorId);
 
                 var embed: EmbedBuilder;
@@ -178,10 +180,12 @@ export default class QOTD extends Component {
 
                 msg = await this.qotdChannel.send({ content: "<@&942269442514092082>", embeds: [embed] });
 
-                await this.bot.db.questionData.update({ where: { id: question.id }, data: { asked: true, link: msg.id, date: new Date(Date.now()) } });
+                data.asked = true;
+                data.link = msg.id;
+                data.date = new Date();
             } else if (thing.type == "poll") {
                 const poll = thing as Poll;
-                author = this.bot.getUser((await this.bot.db.pollData.findUnique({ where: { id: poll.id } })).authorId);
+                author = this.bot.getUser(this.polls[poll.id].authorId);
                 threadTitle = poll.title;
                 msg = await this.sendBasicPoll(poll, this.qotdChannel, "<@&942269442514092082>", author);
             }
@@ -219,20 +223,23 @@ export default class QOTD extends Component {
 
         await this.handlePoll(msg);
 
-        await this.bot.db.pollData.update({ where: { id: poll.id }, data: { asked: true, link: msg.id, date: new Date(Date.now()) } });
+        var data = this.polls[poll.id];
+        data.asked = true;
+        data.link = msg.id;
+        data.date = new Date();
 
         return msg;
     }
 
-    public scheduleMetaPoll(data: PollData) {
+    public scheduleMetaPoll(data: mPollData) {
         var close = data.date;
         close.setDate(close.getDate() + 1);
 
         setTimeout(async () => {
-            if (!(await this.bot.db.pollData.findUnique({ where: { id: data.id } })).open) return;
+            if (!this.polls[data.id].open) return;
 
             this.log.info("Closing meta poll");
-            await this.closePoll(data.id, false);
+            await this.closePoll(data, false);
             await (await this.bot.getChannel(data.channel).messages.fetch(data.link)).thread.send(`${roleMention("1139635551406931990")} poll results have been released.`);
         }, Math.max(close.getTime() - Date.now(), 1));
     }
@@ -260,7 +267,7 @@ export default class QOTD extends Component {
 
         reaction.users.remove(user);
 
-        const poll = await this.bot.db.pollData.findFirst({ where: { link: reaction.message.id }, include: { options: { include: { selected: true } } } });
+        const poll = values(this.polls).find(i => i.link === reaction.message.id);
 
         if (!poll.open) {
             collector.stop();
@@ -273,7 +280,7 @@ export default class QOTD extends Component {
         for (const i of poll.options) {
             const userIndex = i.selected.findIndex(e => e.id == user.id);
             if (userIndex != -1) {
-                await this.bot.db.pollQuestionData.update({ where: { id: i.id }, data: { selected: { disconnect: { id: user.id } } } });
+                await i.deselect(this.bot.getUserV2(user.id));
                 firstReaction = false;
             }
         }
@@ -282,15 +289,13 @@ export default class QOTD extends Component {
             this.bot.addXP(user.id, 3);
             this.bot.counting.giveSave(this.bot.getUserV2(user.id), .25);
         }
-
-        await this.bot.db.pollQuestionData.update({ where: { id: poll.options[index].id }, data: { selected: { connect: { id: user.id } } } });
+        await poll.options[index].select(this.bot.getUserV2(user.id));
 
         return true;
     }
 
-    public async closePoll(id: number, addAuthor: boolean = true) {
-        const poll = await this.bot.db.pollData.findUnique({ where: { id: id }, include: { options: { include: { selected: true } } } });
-        const author = this.bot.getUser((await this.bot.db.pollData.findUnique({ where: { id: poll.id } })).authorId);
+    public async closePoll(poll: mPollData, addAuthor: boolean = true) {
+        const author = poll.author.discord;
 
         const channel = this.qotdChannel.guild.channels.cache.get(poll.channel) as TextChannel;
         const msg = channel.messages.cache.get(poll.link);
@@ -326,7 +331,8 @@ export default class QOTD extends Component {
             res = await channel.send({ embeds: [embed] });
         }
 
-        await this.bot.db.pollData.update({ where: { id: id }, data: { open: false, results_link: res.id } });
+        poll.open = false;
+        poll.results_link = res.id;
 
         return res;
     }

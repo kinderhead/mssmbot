@@ -1,9 +1,9 @@
-import { AutocompleteInteraction, ButtonInteraction, ButtonStyle, CacheType, ChatInputCommandInteraction, EmbedBuilder, GuildScheduledEventEntityType, GuildScheduledEventPrivacyLevel, GuildVoiceChannelResolvable, PermissionFlagsBits, SlashCommandBuilder, VoiceBasedChannel, channelMention, hideLinkEmbed, time } from "discord.js";
+import { AutocompleteInteraction, ButtonStyle, CacheType, ChatInputCommandInteraction, EmbedBuilder, GuildScheduledEventEntityType, GuildScheduledEventPrivacyLevel, PermissionFlagsBits, SlashCommandBuilder, VoiceBasedChannel, channelMention, time } from "discord.js";
 import MSSM, { choose } from "../bot.js";
 import Command from "../command.js";
-import { autocompleteOptions, buttonHelper, expandAndHandleEmbed, getNextDayOfWeek, getValuesFromObject } from "../lib/utils.js";
-import MSSMUser from "../data/user.js";
 import MuckbangGame from "../data/muckbang_game.js";
+import MSSMUser from "../data/user.js";
+import { autocompleteOptions, buttonHelper, expandAndHandleEmbed, getNextDayOfWeek, values } from "../lib/utils.js";
 
 export default class MuckbangCommand extends Command {
     public getName() { return "muckbang"; }
@@ -35,7 +35,7 @@ export default class MuckbangCommand extends Command {
     }
 
     public async autocomplete(cmd: AutocompleteInteraction<CacheType>, bot: MSSM) {
-        await autocompleteOptions(cmd, getValuesFromObject(bot.muckbang.games).map(i => i.name));
+        await autocompleteOptions(cmd, values(bot.muckbang.games).map(i => i.name));
     }
 
     public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
@@ -62,7 +62,7 @@ export default class MuckbangCommand extends Command {
         await msg.deferReply();
 
         var embed = new EmbedBuilder().setTitle("The Grand Muckbang \"Rotation\"").setColor("Green");
-        var games = getValuesFromObject(bot.muckbang.games);
+        var games = values(bot.muckbang.games);
 
         await expandAndHandleEmbed(embed, games.map(i => { return { name: i.name, value: `[Download](${i.downloadLink})`, inline: true }; }), 25, msg.editReply.bind(msg));
     }
@@ -87,14 +87,14 @@ export default class MuckbangCommand extends Command {
             gameName = choose(Object.keys(bot.muckbang.games));
         }
 
-        var game = getValuesFromObject(bot.muckbang.games).find(i => i.name === gameName);
+        var game = values(bot.muckbang.games).find(i => i.name === gameName);
         if (!game) {
             await msg.editReply("Invalid game");
         }
 
         var timeIndex = msg.options.getString("time") ?? "1";
         var date = getNextDayOfWeek(new Date(), 6);
-        
+
         if (timeIndex === "0") {
             date.setHours(13, 30, 0, 0);
         } else {

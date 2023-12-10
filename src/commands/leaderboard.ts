@@ -1,8 +1,8 @@
-import { APIEmbedField, ActionRowBuilder, ButtonBuilder, ButtonStyle, CacheType, ChatInputCommandInteraction, ComponentType, EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import { CacheType, ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import MSSM from "../bot.js";
 import Command from "../command.js";
 import { calcWinLoss } from "../games/chess.js";
-import { expandAndHandleEmbed, getValuesFromObject } from "../lib/utils.js";
+import { expandAndHandleEmbed } from "../lib/utils.js";
 
 interface Position {
     user: string;

@@ -15,6 +15,6 @@ export default class ClosePollCommand extends Command {
 
     public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
         await msg.reply({ content: "Poll is closed", ephemeral: true });
-        await bot.qotd.closePoll(msg.options.getInteger("id"));
+        await bot.qotd.closePoll(bot.qotd.polls[msg.options.getInteger("id")]);
     }
 }

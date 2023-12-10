@@ -1,7 +1,7 @@
 import { TextInputBuilder } from "@discordjs/builders";
-import { ActionRowBuilder, APIEmbedField, APIModalInteractionResponseCallbackData, APIEmbed, AwaitModalSubmitOptions, WebhookMessageEditOptions, StringSelectMenuOptionBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, CacheType, CommandInteraction, ComponentType, Embed, EmbedBuilder, GuildMember, InteractionReplyOptions, InteractionResponse, JSONEncodable, Message, MessagePayload, ModalActionRowComponent, ModalActionRowComponentBuilder, ModalBuilder, ModalComponentData, ModalSubmitInteraction, TextInputStyle, AnyComponentBuilder, StringSelectMenuInteraction, AutocompleteInteraction } from "discord.js";
-import MSSM, { DEFAULT_LOGGER } from "../bot.js";
 import { diffChars } from "diff";
+import { APIEmbed, APIEmbedField, APIModalInteractionResponseCallbackData, ActionRowBuilder, AnyComponentBuilder, AutocompleteInteraction, AwaitModalSubmitOptions, ButtonBuilder, ButtonInteraction, ButtonStyle, CacheType, ComponentType, EmbedBuilder, GuildMember, InteractionReplyOptions, InteractionResponse, JSONEncodable, Message, MessagePayload, ModalActionRowComponentBuilder, ModalBuilder, ModalComponentData, ModalSubmitInteraction, StringSelectMenuBuilder, StringSelectMenuInteraction, StringSelectMenuOptionBuilder, TextInputStyle, WebhookMessageEditOptions } from "discord.js";
+import MSSM, { DEFAULT_LOGGER } from "../bot.js";
 
 export function discordDiff(a: string, b: string) {
     var diff = diffChars(escapeMarkdown(a), escapeMarkdown(b));
@@ -44,7 +44,7 @@ export async function embedPager(pages: EmbedBuilder[], msg: InteractionSendable
 
     var nextId = createCustomId();
     var prevId = createCustomId();
-    
+
     const next = new ButtonBuilder()
         .setCustomId(nextId)
         .setLabel("Next")
@@ -54,9 +54,9 @@ export async function embedPager(pages: EmbedBuilder[], msg: InteractionSendable
         .setCustomId(prevId)
         .setLabel("Previous")
         .setStyle(ButtonStyle.Primary);
-    
+
     const row = new ActionRowBuilder<ButtonBuilder>();
-    
+
     if (pages.length >= 2) {
         row.addComponents(previous, next);
     }
@@ -66,7 +66,7 @@ export async function embedPager(pages: EmbedBuilder[], msg: InteractionSendable
     var reply: InteractionResponse | Message;
 
     if (pages.length == 0) {
-        reply = await msg({ content: content, components: row.data.components == undefined ? []: [row], ephemeral: ephemeral });
+        reply = await msg({ content: content, components: row.data.components == undefined ? [] : [row], ephemeral: ephemeral });
     } else {
         reply = await msg({ content: content, embeds: [pages[0]], components: row.components.length > 0 ? [row] : [], ephemeral: ephemeral });
     }
@@ -83,10 +83,10 @@ export async function embedPager(pages: EmbedBuilder[], msg: InteractionSendable
                     return;
                 }
             }
-    
+
             if (pages.length != 0) {
                 pageIndex = ((pageIndex % pages.length) + pages.length) % pages.length;
-    
+
                 if (i.replied) {
                     i.editReply({ embeds: [pages[pageIndex]], components: [row] });
                 } else {
@@ -94,7 +94,7 @@ export async function embedPager(pages: EmbedBuilder[], msg: InteractionSendable
                 }
             }
         });
-    
+
         collector.on("end", async i => {
             try {
                 if (pages.length != 0) {
@@ -156,7 +156,7 @@ export async function settingsHelper(user: GuildMember, msg: InteractionSendable
             await int.update({ embeds: [embed], components: [] });
             return;
         }
-        
+
         for (const i of options) {
             if (int.customId === custom + i.name) {
                 if (typeof i.default === "boolean") {
@@ -174,9 +174,9 @@ export async function settingsHelper(user: GuildMember, msg: InteractionSendable
 }
 
 var embedBuilders: string[] = [];
-export async function embedBuilder(user: GuildMember, msg: InteractionSendable, bot: MSSM, embed: EmbedBuilder = undefined, callback: (data: APIEmbed) => void = undefined ) {
+export async function embedBuilder(user: GuildMember, msg: InteractionSendable, bot: MSSM, embed: EmbedBuilder = undefined, callback: (data: APIEmbed) => void = undefined) {
     bot.log.info(`${user.displayName} is editing an embed`);
-    
+
     if (embedBuilders.includes(user.id)) {
         var checkId = createCustomId();
         const checkButton = new ButtonBuilder().setLabel("Set title").setCustomId(checkId).setStyle(ButtonStyle.Success);
@@ -186,8 +186,8 @@ export async function embedBuilder(user: GuildMember, msg: InteractionSendable, 
     }
 
     embedBuilders.push(user.id);
-    
-    var data = await bot.db.userData.findUnique({ where: { id: user.id } });
+
+    var data = bot.getUserV2(user.id);
 
     var newButtonId = createCustomId();
     var selectButtonId = createCustomId();
@@ -316,7 +316,7 @@ export async function embedBuilder(user: GuildMember, msg: InteractionSendable, 
                 if (callback === undefined) {
                     await i.channel.send({ embeds: [embed] });
                 } else {
-                    await bot.db.userData.update({ where: { id: user.id }, data: { embeds: { set: embeds.map(e => JSON.stringify(e.toJSON())) } } });
+                    data.embeds = embeds.map(e => JSON.stringify(e.toJSON()));
 
                     i.update({ content: "Submitted", components: [] });
                     callback(embed.toJSON());
@@ -324,8 +324,8 @@ export async function embedBuilder(user: GuildMember, msg: InteractionSendable, 
                     return;
                 }
             } else if (i.customId === saveButtonId) {
-                await bot.db.userData.update({ where: { id: user.id }, data: { embeds: { set: embeds.map(e => JSON.stringify(e.toJSON())) } } });
-                
+                data.embeds = embeds.map(e => JSON.stringify(e.toJSON()));
+
                 collector.stop();
                 return;
             }
@@ -355,7 +355,7 @@ export async function embedBuilder(user: GuildMember, msg: InteractionSendable, 
             try {
                 res.edit({ embeds: [], components: [], content: "You were a little too goated with the sauce. Don't do what you did next time." });
             } catch {
-                
+
             }
         }
     });
@@ -373,7 +373,7 @@ export async function embedBuilder(user: GuildMember, msg: InteractionSendable, 
 
 export async function quickModal(title: string, label: string, def: string, style: TextInputStyle, int: { showModal: (modal: APIModalInteractionResponseCallbackData | ModalComponentData | JSONEncodable<APIModalInteractionResponseCallbackData>) => Promise<void>, awaitModalSubmit: (options: AwaitModalSubmitOptions<ModalSubmitInteraction<CacheType>>) => Promise<ModalSubmitInteraction<CacheType>> }, max: number = 4000) {
     //var placeholder = shorten(def);
-    
+
     try {
         var modalId = createCustomId();
         var id = createCustomId();
@@ -398,7 +398,7 @@ export async function quickMultiModal(title: string, label1: string, def1: strin
     try {
         //var placeholder1 = shorten(def1);
         //var placeholder2 = shorten(def2);
-    
+
         var modalId = createCustomId();
         var id1 = createCustomId();
         var id2 = createCustomId();
@@ -448,7 +448,8 @@ export async function buttonHelper<T = void>(base: EmbedBuilder, buttons: ([Quic
             } else {
                 return i.customId in cbmap && i.user.id === allowedId;
             }
-        }, componentType: ComponentType.Button });
+        }, componentType: ComponentType.Button
+    });
     try {
         await reply.edit({ embeds: [base], components: [] });
     } catch {
@@ -510,7 +511,7 @@ export function getNextDayOfWeek(date: Date, dayOfWeek: number) {
     return date;
 }
 
-export function getValuesFromObject<T>(obj: { [key: number | string]: T }) {
+export function values<T>(obj: { [key: number | string]: T }) {
     var array: T[] = [];
     for (const key in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {

@@ -128,7 +128,7 @@ export default class MetaQuestionsCommand extends Command {
                 choice.meta_is_done = true;
                 this.log.info(`Resolved meta question "${choice.title}"`);
             } else if (opt === "close") {
-                await bot.qotd.closePoll(choice.id, false);
+                await bot.qotd.closePoll(choice, false);
             }
         }
     }
@@ -147,7 +147,7 @@ export default class MetaQuestionsCommand extends Command {
             return;
         }
 
-        const poll = await user.createPoll(title, new Date(), "1139634512230367335", true, options);
+        const poll = await user.createPoll(title, options, new Date(), "1139634512230367335", true);
 
         var pmsg = await bot.qotd.sendBasicPoll({ id: poll.id, options: options, title: title, type: "poll" }, bot.qotd.metaQuestionsChannel, "", bot.getUser(msg));
         bot.qotd.scheduleMetaPoll(poll);

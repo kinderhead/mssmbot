@@ -144,7 +144,7 @@ export async function getMinecraftEmbeds(bot: MSSM) {
 
         if (res.status.players.sample) {
             for (const i of res.status.players.sample) {
-                var user = await bot.db.userData.findFirst({ where: { minecraft_username: i.name } });
+                var user = bot.getAllMembers().find(e => e.minecraft_username === i.name);
 
                 if (user) {
                     fields.push({ name: i.name, value: userMention(user.id), inline: true });

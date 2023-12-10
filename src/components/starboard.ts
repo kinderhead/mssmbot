@@ -16,10 +16,6 @@ export default class Starboard extends Component {
 
     public async init() {
         this.starboardChannel = this.bot.getChannel("739336559219703859");
-
-        // for (const i of await this.bot.db.starboardMessage.findMany({ where: { stars: null } })) {
-        //     await this.bot.db.starboardMessage.update({ where: { id: i.id }, data: { stars: await this.countStars(await this.starboardChannel.messages.fetch(i.starboardMessageId)) } });
-        // }
     }
 
     public async onReaction(reaction: MessageReaction | PartialMessageReaction, user: User | PartialUser) {
