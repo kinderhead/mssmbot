@@ -11,7 +11,7 @@ import PollQuestion from "../data/poll_question_data.js";
 import QuestionData from "../data/question.js";
 import Component from "../lib/component.js";
 import { Poll, Question, QueueDataStorage, Storage } from "../lib/storage.js";
-import { createCustomId, quickActionRow, shorten } from "../lib/utils.js";
+import { createCustomId, getValuesFromObject, quickActionRow, shorten } from "../lib/utils.js";
 import MetaQuestionData from "../data/meta_question.js";
 import MegaPollData from "../data/mega_poll.js";
 import MegaPollOptionData from "../data/mega_poll_option.js";
@@ -100,7 +100,7 @@ export default class QOTD extends Component {
         }
 
         for (const i of await this.bot.db.megaPoll.findMany({ where: { open: true }, include: { options: { include: { selected: true } } } })) {
-            this.handleMegaPoll(i);
+            this.handleMegaPoll(this.megaPolls[i.id]);
             this.log.info("Connecting to mega poll: " + i.title);
         }
 
@@ -120,6 +120,14 @@ export default class QOTD extends Component {
         } else {
             await (await this.metaQuestionsChannel.messages.fetch(this.bot.memory.metaid)).edit(`There are ${length} active posts here.`);
         }
+    }
+
+    public getActiveMetaQuestions() {
+        return getValuesFromObject(this.metaQuestions).filter(i => i.active);
+    }
+
+    public getActiveMetaPolls() {
+        return getValuesFromObject(this.polls).filter(i => !i.meta_is_done && i.channel == "1139634512230367335");
     }
 
     public scheduleQotd() {
@@ -323,7 +331,7 @@ export default class QOTD extends Component {
         return res;
     }
 
-    public async handleMegaPoll(poll: MegaPoll & { options: (MegaPollOption & { selected: UserData[] })[] }) {
+    public async handleMegaPoll(poll: MegaPollData) {
         const msg = await this.bot.getChannel(poll.channel).messages.fetch(poll.link);
 
         const collector = msg.createMessageComponentCollector({ componentType: ComponentType.Button, filter: i => i.customId === poll.buttonId });
@@ -353,8 +361,6 @@ export default class QOTD extends Component {
                     for (const i of voted) {
                         await this.bot.db.megaPollOption.update({ where: { id: i.id }, data: { selected: { connect: { id: int.user.id } } } });
                     }
-
-                    poll.options = await this.bot.db.megaPollOption.findMany({ where: { pollId: poll.id }, include: { selected: true } });
                 }
 
                 opt.update({ content: "Vote counted. You can change your vote anytime.", components: [quickActionRow(createSelector())] });

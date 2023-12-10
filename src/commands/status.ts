@@ -17,52 +17,56 @@ export default class StatusCommand extends Command {
     public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
         await msg.deferReply();
 
-        const user = bot.getUser(msg.options.getUser("user"));
-
-        var data = await bot.db.userData.findUnique({ where: { id: user.id }, include: { questions: true, polls: { where: { channel: "942269186061774870" } }, poll_answers: { where: { poll: { channel: "942269186061774870" } } }, starboard: true, _count: true } });
+        var user = bot.getUserV2(msg.options.getUser("user").id);
 
         var totalStars = 0;
 
-        for (const i of data.starboard) {
+        for (const i of user.starboard) {
             totalStars += i.stars;
         }
 
-        const level = bot.getLevelFromXP(data.xp);
+        const level = bot.getLevelFromXP(user.xp);
         const defaultEmbed = new EmbedBuilder()
-            .setTitle(user.displayName)
-            .setThumbnail(user.displayAvatarURL())
-            .setDescription(data.bio + (data.bio !== "" ? "\n\n" : "") + (data.minecraft_username !== "" ? "Minecraft username: **" + data.minecraft_username + "**\n\n" : "") + "Member since " + user.joinedAt.toLocaleDateString())
-            .setColor(user.displayHexColor)
+            .setTitle(user.discord.displayName)
+            .setThumbnail(user.discord.displayAvatarURL())
+            .setDescription(user.bio + (user.bio !== "" ? "\n\n" : "") + (user.minecraft_username !== "" ? "Minecraft username: **" + user.minecraft_username + "**\n\n" : "") + "Member since " + user.discord.joinedAt.toLocaleDateString())
+            .setColor(user.discord.displayHexColor)
             .addFields(
                 { name: "Level", value: level.toString(), inline: true },
-                { name: "Level progress", value: `XP: ${data.xp}/${bot.getXPFromLevel(level + 1) + 1}`, inline: true },
+                { name: "Level progress", value: `XP: ${user.xp}/${bot.getXPFromLevel(level + 1) + 1}`, inline: true },
                 { name: '\u200B', value: '\u200B' },
-                { name: "QOTD posts", value: (data._count.polls + data._count.questions).toString(), inline: true },
-                { name: "Polls answered", value: data._count.poll_answers.toString(), inline: true },
+                { name: "QOTD posts", value: (user.polls.length + user.questions.length).toString(), inline: true },
+                { name: "Polls answered", value: user.poll_answers.length.toString(), inline: true },
                 { name: '\u200B', value: '\u200B' },
-                { name: "Counted", value: data.times_counted.toString(), inline: true },
-                { name: "Failed to count", value: data.times_failed.toString(), inline: true },
+                { name: "Counted", value: user.times_counted.toString(), inline: true },
+                { name: "Failed to count", value: user.times_failed.toString(), inline: true },
                 { name: '\u200B', value: '\u200B' },
                 { name: 'Starboard stars', value: totalStars.toString(), inline: true },
-                { name: 'Starboard posts', value: data._count.starboard.toString(), inline: true },
+                { name: 'Starboard posts', value: user.starboard.length.toString(), inline: true },
         );
 
         var latestQuestions = [];
-        data.questions.reverse();
-        data.polls.reverse();
 
         for (let i = 0; i < 5; i++) {
             var q = null;
-            if (data._count.questions > i) {
-                if (data.questions[i]?.asked === true) {
-                    q = { name: "Question: " + data.questions[i].question, value: `[Link](${(await bot.qotd.qotdChannel.messages.fetch(data.questions[i].link)).url})` };
+            if (user.questions.length > i) {
+                if (user.questions[i]?.asked === true) {
+                    try {
+                        q = { name: "Question: " + user.questions[i].question, value: `[Link](${(await bot.qotd.qotdChannel.messages.fetch(user.questions[i].link)).url})` };
+                    } catch {
+
+                    }
                 }
             }
 
             var p = null;
-            if (data._count.polls > i) {
-                if (data.polls[i]?.asked === true) {
-                    q = { name: "Poll: " + data.polls[i].title, value: `[Link](${(await bot.qotd.qotdChannel.messages.fetch(data.polls[i].link)).url})` };
+            if (user.polls.length > i) {
+                if (user.polls[i]?.asked === true) {
+                    try {
+                        q = { name: "Poll: " + user.polls[i].title, value: `[Link](${(await bot.qotd.qotdChannel.messages.fetch(user.polls[i].link)).url})` };
+                    } catch {
+
+                    }
                 }
             }
 
@@ -73,11 +77,11 @@ export default class StatusCommand extends Command {
         var [chessWin, chessLoss] = await calcWinLoss(user.id, bot);
 
         var starboardPosts = [];
-        data.starboard.sort((a, b) => a.date.getTime() - b.date.getTime());
+        user.starboard.sort((a, b) => a.date.getTime() - b.date.getTime());
 
-        for (let i = 0; i < Math.min(5, data._count.starboard); i++) {
+        for (let i = 0; i < Math.min(5, user.starboard.length); i++) {
             try {
-                var starboardMsg = await bot.getChannel(data.starboard[i].channelId).messages.fetch(data.starboard[i].id);
+                var starboardMsg = await bot.getChannel(user.starboard[i].channelId).messages.fetch(user.starboard[i].id);
                 var name = starboardMsg.content === "" ? "No text" : starboardMsg.content;
                 starboardPosts.push({ name: name, value: `[Link](${starboardMsg.url})` });
             } catch (e) {
@@ -86,40 +90,40 @@ export default class StatusCommand extends Command {
         }
 
         const qotdEmbed = new EmbedBuilder()
-            .setTitle(user.displayName)
-            .setThumbnail(user.displayAvatarURL())
+            .setTitle(user.discord.displayName)
+            .setThumbnail(user.discord.displayAvatarURL())
             .setDescription("Question of the day info\nRecent QOTD posts:")
-            .setColor(user.displayHexColor)
+            .setColor(user.discord.displayHexColor)
             .addFields(
                 latestQuestions
         );
         
         const gameEmbed = new EmbedBuilder()
-            .setTitle(user.displayName)
-            .setThumbnail(user.displayAvatarURL())
+            .setTitle(user.discord.displayName)
+            .setThumbnail(user.discord.displayAvatarURL())
             .setDescription("Game stats")
-            .setColor(user.displayHexColor)
+            .setColor(user.discord.displayHexColor)
             .addFields(
-                { name: "Uno win/loss ratio", value: `${data.uno_wins}/${data.uno_losses}`, inline: true },
+                { name: "Uno win/loss ratio", value: `${user.uno_wins}/${user.uno_losses}`, inline: true },
                 { name: "Chess win/loss ratio.", value: `${chessWin}/${chessLoss}`, inline: true }
         );
         
         const countingEmbed = new EmbedBuilder()
-            .setTitle(user.displayName)
-            .setThumbnail(user.displayAvatarURL())
+            .setTitle(user.discord.displayName)
+            .setThumbnail(user.discord.displayAvatarURL())
             .setDescription("Counting stats")
-            .setColor(user.displayHexColor)
+            .setColor(user.discord.displayHexColor)
             .addFields(
-                { name: "Counted", value: data.times_counted.toString(), inline: true },
-                { name: "Failed to count", value: data.times_failed.toString(), inline: true },
-                { name: "Saves", value: data.saves.toString(), inline: true },
+                { name: "Counted", value: user.times_counted.toString(), inline: true },
+                { name: "Failed to count", value: user.times_failed.toString(), inline: true },
+                { name: "Saves", value: user.saves.toString(), inline: true },
         );
 
         const starboardEmbed = new EmbedBuilder()
-            .setTitle(user.displayName)
-            .setThumbnail(user.displayAvatarURL())
+            .setTitle(user.discord.displayName)
+            .setThumbnail(user.discord.displayAvatarURL())
             .setDescription("Starboard stats\nRecent starboard posts:")
-            .setColor(user.displayHexColor)
+            .setColor(user.discord.displayHexColor)
             .addFields(
                 starboardPosts
         );

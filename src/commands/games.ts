@@ -2,7 +2,7 @@ import { CacheType, ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBi
 import MSSM from "../bot.js";
 import Command from "../command.js";
 import { getResultPretty } from "../games/chess.js";
-import { expandAndHandleEmbed } from "../lib/utils.js";
+import { expandAndHandleEmbed, getValuesFromObject } from "../lib/utils.js";
 
 export default class GamesCommand extends Command {
     public getName() { return "games"; }
@@ -39,7 +39,7 @@ export default class GamesCommand extends Command {
 
             await msg.reply({ embeds: [embed] });
         } else if (msg.options.getSubcommand() === "chess") {
-            const games = await bot.db.chessData.findMany();
+            const games = getValuesFromObject(bot.chessGames);
             games.reverse();
             
             await expandAndHandleEmbed(new EmbedBuilder().setTitle("Chess Games"), games.map(i => {

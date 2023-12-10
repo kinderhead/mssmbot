@@ -1,7 +1,8 @@
 import { APIEmbed, ButtonBuilder, ButtonStyle, CacheType, ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder, userMention } from "discord.js";
 import MSSM from "../bot.js";
 import Command from "../command.js";
-import { createCustomId, embedPager, expandAndHandleEmbed } from "../lib/utils.js";
+import { createCustomId, embedPager, expandAndHandleEmbed, getValuesFromObject } from "../lib/utils.js";
+import MSSMUser from "../data/user.js";
 
 export default class ModAppsCommand extends Command {
     public getName() { return "mod-apps"; }
@@ -14,7 +15,7 @@ export default class ModAppsCommand extends Command {
     }
 
     public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
-        var apps: [EmbedBuilder, string][] = (await bot.db.userData.findMany({ where: { mod_application: { not: "" } } })).map(i => [EmbedBuilder.from(JSON.parse(i.mod_application) as APIEmbed), i.id]);
+        var apps: [EmbedBuilder, MSSMUser][] = bot.getAllMembers().filter(i => i.mod_application !== "").map(i => [EmbedBuilder.from(JSON.parse(i.mod_application) as APIEmbed), i]);
     
         var sendId = createCustomId();
         var deleteId = createCustomId();
@@ -27,7 +28,7 @@ export default class ModAppsCommand extends Command {
                 return false;
             },
             [deleteId]: async (i, int) => {
-                await bot.db.userData.update({ where: { id: apps[i][1] }, data: { mod_application: "" } });
+                apps[i][1].mod_application = "";
                 return false;
             }
         });

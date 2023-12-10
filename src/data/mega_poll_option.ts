@@ -6,18 +6,18 @@ import MSSMUser from "./user.js";
 
 export default class MegaPollOptionData extends DataMapper<MegaPollOption> implements MegaPollOption {
     public poll: MegaPollData;
-    public selected: MSSMUser[] = [];
+    public selected: MSSMUser[];
 
     public constructor(bot: MSSM, data: MegaPollOption) {
         super(bot, data, bot.qotd.megaPollQuestions);
     }
 
     public async refresh() {
-        this.poll = this.bot.qotd.megaPolls[this.obj.pollId];
-        this.fetchArrayFactory(
-            this.selected,
+        this.poll = this.fetchFactory(await this.bot.db.megaPoll.findUnique({ where: { id: this.obj.pollId } }), MegaPollData, this.bot.qotd.megaPolls);
+        this.selected = this.fetchArrayFactory(
             (await this.bot.db.megaPollOption.findUnique({ where: { id: this.obj.id }, include: { selected: true } })).selected,
-            MSSMUser
+            MSSMUser,
+            this.bot.users
         );
     }
 

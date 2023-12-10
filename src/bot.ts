@@ -1,5 +1,5 @@
 import { MegaPoll, MegaPollOption, PollData, PrismaClient, UserData } from '@prisma/client';
-import { APIEmbed, Attachment, Awaitable, CacheType, ChatInputCommandInteraction, Client, ComponentType, EmbedBuilder, Events, GatewayIntentBits, GuildBasedChannel, GuildMember, Interaction, Message, MessageReaction, PartialGuildMember, PartialMessageReaction, PartialUser, Partials, REST, ReactionCollector, Role, Routes, SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextChannel, ThreadAutoArchiveDuration, User, channelMention, roleMention, userMention } from 'discord.js';
+import { APIEmbed, ActivityType, Attachment, Awaitable, CacheType, ChatInputCommandInteraction, Client, ComponentType, EmbedBuilder, Events, GatewayIntentBits, GuildBasedChannel, GuildMember, Interaction, Message, MessageReaction, PartialGuildMember, PartialMessageReaction, PartialUser, Partials, REST, ReactionCollector, Role, Routes, SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextChannel, ThreadAutoArchiveDuration, User, channelMention, roleMention, userMention } from 'discord.js';
 import fs from 'fs';
 
 import util from 'node:util';
@@ -39,7 +39,7 @@ import { getInfoEmbeds, getMinecraftEmbeds, getModInfoEmbeds } from './lib/info_
 import Lichess from './lib/lichess.js';
 import { EmbedResource, StringOpts, StringResource } from './lib/resource.js';
 import { Memory, Poll, QueueDataStorage, Storage } from './lib/storage.js';
-import { InteractionSendable, createCustomId, isValidUrl, quickActionRow, shorten } from './lib/utils.js';
+import { InteractionSendable, createCustomId, getValuesFromObject, isValidUrl, quickActionRow, shorten } from './lib/utils.js';
 import SetRulesCommand from './commands/set_rules.js';
 import EditRulesCommand from './commands/edit_rules.js';
 import Component from './lib/component.js';
@@ -72,6 +72,8 @@ export const LOGGER_STREAM = createStream("bot.log", {
     interval: "1d",
     path: "/home/daniel/mssmbot/logs/"
 });
+
+export const DEBUG = process.argv.includes("--debug");
 
 export default class MSSM {
     public components: Component[] = [];
@@ -128,7 +130,7 @@ export default class MSSM {
             if (this.hasStarted && !txt.includes("anon") && !txt.includes("DEBUG")) {
                 var msg = "```ansi\n" + txt.substring(42).trim() + "\n```";
 
-                if (txt.includes("ERROR") || txt.includes("FATAL")) {
+                if ((txt.includes("ERROR") || txt.includes("FATAL")) && !DEBUG) {
                     msg = `${roleMention("752345386617798798")}\n` + msg;
                 }
 
@@ -232,6 +234,10 @@ export default class MSSM {
         for (const i in this.chessGames) {
             await this.chessGames[i].refresh();
         }
+
+        // for (const i of this.getAllMembers()) {
+        //     await i.refresh();
+        // }
     }
 
     public async onLogIn(c: Client) {
@@ -298,7 +304,13 @@ export default class MSSM {
         await Promise.all(promisesToAwait);
 
         this.hasStarted = true;
-        this.log.info("Bot slipped on a banana and had to restart. Ready");
+
+        if (DEBUG) {
+            this.log.info("Debugging bot. Ready");
+            this.client.user.setPresence({ activities: [{ name: "Debugging", type: ActivityType.Custom }] });
+        } else {
+            this.log.info("Bot slipped on a banana and had to restart. Ready");
+        }
     }
 
     public async onNewMember(user: GuildMember) {
@@ -400,15 +412,11 @@ export default class MSSM {
 
         if (data.need_message) {
             await this.levelChannel.send(`${data.levelup_ping ? userMention(data.id) : data.discord.displayName} has leveled up! They are now level ${this.getLevelFromXP(data.xp)}`);
-            await this.clearLevelUp(data.id);
+            data.need_message = false;
             this.log.info(`${data.discord.displayName} leveled up`);
         }
 
         return data.need_message;
-    }
-
-    public async clearLevelUp(user: string) {
-        await this.db.userData.update({ where: { id: user }, data: { need_message: false } });
     }
 
     public async requireResource(type: "embed", user: GuildMember, msg: InteractionSendable, opts: {}): Promise<APIEmbed>;
@@ -537,6 +545,14 @@ export default class MSSM {
         return this.users[id];
     }
 
+    public getAllMembers() {
+        var users: MSSMUser[] = [];
+        for (const i of getValuesFromObject(this.users)) {
+            if (this.userExists(i.id)) users.push(i);
+        }
+        return users;
+    }
+
     public getUser(id: string): GuildMember
     public getUser(user: User): GuildMember
     public getUser(user: UserData): GuildMember
@@ -588,7 +604,7 @@ export default class MSSM {
         this.memory.changeloglastdate = date;
 
         var desc = `
-* Switched up how /status is customized
+* Added an indicator to indicate whether the bot is being debugged or is running normally
         `;
 
         if (this.memory.changeloglastdesc === desc) return;

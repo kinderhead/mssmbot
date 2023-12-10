@@ -48,13 +48,13 @@ export default class QOTDCommand extends Command {
         var data = await bot.db.userData.findUnique({ where: { id: msg.user.id }, include: { questions: true, polls: { where: { channel: "942269186061774870" } } } });
 
         if (msg.options.getSubcommand() === "ask") {
-            await this.ask(data, msg, bot);
+            await this.ask(data, msg, bot, user);
         } else if (msg.options.getSubcommand() === "ask-fancy") {
-            await this.askFancy(data, msg, bot);
+            await this.askFancy(data, msg, bot, user);
         } else if (msg.options.getSubcommand() === "poll") {
-            await this.poll(data, msg, bot);
+            await this.poll(data, msg, bot, user);
         } else if (msg.options.getSubcommand() === "manage") {
-            await this.manage(data, msg, bot);
+            await this.manage(data, msg, bot, user);
         } else if (msg.options.getSubcommand() === "doomsday") {
             await this.doomsday(msg, bot);
         } else {
@@ -62,7 +62,7 @@ export default class QOTDCommand extends Command {
         }
     }
 
-    private async ask(data: UserData, msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    private async ask(data: UserData, msg: ChatInputCommandInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
         const question = msg.options.getString("question");
 
         if (question.length > 256) {
@@ -88,12 +88,10 @@ export default class QOTDCommand extends Command {
 
         await msg.reply({ content: "Question queued", ephemeral: true });
 
-        bot.clearLevelUp(data.id);
-
         this.log.info("New question: " + question);
     }
 
-    private async askFancy(data: UserData, msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    private async askFancy(data: UserData, msg: ChatInputCommandInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
         const embed = await bot.requireResource("embed", bot.getUser(msg), msg.reply.bind(msg), {});
         const question = JSON.stringify(embed);
 
@@ -116,12 +114,10 @@ export default class QOTDCommand extends Command {
 
         await msg.editReply({ content: "Question queued", embeds: [], components: [] });
 
-        bot.clearLevelUp(data.id);
-
         this.log.info("New question: fancy embed");
     }
 
-    private async poll(data: UserData, msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    private async poll(data: UserData, msg: ChatInputCommandInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
         const title = msg.options.getString("title");
         var options: string[] = [];
 
@@ -164,12 +160,10 @@ export default class QOTDCommand extends Command {
 
         await msg.reply({ content: "Poll queued", ephemeral: true });
 
-        bot.clearLevelUp(data.id);
-
         this.log.info("New poll: " + title);
     }
 
-    private async manage(data: UserData & { questions: QuestionData[]; polls: PollData[]; }, msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    private async manage(data: UserData & { questions: QuestionData[]; polls: PollData[]; }, msg: ChatInputCommandInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
         const embed = new EmbedBuilder()
             .setTitle("Manage QOTD posts");
 
@@ -232,7 +226,7 @@ export default class QOTDCommand extends Command {
             if (selection.customId === optionsID) {
                 if (selection.isStringSelectMenu()) {
                     await response.delete();
-                    await this.managePostManager(parseInt(selection.values[0]), data, selection, bot);
+                    await this.managePostManager(parseInt(selection.values[0]), data, selection, bot, user);
                 } else {
                     throw "Not string select menu option";
                 }
@@ -244,7 +238,7 @@ export default class QOTDCommand extends Command {
         }
     }
 
-    private async managePostManager(idex: number, data: UserData, msg: ChatInputCommandInteraction<CacheType> | ModalSubmitInteraction<CacheType> | StringSelectMenuInteraction<CacheType>, bot: MSSM) {
+    private async managePostManager(idex: number, data: UserData, msg: ChatInputCommandInteraction<CacheType> | ModalSubmitInteraction<CacheType> | StringSelectMenuInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
         const post = bot.qotd.questionQueue.queue[idex];
         const embed = new EmbedBuilder().setTitle("Manage QOTD posts");
 

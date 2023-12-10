@@ -25,15 +25,15 @@ const fullUser = Prisma.validator<Prisma.UserDataDefaultArgs>()({
 
 export type FullUser = Prisma.UserDataGetPayload<typeof fullUser>;
 export default class MSSMUser extends DataMapper<UserData> implements UserData {
-    public questions: Question[] = [];
-    public polls: Poll[] = [];
-    public starboard: StarboardData[] = [];
-    public poll_answers: PollQuestion[] = [];
-    public chess_games_black: ChessGameData[] = [];
-    public chess_games_white: ChessGameData[] = [];
-    public mega_poll_answers: MegaPollOptionData[] = [];
-    public manager_of: Club[] = [];
-    public officer_of: Club[] = [];
+    public questions: Question[];
+    public polls: Poll[];
+    public starboard: StarboardData[];
+    public poll_answers: PollQuestion[];
+    public chess_games_black: ChessGameData[];
+    public chess_games_white: ChessGameData[];
+    public mega_poll_answers: MegaPollOptionData[];
+    public manager_of: Club[];
+    public officer_of: Club[];
 
     public get discord() {
         return this.bot.getUser(this.obj.id);
@@ -45,35 +45,43 @@ export default class MSSMUser extends DataMapper<UserData> implements UserData {
 
     public async createStarboardPost(id: string, channelId: string, starboardMessageId: string, date: Date, stars: number) {
         var data = new StarboardData(this.bot, await this.bot.db.starboardMessage.create({ data: { id, channelId, starboardMessageId, date, stars, author: { connect: { id: this.obj.id } } } }));
+        await data.refresh();
         this.starboard.push(data);
         return data;
     }
 
+    public async createPoll(title: string, date: Date, channel: string, asked: boolean, options: string[]) {
+        var data = new Poll(this.bot, await this.bot.db.pollData.create({ data: { title, date, channel, asked, author: { connect: { id: this.obj.id } }, options: { createMany: { data: options.map(i => { return { option: i } }) } } } }));
+        await data.refresh();
+        this.polls.push(data);
+        return data;
+    }
+
     public override async refresh() {
-        this.fetchArrayFactory(this.questions, await this.bot.db.questionData.findMany({ where: { authorId: this.obj.id } }), Question);
-        this.fetchArrayFactory(this.polls, await this.bot.db.pollData.findMany({ where: { authorId: this.obj.id } }), Poll);
-        this.fetchArrayFactory(this.starboard, await this.bot.db.starboardMessage.findMany({ where: { authorId: this.obj.id } }), StarboardData);
-        this.fetchArrayFactory(
-            this.poll_answers,
+        this.questions = this.fetchArrayFactory(await this.bot.db.questionData.findMany({ where: { authorId: this.obj.id } }), Question, this.bot.qotd.questions);
+        this.polls = this.fetchArrayFactory(await this.bot.db.pollData.findMany({ where: { authorId: this.obj.id } }), Poll, this.bot.qotd.polls);
+        this.starboard = this.fetchArrayFactory(await this.bot.db.starboardMessage.findMany({ where: { authorId: this.obj.id } }), StarboardData, this.bot.starboard.starboardPosts);
+        this.poll_answers = this.fetchArrayFactory(
             (await this.bot.db.userData.findUnique({ where: { id: this.obj.id }, include: { poll_answers: true } })).poll_answers,
-            PollQuestion
+            PollQuestion,
+            this.bot.qotd.pollQuestions
         );
-        this.fetchArrayFactory(this.chess_games_white, await this.bot.db.chessData.findMany({ where: { whiteId: this.obj.id } }), ChessGameData);
-        this.fetchArrayFactory(this.chess_games_black, await this.bot.db.chessData.findMany({ where: { blackId: this.obj.id } }), ChessGameData);
-        this.fetchArrayFactory(
-            this.mega_poll_answers,
+        this.chess_games_white = this.fetchArrayFactory(await this.bot.db.chessData.findMany({ where: { whiteId: this.obj.id } }), ChessGameData, this.bot.chessGames);
+        this.chess_games_black = this.fetchArrayFactory(await this.bot.db.chessData.findMany({ where: { blackId: this.obj.id } }), ChessGameData, this.bot.chessGames);
+        this.mega_poll_answers = this.fetchArrayFactory(
             (await this.bot.db.userData.findUnique({ where: { id: this.obj.id }, include: { mega_poll_answers: true } })).mega_poll_answers,
-            MegaPollOptionData
+            MegaPollOptionData,
+            this.bot.qotd.megaPollQuestions
         );
-        this.fetchArrayFactory(
-            this.manager_of,
+        this.manager_of = this.fetchArrayFactory(
             (await this.bot.db.userData.findUnique({ where: { id: this.obj.id }, include: { manager_of: true } })).manager_of,
-            Club
+            Club,
+            this.bot.clubs.clubData
         );
-        this.fetchArrayFactory(
-            this.officer_of,
+        this.officer_of = this.fetchArrayFactory(
             (await this.bot.db.userData.findUnique({ where: { id: this.obj.id }, include: { officer_of: true } })).officer_of,
-            Club
+            Club,
+            this.bot.clubs.clubData
         );
 
         if (this.obj.saves > 3) {

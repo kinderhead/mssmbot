@@ -2,6 +2,7 @@ import { ButtonBuilder, ButtonStyle, CacheType, ChatInputCommandInteraction, Emb
 import MSSM from "../bot.js";
 import Command from "../command.js";
 import { createCustomId, quickActionRow } from "../lib/utils.js";
+import MegaPollData from "../data/mega_poll.js";
 
 export default class MegaPollCommand extends Command {
     public getName() { return "mega-poll"; }
@@ -29,30 +30,7 @@ export default class MegaPollCommand extends Command {
             components: [quickActionRow(new ButtonBuilder().setCustomId(buttonId).setLabel("Vote").setStyle(ButtonStyle.Success))]
         });
 
-        const poll = await bot.db.megaPoll.create({
-            data: {
-                title: title,
-                options: {
-                    createMany: {
-                        data: options.map(i => {
-                            return { option: i };
-                        })
-                    }
-                },
-                channel: msg.channelId,
-                buttonId: buttonId,
-                date: new Date(),
-                link: message.id
-            },
-            include:
-            {
-                options: {
-                    include: {
-                        selected: true
-                    }
-                }
-            }
-        });
+        const poll = await MegaPollData.create(bot, title, new Date(), msg.channelId, message.id, buttonId, options);
 
         bot.qotd.handleMegaPoll(poll);
     }

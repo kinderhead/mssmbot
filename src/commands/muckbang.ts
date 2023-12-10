@@ -62,7 +62,7 @@ export default class MuckbangCommand extends Command {
         await msg.deferReply();
 
         var embed = new EmbedBuilder().setTitle("The Grand Muckbang \"Rotation\"").setColor("Green");
-        var games = await bot.db.muckbangGameData.findMany();
+        var games = getValuesFromObject(bot.muckbang.games);
 
         await expandAndHandleEmbed(embed, games.map(i => { return { name: i.name, value: `[Download](${i.downloadLink})`, inline: true }; }), 25, msg.editReply.bind(msg));
     }

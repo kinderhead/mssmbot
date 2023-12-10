@@ -4,6 +4,8 @@ import Command from "../command.js";
 import { ButtonHelperCallback, QuickButton, SelectHelperCallback, buttonHelper, selectHelper, shorten } from "../lib/utils.js";
 import { MetaQuestion, PollData } from "@prisma/client";
 import MetaQuestionData from "../data/meta_question.js";
+import Poll from "../data/poll.js";
+import MSSMUser from "../data/user.js";
 
 export default class MetaQuestionsCommand extends Command {
     public getName() { return "meta-board"; }
@@ -27,7 +29,7 @@ export default class MetaQuestionsCommand extends Command {
                 .setDescription("Manage all posts and polls"));
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
         await msg.deferReply({ ephemeral: true });
 
         if (msg.options.getSubcommand() === "post") {
@@ -35,7 +37,7 @@ export default class MetaQuestionsCommand extends Command {
         } else if (msg.options.getSubcommand() === "manage") {
             await this.manage(msg, bot);
         } else if (msg.options.getSubcommand() === "poll") {
-            await this.poll(msg, bot);
+            await this.poll(msg, bot, user);
         }
 
         await bot.qotd.refreshMetaMessage();
@@ -60,9 +62,9 @@ export default class MetaQuestionsCommand extends Command {
     }
 
     private async manage(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
-        var choices: (MetaQuestion | PollData)[] = [];
-        choices.push(...await bot.db.metaQuestion.findMany({ where: { active: true } }));
-        choices.push(...await bot.db.pollData.findMany({ where: { channel: "1139634512230367335", meta_is_done: false } }));
+        var choices: (MetaQuestionData | Poll)[] = [];
+        choices.push(...bot.qotd.getActiveMetaQuestions());
+        choices.push(...bot.qotd.getActiveMetaPolls());
 
         if (choices.length == 0) {
             await msg.editReply("No active posts");
@@ -101,7 +103,7 @@ export default class MetaQuestionsCommand extends Command {
                 await message.thread.setLocked(true);
                 await message.delete();
                 await msg.editReply({ content: "Done", embeds: [] });
-                await bot.db.metaQuestion.update({ where: { id: choice.id }, data: { active: false } });
+                choice.active = false;
                 this.log.info(`Resolved meta question "${choice.question}"`);
             }
         } else {
@@ -122,7 +124,8 @@ export default class MetaQuestionsCommand extends Command {
                 }
                 await message.delete();
                 await msg.editReply({ content: "Done", embeds: [] });
-                await bot.db.pollData.update({ where: { id: choice.id }, data: { open: false, meta_is_done: true } });
+                choice.open = false;
+                choice.meta_is_done = true;
                 this.log.info(`Resolved meta question "${choice.title}"`);
             } else if (opt === "close") {
                 await bot.qotd.closePoll(choice.id, false);
@@ -130,7 +133,7 @@ export default class MetaQuestionsCommand extends Command {
         }
     }
 
-    private async poll(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    private async poll(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
         var title = msg.options.getString("title");
         var options = msg.options.getString("options").split("|");
 
@@ -144,24 +147,7 @@ export default class MetaQuestionsCommand extends Command {
             return;
         }
 
-        const poll = await bot.db.pollData.create({
-            data: {
-                title: title,
-                author: {
-                    connect: {
-                        id: msg.user.id
-                    }
-                },
-                options: {
-                    createMany: {
-                        data: options.map(i => { return { option: i } })
-                    }
-                },
-                channel: "1139634512230367335",
-                asked: true,
-                date: new Date()
-            }
-        });
+        const poll = await user.createPoll(title, new Date(), "1139634512230367335", true, options);
 
         var pmsg = await bot.qotd.sendBasicPoll({ id: poll.id, options: options, title: title, type: "poll" }, bot.qotd.metaQuestionsChannel, "", bot.getUser(msg));
         bot.qotd.scheduleMetaPoll(poll);

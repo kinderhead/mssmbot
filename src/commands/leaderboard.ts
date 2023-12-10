@@ -50,7 +50,7 @@ export default class LeaderboardCommand extends Command {
             score = await this.getStars(bot);
         }
 
-        score = score.filter(i => bot.people.findIndex(e => e.id === i.user) !== -1 && i.user !== bot.client.user.id);
+        score = score.filter(i => bot.getAllMembers().findIndex(e => e.id === i.user) !== -1 && i.user !== bot.client.user.id);
 
         score.sort((a, b) => b.value - a.value);
 
@@ -66,7 +66,7 @@ export default class LeaderboardCommand extends Command {
     public async getLevels(bot: MSSM): Promise<Position[]> {
         var score: Position[] = [];
 
-        const people = getValuesFromObject(bot.users);
+        const people = bot.getAllMembers();
 
         for (const i of people) {
             score.push({ user: i.id, value: i.xp, display: `Level ${bot.getLevelFromXP(i.xp)} (${i.xp}|${bot.getXPFromLevel(bot.getLevelFromXP(i.xp) + 1) + 1})` });
@@ -78,7 +78,7 @@ export default class LeaderboardCommand extends Command {
     public async getUno(bot: MSSM): Promise<Position[]> {
         var score: Position[] = [];
 
-        const people = getValuesFromObject(bot.users);
+        const people = bot.getAllMembers();
 
         for (const i of people) {
             score.push({ user: i.id, value: i.uno_wins, display: `${i.uno_wins} wins` });
@@ -90,7 +90,7 @@ export default class LeaderboardCommand extends Command {
     public async getStars(bot: MSSM): Promise<Position[]> {
         var score: Position[] = [];
 
-        const people = getValuesFromObject(bot.users);
+        const people = bot.getAllMembers();
 
         for (const i of people) {
             var totalStars = 0;
@@ -108,7 +108,7 @@ export default class LeaderboardCommand extends Command {
     public async getChess(bot: MSSM): Promise<Position[]> {
         var score: Position[] = [];
 
-        const people = getValuesFromObject(bot.users);
+        const people = bot.getAllMembers();
 
         for (const i of people) {
             var [wins, _] = await calcWinLoss(i.id, bot);

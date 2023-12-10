@@ -10,10 +10,11 @@ export default abstract class DataMapper<TOriginal extends { id: string | number
     protected timeSinceLastReload: Date;
 
     public constructor(bot: MSSM, data: TOriginal, registry: { [key: string | number]: DataMapper<TOriginal> }) {
-        super();
         if (registry.hasOwnProperty(data.id)) {
-            return registry[data.id];
+            throw new Error("This object already exists, and this makes me sad :(");
         }
+
+        super();
         
         this.bot = bot;
         this.obj = data;
@@ -30,9 +31,12 @@ export default abstract class DataMapper<TOriginal extends { id: string | number
             },
             set(target, prop, value) {
                 if (target.obj.hasOwnProperty(prop)) {
+                    if (value == undefined) throw new Error("Tried to set value to undefined");
+
                     target.obj[prop as keyof typeof target.obj] = value;
                     target.set(prop as keyof typeof target.obj, value);
                 } else {
+                    if (value == undefined) console.trace(prop, value);
                     target[prop as keyof typeof target] = value;
                 }
                 return true;
@@ -49,17 +53,24 @@ export default abstract class DataMapper<TOriginal extends { id: string | number
     protected abstract set<TKey extends keyof TOriginal>(name: TKey, value: TOriginal[TKey]): void;
 
     protected async checkForRefresh() {
-        if (this.timeSinceLastReload.getTime() > Date.now() + (5 * 60000)) {
+        if (Date.now() > this.timeSinceLastReload.getTime() + (5 * 60000)) {
             this.timeSinceLastReload = new Date();
-            this.log.debug("Refreshing object with id " + this.obj.id);
+            this.log.debug("Refreshing a " + this.constructor.name + " with id " + this.obj.id);
             await this.reload();
         }
     }
 
-    protected fetchArrayFactory<T, TBase>(res: T[], data: TBase[], factory: new (bot: MSSM, data: TBase) => T) {
-        res.length = 0;
+    protected fetchArrayFactory<T, TBase extends { id: string | number }>(data: TBase[], factory: new (bot: MSSM, data: TBase) => T, registry: { [key: string | number]: T }) {
+        var res: T[] = [];
         for (const i of data) {
-            res.push(new factory(this.bot, i));
+            if (registry.hasOwnProperty(i.id)) res.push(registry[i.id])
+            else res.push(new factory(this.bot, i));
         }
+        return res;
+    }
+
+    protected fetchFactory<T, TBase extends { id: string | number }>(data: TBase, factory: new (bot: MSSM, data: TBase) => T, registry: { [key: string | number]: T }) {
+        if (registry.hasOwnProperty(data.id)) return registry[data.id];
+        else return new factory(this.bot, data);
     }
 }
