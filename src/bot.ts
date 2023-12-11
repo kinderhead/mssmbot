@@ -49,6 +49,7 @@ import Lichess from './lib/lichess.js';
 import { EmbedResource, StringOpts, StringResource } from './lib/resource.js';
 import { Memory, Storage } from './lib/storage.js';
 import { InteractionSendable, isValidUrl, values } from './lib/utils.js';
+import TestCommand from './commands/test.js';
 
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -168,6 +169,7 @@ export default class MSSM {
         this.registerCommand(new SetRulesCommand(this));
         this.registerCommand(new EditRulesCommand(this));
         this.registerCommand(new SyscallCommand(this));
+        this.registerCommand(new TestCommand(this));
 
         this.registerGame(UnoGame, "uno");
         this.registerGame(ChessGame, "chess");

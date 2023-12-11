@@ -522,6 +522,29 @@ export function values<T>(obj: { [key: number | string]: T }) {
     return array;
 }
 
+// https://www.reddit.com/r/typescript/comments/sum16o/how_to_access_parameter_names_or_get_args_as_an/
+export function getFunctionArgs(originalFunc: Function): null | string[] {
+    const stringified: string = originalFunc.toString();
+
+    const startBracket = stringified.indexOf('(');
+    if (startBracket < 0) {
+        return null;
+    }
+
+    const endBracket = stringified.indexOf(')', startBracket);
+    if (endBracket < 0) {
+        return null;
+    }
+
+    const paramsString = stringified.substring(startBracket + 1, endBracket);
+    if (paramsString.length === 0) {
+        return [];
+    }
+    
+    const params = paramsString.split(',').map(e => e.trim());
+    return params;
+}
+
 export var createCustomId = () => Math.random().toString();
 
 export type InteractionSendable = (content: string | MessagePayload | InteractionReplyOptions) => Promise<InteractionResponse | Message>;
