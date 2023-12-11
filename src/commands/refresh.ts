@@ -1,5 +1,4 @@
 import { CacheType, ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import MSSM from "../bot.js";
 import Command from "../command.js";
 
 export default class RefreshCommand extends Command {
@@ -12,9 +11,9 @@ export default class RefreshCommand extends Command {
             .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers);
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>) {
         await msg.deferReply();
-        await bot.refreshCommands();
+        await this.bot.refreshCommands();
         await msg.editReply("Refreshed commands");
     }
 }

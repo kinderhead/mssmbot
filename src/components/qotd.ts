@@ -58,12 +58,12 @@ export default class QOTD extends Component {
     }
 
     public async init() {
-        this.bot.registerCommand(new QOTDCommand());
-        this.bot.registerCommand(new QOTDSendCommand());
-        this.bot.registerCommand(new ClosePollCommand());
-        this.bot.registerCommand(new QOTDQueueCommand());
-        this.bot.registerCommand(new MegaPollCommand());
-        this.bot.registerCommand(new MetaQuestionsCommand());
+        this.bot.registerCommand(new QOTDCommand(this.bot));
+        this.bot.registerCommand(new QOTDSendCommand(this.bot));
+        this.bot.registerCommand(new ClosePollCommand(this.bot));
+        this.bot.registerCommand(new QOTDQueueCommand(this.bot));
+        this.bot.registerCommand(new MegaPollCommand(this.bot));
+        this.bot.registerCommand(new MetaQuestionsCommand(this.bot));
 
         this.qotdChannel = this.bot.getChannel("942269186061774870");
         this.metaQuestionsChannel = this.bot.getChannel("1139634512230367335");

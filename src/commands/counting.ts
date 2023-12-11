@@ -1,5 +1,4 @@
 import { CacheType, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
-import MSSM from "../bot.js";
 import Command from "../command.js";
 
 export default class CountingCommand extends Command {
@@ -17,11 +16,11 @@ export default class CountingCommand extends Command {
                 .setDescription("Check what the next number is just in case something goes wrong."));
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>) {
         if (msg.options.getSubcommand() === "highscore") {
-            await msg.reply(`Counting Highscore: ${Math.max(bot.memory.highscore, bot.memory.count)}`);
+            await msg.reply(`Counting Highscore: ${Math.max(this.bot.memory.highscore, this.bot.memory.count)}`);
         } else if (msg.options.getSubcommand() === "check") {
-            await msg.reply(`Next number is ${bot.memory.count + 1}. Last user to count was ${bot.getUser(bot.memory.lasttocount).displayName}.`);
+            await msg.reply(`Next number is ${this.bot.memory.count + 1}. Last user to count was ${this.bot.getUser(this.bot.memory.lasttocount).displayName}.`);
         }
     }
 }

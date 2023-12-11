@@ -1,5 +1,4 @@
 import { ButtonBuilder, ButtonStyle, CacheType, ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import MSSM from "../bot.js";
 import Command from "../command.js";
 import { createCustomId, quickActionRow } from "../lib/utils.js";
 import MegaPollData from "../data/mega_poll.js";
@@ -16,7 +15,7 @@ export default class MegaPollCommand extends Command {
             .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>) {
         const title = msg.options.getString("title");
         const options = msg.options.getString("options").split("|");
 
@@ -30,8 +29,8 @@ export default class MegaPollCommand extends Command {
             components: [quickActionRow(new ButtonBuilder().setCustomId(buttonId).setLabel("Vote").setStyle(ButtonStyle.Success))]
         });
 
-        const poll = await MegaPollData.create(bot, title, new Date(), msg.channelId, message.id, buttonId, options);
+        const poll = await MegaPollData.create(this.bot, title, new Date(), msg.channelId, message.id, buttonId, options);
 
-        bot.qotd.handleMegaPoll(poll);
+        this.bot.qotd.handleMegaPoll(poll);
     }
 }

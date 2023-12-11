@@ -1,5 +1,4 @@
 import { CacheType, ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import MSSM from "../bot.js";
 import Command from "../command.js";
 import { getInfoEmbeds, getMinecraftEmbeds, getModInfoEmbeds } from "../lib/info_messages.js";
 
@@ -16,25 +15,25 @@ export default class SetInfoCommand extends Command {
             .addSubcommand(sbc => sbc.setName("minecraft").setDescription("Minecraft info"));
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>) {
         if (msg.options.getSubcommand() === "pleb") {
-            const info = await msg.channel.send({ embeds: getInfoEmbeds(bot) });
+            const info = await msg.channel.send({ embeds: getInfoEmbeds(this.bot) });
 
-            bot.memory.infochannelid = info.channelId;
-            bot.memory.infoid = info.id;
+            this.bot.memory.infochannelid = info.channelId;
+            this.bot.memory.infoid = info.id;
         } else if (msg.options.getSubcommand() === "mod") {
-            const info = await msg.channel.send({ embeds: getModInfoEmbeds(bot) });
+            const info = await msg.channel.send({ embeds: getModInfoEmbeds(this.bot) });
 
-            bot.memory.modinfochannelid = info.channelId;
-            bot.memory.modinfoid = info.id;
+            this.bot.memory.modinfochannelid = info.channelId;
+            this.bot.memory.modinfoid = info.id;
         } else if (msg.options.getSubcommand() === "minecraft") {
-            const info = await msg.channel.send({ embeds: await getMinecraftEmbeds(bot) });
+            const info = await msg.channel.send({ embeds: await getMinecraftEmbeds(this.bot) });
 
-            bot.memory.minecraftchannelid = info.channelId;
-            bot.memory.minecraftid = info.id;
+            this.bot.memory.minecraftchannelid = info.channelId;
+            this.bot.memory.minecraftid = info.id;
         }
         
-        bot.memory.save();
+        this.bot.memory.save();
         await msg.reply({ ephemeral: true, content: "Done" });
     }
 }

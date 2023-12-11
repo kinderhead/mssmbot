@@ -1,5 +1,4 @@
 import { ButtonInteraction, ButtonStyle, CacheType, ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder, ThreadAutoArchiveDuration, roleMention } from "discord.js";
-import MSSM from "../bot.js";
 import Command from "../command.js";
 import { ButtonHelperCallback, QuickButton, SelectHelperCallback, buttonHelper, selectHelper, shorten } from "../lib/utils.js";
 import { MetaQuestion, PollData } from "@prisma/client";
@@ -29,42 +28,42 @@ export default class MetaQuestionsCommand extends Command {
                 .setDescription("Manage all posts and polls"));
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>, user: MSSMUser) {
         await msg.deferReply({ ephemeral: true });
 
         if (msg.options.getSubcommand() === "post") {
-            await this.post(msg, bot);
+            await this.post(msg);
         } else if (msg.options.getSubcommand() === "manage") {
-            await this.manage(msg, bot);
+            await this.manage(msg);
         } else if (msg.options.getSubcommand() === "poll") {
-            await this.poll(msg, bot, user);
+            await this.poll(msg, user);
         }
 
-        await bot.qotd.refreshMetaMessage();
+        await this.bot.qotd.refreshMetaMessage();
     }
 
-    private async post(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
-        const user = bot.getUser(msg);
+    private async post(msg: ChatInputCommandInteraction<CacheType>) {
+        const user = this.bot.getUser(msg);
 
         const embed = new EmbedBuilder()
             .setTitle(msg.options.getString("question"))
             .setColor("DarkNavy")
             .setAuthor({ name: user.displayName, iconURL: user.displayAvatarURL() });
 
-        const res = await bot.qotd.metaQuestionsChannel.send({ embeds: [embed] });
+        const res = await this.bot.qotd.metaQuestionsChannel.send({ embeds: [embed] });
         const thread = await res.startThread({ name: shorten(msg.options.getString("question")), autoArchiveDuration: ThreadAutoArchiveDuration.OneDay, reason: "Discussion" });
         thread.send(roleMention("1139635551406931990"));
-        await MetaQuestionData.create(bot, msg.options.getString("question"), res.id);
+        await MetaQuestionData.create(this.bot, msg.options.getString("question"), res.id);
 
         this.log.info(`Posted meta question:`, msg.options.getString("question"));
 
         await msg.editReply({ content: "Done" });
     }
 
-    private async manage(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    private async manage(msg: ChatInputCommandInteraction<CacheType>) {
         var choices: (MetaQuestionData | Poll)[] = [];
-        choices.push(...bot.qotd.getActiveMetaQuestions());
-        choices.push(...bot.qotd.getActiveMetaPolls());
+        choices.push(...this.bot.qotd.getActiveMetaQuestions());
+        choices.push(...this.bot.qotd.getActiveMetaPolls());
 
         if (choices.length == 0) {
             await msg.editReply("No active posts");
@@ -99,7 +98,7 @@ export default class MetaQuestionsCommand extends Command {
             ], msg.editReply.bind(msg));
 
             if (opt) {
-                var message = await bot.qotd.metaQuestionsChannel.messages.fetch(choice.link);
+                var message = await this.bot.qotd.metaQuestionsChannel.messages.fetch(choice.link);
                 await message.thread.setLocked(true);
                 await message.delete();
                 await msg.editReply({ content: "Done", embeds: [] });
@@ -118,7 +117,7 @@ export default class MetaQuestionsCommand extends Command {
 
             const opt = await buttonHelper(new EmbedBuilder().setTitle("Choose").setDescription(choice.title), args, msg.editReply.bind(msg));
             if (opt === "resolve") {
-                var message = await bot.qotd.metaQuestionsChannel.messages.fetch(choice.link);
+                var message = await this.bot.qotd.metaQuestionsChannel.messages.fetch(choice.link);
                 if (!message.thread.archived) {
                     await message.thread.setLocked(true);
                 }
@@ -128,12 +127,12 @@ export default class MetaQuestionsCommand extends Command {
                 choice.meta_is_done = true;
                 this.log.info(`Resolved meta question "${choice.title}"`);
             } else if (opt === "close") {
-                await bot.qotd.closePoll(choice, false);
+                await this.bot.qotd.closePoll(choice, false);
             }
         }
     }
 
-    private async poll(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
+    private async poll(msg: ChatInputCommandInteraction<CacheType>, user: MSSMUser) {
         var title = msg.options.getString("title");
         var options = msg.options.getString("options").split("|");
 
@@ -149,8 +148,8 @@ export default class MetaQuestionsCommand extends Command {
 
         const poll = await user.createPoll(title, options, new Date(), "1139634512230367335", true);
 
-        var pmsg = await bot.qotd.sendBasicPoll({ id: poll.id, options: options, title: title, type: "poll" }, bot.qotd.metaQuestionsChannel, "", bot.getUser(msg));
-        bot.qotd.scheduleMetaPoll(poll);
+        var pmsg = await this.bot.qotd.sendBasicPoll({ id: poll.id, options: options, title: title, type: "poll" }, this.bot.qotd.metaQuestionsChannel, "", this.bot.getUser(msg));
+        this.bot.qotd.scheduleMetaPoll(poll);
 
         const thread = await pmsg.startThread({ name: shorten(title), autoArchiveDuration: ThreadAutoArchiveDuration.OneDay, reason: "Discussion" });
         thread.send(roleMention("1139635551406931990"));

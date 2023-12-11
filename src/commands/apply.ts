@@ -1,5 +1,4 @@
 import { APIEmbed, ButtonStyle, CacheType, ChatInputCommandInteraction, EmbedBuilder, ModalBuilder, SlashCommandBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
-import MSSM from "../bot.js";
 import Command from "../command.js";
 import { buttonHelper, createCustomId, embedBuilder, quickActionRow, quickModal, quickMultiModal } from "../lib/utils.js";
 import MSSMUser from "../data/user.js";
@@ -13,20 +12,20 @@ export default class ApplyCommand extends Command {
             .setDescription("Apply now");
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>, user: MSSMUser) {
         msg.reply({ ephemeral: true, content: "Mod apps are closed at this time." });
         return;
 
         const embed = new EmbedBuilder()
             .setTitle("Mod Application")
-            .setDescription("READ THIS BEFORE STARTING\n\nRequirements:\n* Your application will be shown to everyone for the vote\n* You must be a current student OR know for certain that you will be coming back if you are taking a year off\n* Include who you are and why you want to be mod\n* Include what you will do to improve the server\n* Say something funny (not required)\n* Note that I will remove your application if it does not fulfill these requirements. You can still tweak it and apply again\n\nHow to use this thing:\nYou have 2 options. I recommend pressing the quickstart button, but you can also start from scratch. The thing you are submitting is a special message like ones found in #mssm-bot-info or Uno. These messages, called \"embeds\" by discord, can contain a single image, fancy formatting, footers, and more. I've created an editor for it because I was bored and now I'm putting it to good use. Once you submit, you can edit your embed again by using `/apply` and pressing the first button followed by navigating to your embed (if more than one is saved) and selecting it. Complicated, I know. If you need help ping the admin.");
+            .setDescription("READ THIS BEFORE STARTING\n\nRequirements:\n* Your application will be shown to everyone for the vote\n* You must be a current student OR know for certain that you will be coming back if you are taking a year off\n* Include who you are and why you want to be mod\n* Include what you will do to improve the server\n* Say something funny (not required)\n* Note that I will remove your application if it does not fulfill these requirements. You can still tweak it and apply again\n\nHow to use this thing:\nYou have 2 options. I recommend pressing the quickstart button, but you can also start from scratch. The thing you are submitting is a special message like ones found in #mssm-this.bot-info or Uno. These messages, called \"embeds\" by discord, can contain a single image, fancy formatting, footers, and more. I've created an editor for it because I was bored and now I'm putting it to good use. Once you submit, you can edit your embed again by using `/apply` and pressing the first button followed by navigating to your embed (if more than one is saved) and selecting it. Complicated, I know. If you need help ping the admin.");
         
         this.log.info(`${user.discord.displayName} is editing the mod app`);
         
         const res = await buttonHelper(embed, [
             [{ label: "Create, select, or edit message", style: ButtonStyle.Primary }, async i => {
                 await i.update("Loading embed builder...");
-                var e = await bot.requireResource("embed", user.discord, i.editReply.bind(i), {});
+                var e = await this.bot.requireResource("embed", user.discord, i.editReply.bind(i), {});
                 i.editReply({ content: "Done", embeds: [], components: [] });
                 return e;
             }],
@@ -63,7 +62,7 @@ export default class ApplyCommand extends Command {
                 var promise = new Promise<void>(i => res = i);
 
                 var e: APIEmbed;
-                embedBuilder(user.discord, msg.editReply.bind(msg), bot, embed, (i) => {
+                embedBuilder(user.discord, msg.editReply.bind(msg), this.bot, embed, (i) => {
                     e = i;
                     res();
                 });

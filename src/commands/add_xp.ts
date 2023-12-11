@@ -1,5 +1,4 @@
 import { CacheType, ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import MSSM from "../bot.js";
 import Command from "../command.js";
 
 export default class AddXPCommand extends Command {
@@ -14,11 +13,11 @@ export default class AddXPCommand extends Command {
             .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
-        const user = bot.getUserV2(msg.options.getUser("user").id);
+    public async execute(msg: ChatInputCommandInteraction<CacheType>) {
+        const user = this.bot.getUserV2(msg.options.getUser("user").id);
 
-        await bot.addXP(user, msg.options.getInteger("amount"));
+        await this.bot.addXP(user, msg.options.getInteger("amount"));
 
-        await msg.reply({ content: `User is now at level ${bot.getLevelFromXP(user.xp)}`, ephemeral: true });
+        await msg.reply({ content: `User is now at level ${this.bot.getLevelFromXP(user.xp)}`, ephemeral: true });
     }
 }

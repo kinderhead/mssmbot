@@ -1,9 +1,9 @@
 import { AutocompleteInteraction, ButtonStyle, CacheType, ChatInputCommandInteraction, EmbedBuilder, GuildScheduledEventEntityType, GuildScheduledEventPrivacyLevel, PermissionFlagsBits, SlashCommandBuilder, VoiceBasedChannel, channelMention, time } from "discord.js";
-import MSSM, { choose } from "../bot.js";
 import Command from "../command.js";
 import MuckbangGame from "../data/muckbang_game.js";
 import MSSMUser from "../data/user.js";
 import { autocompleteOptions, buttonHelper, expandAndHandleEmbed, getNextDayOfWeek, values } from "../lib/utils.js";
+import { choose } from "../bot.js";
 
 export default class MuckbangCommand extends Command {
     public getName() { return "muckbang"; }
@@ -34,14 +34,14 @@ export default class MuckbangCommand extends Command {
             );
     }
 
-    public async autocomplete(cmd: AutocompleteInteraction<CacheType>, bot: MSSM) {
-        await autocompleteOptions(cmd, values(bot.muckbang.games).map(i => i.name));
+    public async autocomplete(cmd: AutocompleteInteraction<CacheType>) {
+        await autocompleteOptions(cmd, values(this.bot.muckbang.games).map(i => i.name));
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>, user: MSSMUser) {
         // Pleb commands
         if (msg.options.getSubcommand() === "list") {
-            await this.list(msg, bot);
+            await this.list(msg);
             return;
         }
 
@@ -52,42 +52,42 @@ export default class MuckbangCommand extends Command {
 
         // Mod commands
         if (msg.options.getSubcommand() === "add") {
-            await this.add(msg, bot);
+            await this.add(msg);
         } else if (msg.options.getSubcommand() === "select") {
-            await this.select(msg, bot);
+            await this.select(msg);
         }
     }
 
-    public async list(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async list(msg: ChatInputCommandInteraction<CacheType>) {
         await msg.deferReply();
 
         var embed = new EmbedBuilder().setTitle("The Grand Muckbang \"Rotation\"").setColor("Green");
-        var games = values(bot.muckbang.games);
+        var games = values(this.bot.muckbang.games);
 
         await expandAndHandleEmbed(embed, games.map(i => { return { name: i.name, value: `[Download](${i.downloadLink})`, inline: true }; }), 25, msg.editReply.bind(msg));
     }
 
-    public async add(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async add(msg: ChatInputCommandInteraction<CacheType>) {
         await msg.deferReply({ ephemeral: true });
 
-        var game = await MuckbangGame.create(bot, msg.options.getString("name"), msg.options.getString("download"), msg.options.getString("image"));
+        var game = await MuckbangGame.create(this.bot, msg.options.getString("name"), msg.options.getString("download"), msg.options.getString("image"));
 
-        await bot.muckbang.channel.send({ content: "New game added to rotation", embeds: [bot.muckbang.getGameEmbed(game)] });
+        await this.bot.muckbang.channel.send({ content: "New game added to rotation", embeds: [this.bot.muckbang.getGameEmbed(game)] });
         this.log.info(`Added ${game.name} to muckbang`);
 
         await msg.editReply("Done");
     }
 
-    public async select(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async select(msg: ChatInputCommandInteraction<CacheType>) {
         await msg.deferReply({ ephemeral: true });
 
         var gameName = msg.options.getString("game");
 
         if (!gameName) {
-            gameName = choose(Object.keys(bot.muckbang.games));
+            gameName = choose(Object.keys(this.bot.muckbang.games));
         }
 
-        var game = values(bot.muckbang.games).find(i => i.name === gameName);
+        var game = values(this.bot.muckbang.games).find(i => i.name === gameName);
         if (!game) {
             await msg.editReply("Invalid game");
         }
@@ -101,13 +101,13 @@ export default class MuckbangCommand extends Command {
             date.setHours(18, 0, 0, 0);
         }
 
-        var embed = bot.muckbang.getGameEmbed(game);
+        var embed = this.bot.muckbang.getGameEmbed(game);
         embed.setDescription(`Play this game at ${time(date)}?\n\n${embed.data.description}`);
 
         if (await buttonHelper(embed, [[{ label: "Confirm", style: ButtonStyle.Primary }, msg => { msg.update({ content: "Done", embeds: [], components: [] }); return true }], [{ label: "Cancel", style: ButtonStyle.Secondary }, msg => { msg.update({ content: "Done", embeds: [], components: [] }); return false }]], msg.editReply.bind(msg), true)) {
             this.log.info(`Next muckbang game: ${gameName}`);
 
-            embed = bot.muckbang.getGameEmbed(game);
+            embed = this.bot.muckbang.getGameEmbed(game);
             embed.setTitle("Next game: " + gameName);
             embed.setTimestamp(date);
 
@@ -115,8 +115,8 @@ export default class MuckbangCommand extends Command {
                 entityType: GuildScheduledEventEntityType.Voice,
                 name: `Muckbang: ${gameName}`,
                 privacyLevel: GuildScheduledEventPrivacyLevel.GuildOnly,
-                channel: bot.getChannel<VoiceBasedChannel>("760655658051174461"),
-                description: `${channelMention(bot.muckbang.channel.id)}`,
+                channel: this.bot.getChannel<VoiceBasedChannel>("760655658051174461"),
+                description: `${channelMention(this.bot.muckbang.channel.id)}`,
                 image: game.imageLink,
                 reason: "Gaming",
                 scheduledStartTime: date
@@ -124,7 +124,7 @@ export default class MuckbangCommand extends Command {
 
             embed.setDescription(`Event link: ${event.url}\n\n${embed.data.description}`);
 
-            bot.muckbang.channel.send({ embeds: [embed] });
+            this.bot.muckbang.channel.send({ embeds: [embed] });
         }
     }
 }

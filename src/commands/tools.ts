@@ -1,5 +1,4 @@
 import { CacheType, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
-import MSSM from "../bot.js";
 import Command from "../command.js";
 import { embedBuilder } from "../lib/utils.js";
 import Reddit from "../lib/reddit.js";
@@ -26,17 +25,17 @@ export default class ToolsCommand extends Command {
                 .addStringOption(opt => opt.setName("url").setDescription("Url with .json at the end").setRequired(true)));
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
-        var user = bot.getUser(msg);
+    public async execute(msg: ChatInputCommandInteraction<CacheType>) {
+        var user = this.bot.getUser(msg);
         if (msg.options.getSubcommand() === "embed-builder") {
             await msg.deferReply({ ephemeral: true });
-            await embedBuilder(user, msg.editReply.bind(msg), bot);
+            await embedBuilder(user, msg.editReply.bind(msg), this.bot);
         } else if (msg.options.getSubcommand() === "message-count") {
-            await msg.reply(`${bot.memory.messagestoday} messages sent today.`);
+            await msg.reply(`${this.bot.memory.messagestoday} messages sent today.`);
         } else if (msg.options.getSubcommand() === "msg-converter") {
             await msg.deferReply();
             var lastMsg = (await msg.channel.messages.fetch({ limit: 2 })).at(1);
-            var data = bot.createEmbedFromMessage(lastMsg);
+            var data = this.bot.createEmbedFromMessage(lastMsg);
             data[0].setURL(lastMsg.url);
             await msg.editReply({ embeds: [data[0]], files: data[1] === null ? [] : [data[1]] });
         } else if (msg.options.getSubcommand() === "reddit") {

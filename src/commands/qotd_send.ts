@@ -1,5 +1,4 @@
 import { CacheType, ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import MSSM from "../bot.js";
 import Command from "../command.js";
 
 export default class QOTDSendCommand extends Command {
@@ -12,8 +11,8 @@ export default class QOTDSendCommand extends Command {
             .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>) {
         await msg.reply({ content: "Asking question", ephemeral: true });
-        await bot.qotd.qotdSend();
+        await this.bot.qotd.qotdSend();
     }
 }

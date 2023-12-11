@@ -1,5 +1,4 @@
 import { CacheType, ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from "discord.js";
-import MSSM from "../bot.js";
 import Command from "../command.js";
 import { calcWinLoss } from "../games/chess.js";
 import { expandAndHandleEmbed } from "../lib/utils.js";
@@ -35,27 +34,27 @@ export default class LeaderboardCommand extends Command {
             )
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>) {
         await msg.deferReply();
 
         var score: Position[] = [];
 
         if (msg.options.getSubcommand() === "levels") {
-            score = await this.getLevels(bot);
+            score = await this.getLevels();
         } else if (msg.options.getSubcommand() === "uno") {
-            score = await this.getUno(bot);
+            score = await this.getUno();
         } else if (msg.options.getSubcommand() === "chess") {
-            score = await this.getChess(bot);
+            score = await this.getChess();
         } else if (msg.options.getSubcommand() === "starboard") {
-            score = await this.getStars(bot);
+            score = await this.getStars();
         }
 
-        score = score.filter(i => bot.getAllMembers().findIndex(e => e.id === i.user) !== -1 && i.user !== bot.client.user.id);
+        score = score.filter(i => this.bot.getAllMembers().findIndex(e => e.id === i.user) !== -1 && i.user !== this.bot.client.user.id);
 
         score.sort((a, b) => b.value - a.value);
 
         var fields = await Promise.all(score.map(async (i, idex) => {
-            var displayname = bot.getUser(i.user).displayName;
+            var displayname = this.bot.getUser(i.user).displayName;
 
             return { name: `${idex + 1}: ${displayname}`, value: i.display };
         }));
@@ -63,22 +62,22 @@ export default class LeaderboardCommand extends Command {
         await expandAndHandleEmbed(new EmbedBuilder().setTitle("Leaderboard"), fields, 10, msg.editReply.bind(msg));
     }
 
-    public async getLevels(bot: MSSM): Promise<Position[]> {
+    public async getLevels(): Promise<Position[]> {
         var score: Position[] = [];
 
-        const people = bot.getAllMembers();
+        const people = this.bot.getAllMembers();
 
         for (const i of people) {
-            score.push({ user: i.id, value: i.xp, display: `Level ${bot.getLevelFromXP(i.xp)} (${i.xp}|${bot.getXPFromLevel(bot.getLevelFromXP(i.xp) + 1) + 1})` });
+            score.push({ user: i.id, value: i.xp, display: `Level ${this.bot.getLevelFromXP(i.xp)} (${i.xp}|${this.bot.getXPFromLevel(this.bot.getLevelFromXP(i.xp) + 1) + 1})` });
         }
 
         return score;
     }
 
-    public async getUno(bot: MSSM): Promise<Position[]> {
+    public async getUno(): Promise<Position[]> {
         var score: Position[] = [];
 
-        const people = bot.getAllMembers();
+        const people = this.bot.getAllMembers();
 
         for (const i of people) {
             score.push({ user: i.id, value: i.uno_wins, display: `${i.uno_wins} wins` });
@@ -87,10 +86,10 @@ export default class LeaderboardCommand extends Command {
         return score;
     }
 
-    public async getStars(bot: MSSM): Promise<Position[]> {
+    public async getStars(): Promise<Position[]> {
         var score: Position[] = [];
 
-        const people = bot.getAllMembers();
+        const people = this.bot.getAllMembers();
 
         for (const i of people) {
             var totalStars = 0;
@@ -105,13 +104,13 @@ export default class LeaderboardCommand extends Command {
         return score;
     }
 
-    public async getChess(bot: MSSM): Promise<Position[]> {
+    public async getChess(): Promise<Position[]> {
         var score: Position[] = [];
 
-        const people = bot.getAllMembers();
+        const people = this.bot.getAllMembers();
 
         for (const i of people) {
-            var [wins, _] = await calcWinLoss(i.id, bot);
+            var [wins, _] = await calcWinLoss(i.id, this.bot);
 
             score.push({ user: i.id, value: wins, display: `${wins} wins` });
         }

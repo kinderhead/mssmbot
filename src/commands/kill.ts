@@ -1,5 +1,4 @@
 import { CacheType, ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import MSSM from "../bot.js";
 import Command from "../command.js";
 
 export default class KillCommand extends Command {
@@ -12,7 +11,7 @@ export default class KillCommand extends Command {
             .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>) {
         await msg.reply("FHSDIOHAIHFIJHSF");
         process.exit(1);
     }

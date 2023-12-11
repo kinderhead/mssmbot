@@ -1,5 +1,4 @@
 import { CacheType, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
-import MSSM from "../bot.js";
 import Command from "../command.js";
 import { getInfoEmbeds } from "../lib/info_messages.js";
 
@@ -12,8 +11,8 @@ export default class HelpCommand extends Command {
             .setDescription("Displays the help message found in #mssm-bot-info");
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>) {
         await msg.deferReply({ ephemeral: true });
-        await msg.editReply({ embeds: getInfoEmbeds(bot) });
+        await msg.editReply({ embeds: getInfoEmbeds(this.bot) });
     }
 }

@@ -11,7 +11,7 @@ export default class Muckbang extends Component {
 
     public async init() {
         this.channel = this.bot.getChannel("1037857900997132399");
-        this.bot.registerCommand(new MuckbangCommand());
+        this.bot.registerCommand(new MuckbangCommand(this.bot));
         
         for (const i of await this.bot.db.muckbangGameData.findMany()) {
             this.games[i.id] = new MuckbangGame(this.bot, i);

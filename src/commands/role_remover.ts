@@ -1,5 +1,4 @@
 import { CacheType, ChatInputCommandInteraction, PermissionFlagsBits, Role, SlashCommandBuilder } from "discord.js";
-import MSSM from "../bot.js";
 import Command from "../command.js";
 
 export default class RoleRemoverCommand extends Command {
@@ -13,7 +12,7 @@ export default class RoleRemoverCommand extends Command {
             .addRoleOption(opt => opt.setName("role").setRequired(true).setDescription("Role"));
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>) {
         await msg.deferReply();
 
         const role = msg.options.getRole("role") as Role;

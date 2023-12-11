@@ -1,5 +1,4 @@
 import { CacheType, ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import MSSM from "../bot.js";
 import Command from "../command.js";
 import { getClubEmbed } from "../lib/info_messages.js";
 
@@ -13,16 +12,16 @@ export default class SetClubsCommand extends Command {
             .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>) {
         await msg.deferReply({ ephemeral: true });
-        bot.memory.clubchannelid = msg.channelId;
+        this.bot.memory.clubchannelid = msg.channelId;
 
         var message = await msg.channel.send({ embeds: [getClubEmbed()] });
-        bot.memory.clubmessageid = message.id;
+        this.bot.memory.clubmessageid = message.id;
 
-        bot.memory.save();
+        this.bot.memory.save();
 
-        await bot.clubs.refreshClubs();
+        await this.bot.clubs.refreshClubs();
 
         await msg.editReply("Donezo");
     }

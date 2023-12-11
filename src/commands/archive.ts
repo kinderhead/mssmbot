@@ -1,5 +1,4 @@
 import { CacheType, CategoryChannel, ChatInputCommandInteraction, GuildChannel, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import MSSM from "../bot.js";
 import Command from "../command.js";
 
 export default class ArchiveCommand extends Command {
@@ -13,7 +12,7 @@ export default class ArchiveCommand extends Command {
             .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>) {
         const channel = msg.options.getChannel("channel") as GuildChannel;
         const category = channel.guild.channels.cache.get("986118578560454656") as CategoryChannel;
 

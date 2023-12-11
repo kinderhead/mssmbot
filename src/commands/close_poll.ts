@@ -1,5 +1,4 @@
 import { CacheType, ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import MSSM from "../bot.js";
 import Command from "../command.js";
 
 export default class ClosePollCommand extends Command {
@@ -13,8 +12,8 @@ export default class ClosePollCommand extends Command {
             .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>) {
         await msg.reply({ content: "Poll is closed", ephemeral: true });
-        await bot.qotd.closePoll(bot.qotd.polls[msg.options.getInteger("id")]);
+        await this.bot.qotd.closePoll(this.bot.qotd.polls[msg.options.getInteger("id")]);
     }
 }

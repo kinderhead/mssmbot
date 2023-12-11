@@ -7,7 +7,7 @@ export default class BotLogger extends Component {
     public ignoreIds: string[] = [];
 
     public init() {
-        this.bot.registerCommand(new LogCommand());
+        this.bot.registerCommand(new LogCommand(this.bot));
     }
 
     public async onMessageEdit(old: Message<boolean> | PartialMessage, edited: Message<boolean> | PartialMessage) {

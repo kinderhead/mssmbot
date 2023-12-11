@@ -7,7 +7,7 @@ import MSSMUser from "../data/user.js";
 
 export default class Counting extends Component {
     public init(): Awaitable<void> {
-        this.bot.registerCommand(new CountingCommand());
+        this.bot.registerCommand(new CountingCommand(this.bot));
     }
 
     public async onMessage(msg: Message<boolean>) {

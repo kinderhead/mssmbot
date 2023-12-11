@@ -11,9 +11,9 @@ export default class Clubs extends Component {
     public clubData: { [id: number]: Club } = {};
 
     public async init() {
-        this.bot.registerCommand(new ClubCommand());
-        this.bot.registerCommand(new CreateClubCommand());
-        this.bot.registerCommand(new SetClubsCommand());
+        this.bot.registerCommand(new ClubCommand(this.bot));
+        this.bot.registerCommand(new CreateClubCommand(this.bot));
+        this.bot.registerCommand(new SetClubsCommand(this.bot));
     }
 
     public getClubEmbed(club: Club) {

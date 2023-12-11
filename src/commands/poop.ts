@@ -1,5 +1,4 @@
 import { CacheType, ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, userMention } from "discord.js";
-import MSSM from "../bot.js";
 import Command from "../command.js";
 
 export default class PoopCommand extends Command {
@@ -11,13 +10,13 @@ export default class PoopCommand extends Command {
             .setDescription("yes")
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>) {
         if (msg.user.id === "1123025469231612044") {
-            bot.memory.poop++;
-            bot.memory.save();
+            this.bot.memory.poop++;
+            this.bot.memory.save();
         }
 
         // @ts-ignore
-        msg.reply({ content: `${userMention("1123025469231612044")} has shit ${bot.memory.poop} times`, flags: [MessageFlags.SuppressNotifications] });
+        msg.reply({ content: `${userMention("1123025469231612044")} has shit ${this.bot.memory.poop} times`, flags: [MessageFlags.SuppressNotifications] });
     }
 }

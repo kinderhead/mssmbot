@@ -1,5 +1,4 @@
 import { CacheType, ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import MSSM from "../bot.js";
 import Command from "../command.js";
 
 export default class SetRulesCommand extends Command {
@@ -12,12 +11,12 @@ export default class SetRulesCommand extends Command {
             .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
-        bot.memory.ruleschannelid = msg.channelId;
-        bot.memory.rulesmessageids = [];
+    public async execute(msg: ChatInputCommandInteraction<CacheType>) {
+        this.bot.memory.ruleschannelid = msg.channelId;
+        this.bot.memory.rulesmessageids = [];
 
         await msg.reply("Working...");
-        await bot.sendRules();
+        await this.bot.sendRules();
         await msg.editReply("Done");
     }
 }

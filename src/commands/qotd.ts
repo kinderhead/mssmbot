@@ -1,6 +1,5 @@
 import { PollData, QuestionData, UserData } from "@prisma/client";
 import { APIEmbed, ActionRowBuilder, ButtonBuilder, ButtonStyle, CacheType, ChatInputCommandInteraction, ComponentType, EmbedBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalSubmitInteraction, PermissionFlagsBits, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction, StringSelectMenuOptionBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
-import MSSM from "../bot.js";
 import Command from "../command.js";
 import { Poll, Question } from "../lib/storage.js";
 import { createCustomId, embedBuilder } from "../lib/utils.js";
@@ -21,7 +20,7 @@ export default class QOTDCommand extends Command {
                 .addStringOption(opt => opt.setName("question").setDescription("Question").setRequired(true)))
             .addSubcommand(sbc => sbc
                 .setName("ask-fancy")
-                .setDescription("Ask a question using fancy discord bot messages"))
+                .setDescription("Ask a question using fancy discord this.bot messages"))
             .addSubcommand(sbc => sbc
                 .setName("poll")
                 .setDescription("Creates a poll which will close the following day")
@@ -44,26 +43,26 @@ export default class QOTDCommand extends Command {
                 .setDescription("Finds the last day there will be a QOTD post if no more are added"));
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>, user: MSSMUser) {
         if (msg.options.getSubcommand() === "ask") {
-            await this.ask(msg, bot, user);
+            await this.ask(msg, user);
         } else if (msg.options.getSubcommand() === "ask-fancy") {
-            await this.askFancy(msg, bot, user);
+            await this.askFancy(msg, user);
         } else if (msg.options.getSubcommand() === "poll") {
-            await this.poll(msg, bot, user);
+            await this.poll(msg, user);
         } else if (msg.options.getSubcommand() === "manage") {
             if (user.discord.permissions.missing(PermissionFlagsBits.ModerateMembers)) {
                 await msg.reply({ ephemeral: true, content: "This command is under construction" });
             }
-            await this.manage(msg, bot, user);
+            await this.manage(msg, user);
         } else if (msg.options.getSubcommand() === "doomsday") {
-            await this.doomsday(msg, bot);
+            await this.doomsday(msg);
         } else {
             await msg.reply({ content: "Subcommand not recognized", ephemeral: true });
         }
     }
 
-    private async ask(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
+    private async ask(msg: ChatInputCommandInteraction<CacheType>, user: MSSMUser) {
         const question = msg.options.getString("question");
 
         if (question.length > 256) {
@@ -73,33 +72,33 @@ export default class QOTDCommand extends Command {
 
         const qdata = await user.createQuestion(question);
 
-        bot.qotd.questionQueue.queue.push({ type: "question", question: question, id: qdata.id });
-        bot.qotd.questionQueue.save();
+        this.bot.qotd.questionQueue.queue.push({ type: "question", question: question, id: qdata.id });
+        this.bot.qotd.questionQueue.save();
 
-        await bot.addXP(user, 5);
+        await this.bot.addXP(user, 5);
 
         await msg.reply({ content: "Question queued", ephemeral: true });
 
         this.log.info("New question: " + question);
     }
 
-    private async askFancy(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
-        const embed = await bot.requireResource("embed", bot.getUser(msg), msg.reply.bind(msg), {});
+    private async askFancy(msg: ChatInputCommandInteraction<CacheType>, user: MSSMUser) {
+        const embed = await this.bot.requireResource("embed", this.bot.getUser(msg), msg.reply.bind(msg), {});
         const question = JSON.stringify(embed);
 
         const qdata = await user.createQuestion(question, true);
 
-        bot.qotd.questionQueue.queue.push({ type: "question", question: question, id: qdata.id });
-        bot.qotd.questionQueue.save();
+        this.bot.qotd.questionQueue.queue.push({ type: "question", question: question, id: qdata.id });
+        this.bot.qotd.questionQueue.save();
 
-        await bot.addXP(user, 5);
+        await this.bot.addXP(user, 5);
 
         await msg.editReply({ content: "Question queued", embeds: [], components: [] });
 
         this.log.info("New question: fancy embed");
     }
 
-    private async poll(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
+    private async poll(msg: ChatInputCommandInteraction<CacheType>, user: MSSMUser) {
         const title = msg.options.getString("title");
         var options: string[] = [];
 
@@ -121,17 +120,17 @@ export default class QOTDCommand extends Command {
 
         const poll = await user.createPoll(title, options);
 
-        bot.qotd.questionQueue.queue.push({ type: "poll", title: title, options: options, id: poll.id });
-        bot.qotd.questionQueue.save();
+        this.bot.qotd.questionQueue.queue.push({ type: "poll", title: title, options: options, id: poll.id });
+        this.bot.qotd.questionQueue.save();
 
-        var lvlup = await bot.addXP(user, 8);
+        var lvlup = await this.bot.addXP(user, 8);
 
         await msg.reply({ content: "Poll queued", ephemeral: true });
 
         this.log.info("New poll: " + title);
     }
 
-    private async manage(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
+    private async manage(msg: ChatInputCommandInteraction<CacheType>, user: MSSMUser) {
         const embed = new EmbedBuilder()
             .setTitle("Manage QOTD posts");
 
@@ -152,8 +151,8 @@ export default class QOTDCommand extends Command {
             .setPlaceholder("Select a post")
 
         var found = false;
-        for (let idex = 0; idex < bot.qotd.questionQueue.queue.length; idex++) {
-            const i = bot.qotd.questionQueue.queue[idex];
+        for (let idex = 0; idex < this.bot.qotd.questionQueue.queue.length; idex++) {
+            const i = this.bot.qotd.questionQueue.queue[idex];
 
             if (i.type === "question") {
                 if (user.questions.findIndex(q => q.id === i.id) == -1) continue;
@@ -194,7 +193,7 @@ export default class QOTDCommand extends Command {
             if (selection.customId === optionsID) {
                 if (selection.isStringSelectMenu()) {
                     await response.delete();
-                    await this.managePostManager(parseInt(selection.values[0]), selection, bot, user);
+                    await this.managePostManager(parseInt(selection.values[0]), selection, user);
                 } else {
                     throw "Not string select menu option";
                 }
@@ -206,8 +205,8 @@ export default class QOTDCommand extends Command {
         }
     }
 
-    private async managePostManager(idex: number, msg: ChatInputCommandInteraction<CacheType> | ModalSubmitInteraction<CacheType> | StringSelectMenuInteraction<CacheType>, bot: MSSM, user: MSSMUser) {
-        const post = bot.qotd.questionQueue.queue[idex];
+    private async managePostManager(idex: number, msg: ChatInputCommandInteraction<CacheType> | ModalSubmitInteraction<CacheType> | StringSelectMenuInteraction<CacheType>, user: MSSMUser) {
+        const post = this.bot.qotd.questionQueue.queue[idex];
         const embed = new EmbedBuilder().setTitle("Manage QOTD posts");
 
         const edit = new ButtonBuilder()
@@ -260,9 +259,9 @@ export default class QOTDCommand extends Command {
                     collector.stop();
                     return;
                 } else if (selection.customId === "hijack") {
-                    var thing = bot.qotd.questionQueue.queue.splice(idex, 1)[0];
-                    bot.qotd.questionQueue.queue.unshift(thing);
-                    bot.qotd.questionQueue.save();
+                    var thing = this.bot.qotd.questionQueue.queue.splice(idex, 1)[0];
+                    this.bot.qotd.questionQueue.queue.unshift(thing);
+                    this.bot.qotd.questionQueue.save();
                     await selection.reply({ content: "This will now be the next question asked", ephemeral: true });
                     collector.stop();
                     return;
@@ -292,17 +291,17 @@ export default class QOTDCommand extends Command {
 
                             showModal = false;
 
-                            await embedBuilder(user.discord, selection.reply.bind(selection), bot, EmbedBuilder.from(post.question), e => {
-                                (bot.qotd.questionQueue.queue[idex] as Question).question = e;
-                                bot.db.questionData.update({ where: { id: post.id }, data: { question: JSON.stringify(e) } });
-                                bot.qotd.questionQueue.save();
+                            await embedBuilder(user.discord, selection.reply.bind(selection), this.bot, EmbedBuilder.from(post.question), e => {
+                                (this.bot.qotd.questionQueue.queue[idex] as Question).question = e;
+                                this.bot.db.questionData.update({ where: { id: post.id }, data: { question: JSON.stringify(e) } });
+                                this.bot.qotd.questionQueue.save();
                             });
                             return;
                         }
                     } else if (selection.customId === "delete") {
-                        bot.qotd.questionQueue.queue.splice(idex, 1);
-                        await bot.db.userData.update({ where: { id: user.id }, data: { questions: { delete: { id: post.id } } } });
-                        bot.db.questionData.delete({ where: { id: post.id } });
+                        this.bot.qotd.questionQueue.queue.splice(idex, 1);
+                        await this.bot.db.userData.update({ where: { id: user.id }, data: { questions: { delete: { id: post.id } } } });
+                        this.bot.db.questionData.delete({ where: { id: post.id } });
                     }
                 } else if (post.type == "poll") {
                     if (selection.customId === "edit") {
@@ -323,9 +322,9 @@ export default class QOTDCommand extends Command {
                             new TextInputBuilder().setCustomId("edit-modal-options").setLabel("Options").setValue(opts).setStyle(TextInputStyle.Short)
                         ));
                     } else if (selection.customId === "delete") {
-                        bot.qotd.questionQueue.queue.splice(idex, 1);
-                        await bot.db.userData.update({ where: { id: user.id }, data: { polls: { delete: { id: post.id } } } });
-                        bot.db.pollData.delete({ where: { id: post.id } });
+                        this.bot.qotd.questionQueue.queue.splice(idex, 1);
+                        await this.bot.db.userData.update({ where: { id: user.id }, data: { polls: { delete: { id: post.id } } } });
+                        this.bot.db.pollData.delete({ where: { id: post.id } });
                     }
                 }
 
@@ -341,19 +340,19 @@ export default class QOTDCommand extends Command {
                                 var newQuestion = result.fields.getTextInputValue("edit-modal-input");
                                 newQuestion = newQuestion === "" ? post.question as string : newQuestion;
 
-                                (bot.qotd.questionQueue.queue[idex] as Question).question = newQuestion;
-                                await bot.db.questionData.update({ where: { id: post.id }, data: { question: newQuestion } });
+                                (this.bot.qotd.questionQueue.queue[idex] as Question).question = newQuestion;
+                                await this.bot.db.questionData.update({ where: { id: post.id }, data: { question: newQuestion } });
                             } else if (post.type == "poll") {
                                 var newTitle = result.fields.getTextInputValue("edit-modal-title");
                                 newTitle = newTitle === "" ? post.title : newTitle;
                                 var newOptions = result.fields.getTextInputValue("edit-modal-options").split("|");
                                 newOptions = newOptions.length <= 1 ? post.options : newOptions;
 
-                                (bot.qotd.questionQueue.queue[idex] as Poll).title = newTitle;
-                                (bot.qotd.questionQueue.queue[idex] as Poll).options = newOptions;
+                                (this.bot.qotd.questionQueue.queue[idex] as Poll).title = newTitle;
+                                (this.bot.qotd.questionQueue.queue[idex] as Poll).options = newOptions;
 
-                                await bot.db.pollData.update({ where: { id: post.id }, data: { options: { deleteMany: {} } } });
-                                await bot.db.pollData.update({ where: { id: post.id }, data: { title: newTitle, options: { createMany: { data: newOptions.map(i => { return { option: i }; }) } } } });
+                                await this.bot.db.pollData.update({ where: { id: post.id }, data: { options: { deleteMany: {} } } });
+                                await this.bot.db.pollData.update({ where: { id: post.id }, data: { title: newTitle, options: { createMany: { data: newOptions.map(i => { return { option: i }; }) } } } });
                             }
 
                             await response.delete();
@@ -368,18 +367,18 @@ export default class QOTDCommand extends Command {
             } catch (e) {
                 this.log.error(e);
             } finally {
-                bot.qotd.questionQueue.save();
+                this.bot.qotd.questionQueue.save();
             }
         });
     }
 
-    public async doomsday(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async doomsday(msg: ChatInputCommandInteraction<CacheType>) {
         var time = new Date(Date.now());
 
         var modifier = 0;
         if (time.getHours() < 12) modifier = -1;
 
-        time.setDate(time.getDate() + bot.qotd.questionQueue.queue.length + modifier);
+        time.setDate(time.getDate() + this.bot.qotd.questionQueue.queue.length + modifier);
 
         msg.reply(`Doomsday is ${time.toDateString()}`);
     }

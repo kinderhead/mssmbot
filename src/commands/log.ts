@@ -1,5 +1,4 @@
 import { CacheType, ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import MSSM from "../bot.js";
 import Command from "../command.js";
 
 export default class LogCommand extends Command {
@@ -23,7 +22,7 @@ export default class LogCommand extends Command {
             );
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>) {
         var severity = msg.options.getString("severity", false);
         switch (severity == null ? "INFO": severity) {
             case "SILLY":

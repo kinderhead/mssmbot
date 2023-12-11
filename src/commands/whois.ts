@@ -13,8 +13,8 @@ export default class WhoIsCommand extends Command {
             .addUserOption(opt => opt.setName("user").setDescription("User").setRequired(true));
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
-        const user = bot.getUserV2(msg.options.getUser("user").id);
+    public async execute(msg: ChatInputCommandInteraction<CacheType>) {
+        const user = this.bot.getUserV2(msg.options.getUser("user").id);
 
         const embed = new EmbedBuilder()
             .setTitle(user.discord.displayName)

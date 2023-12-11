@@ -13,7 +13,7 @@ export default class ModQuestionCommand extends Command {
             .addStringOption(opt => opt.setName("Thing").setDescription("Thing to send").setRequired(true));
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>) {
         
     }
 }

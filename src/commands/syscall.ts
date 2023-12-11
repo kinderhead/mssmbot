@@ -14,22 +14,22 @@ export default class SyscallCommand extends Command {
             .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>) {
         await msg.deferReply();
 
         if (msg.options.getString("cmd") === "msg-count") {
-            await this.msgCount(msg, bot);
+            await this.msgCount(msg);
         }
 
         await msg.editReply("Done");
     }
 
-    public async msgCount(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async msgCount(msg: ChatInputCommandInteraction<CacheType>) {
         var msgs: Message[] = [];
 
-        var last = (await bot.levelChannel.messages.fetch({ limit: 1 })).first().id;
+        var last = (await this.bot.levelChannel.messages.fetch({ limit: 1 })).first().id;
         for (let set = 1; set <= 5; set++) {
-            msgs.push(...(await bot.levelChannel.messages.fetch({ limit: 100, before: last })).values());
+            msgs.push(...(await this.bot.levelChannel.messages.fetch({ limit: 100, before: last })).values());
             last = msgs[msgs.length - 1].id;
         }
 

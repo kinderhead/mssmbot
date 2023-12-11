@@ -145,29 +145,29 @@ export default class MSSM {
         this.addComponent(new RedditComponent(this));
         this.addComponent(new Muckbang(this));
 
-        this.registerCommand(new StatusCommand());
-        this.registerCommand(new RoleRemoverCommand());
-        this.registerCommand(new SetInfoCommand());
-        this.registerCommand(new HelpCommand());
-        this.registerCommand(new AddXPCommand());
-        this.registerCommand(new LeaderboardCommand());
-        this.registerCommand(new PlayCommand());
-        this.registerCommand(new GamesCommand());
-        this.registerCommand(new HandCommand());
-        this.registerCommand(new WhoIsCommand());
-        this.registerCommand(new ToolsCommand());
-        this.registerCommand(new SetCountCommand());
-        this.registerCommand(new RefreshCommand());
-        this.registerCommand(new ApplyCommand());
-        this.registerCommand(new KillCommand());
-        this.registerCommand(new ModAppsCommand());
-        this.registerCommand(new AnonCommand());
-        this.registerCommand(new PoopCommand());
-        this.registerCommand(new SettingsCommand());
-        this.registerCommand(new ArchiveCommand());
-        this.registerCommand(new SetRulesCommand());
-        this.registerCommand(new EditRulesCommand());
-        this.registerCommand(new SyscallCommand());
+        this.registerCommand(new StatusCommand(this));
+        this.registerCommand(new RoleRemoverCommand(this));
+        this.registerCommand(new SetInfoCommand(this));
+        this.registerCommand(new HelpCommand(this));
+        this.registerCommand(new AddXPCommand(this));
+        this.registerCommand(new LeaderboardCommand(this));
+        this.registerCommand(new PlayCommand(this));
+        this.registerCommand(new GamesCommand(this));
+        this.registerCommand(new HandCommand(this));
+        this.registerCommand(new WhoIsCommand(this));
+        this.registerCommand(new ToolsCommand(this));
+        this.registerCommand(new SetCountCommand(this));
+        this.registerCommand(new RefreshCommand(this));
+        this.registerCommand(new ApplyCommand(this));
+        this.registerCommand(new KillCommand(this));
+        this.registerCommand(new ModAppsCommand(this));
+        this.registerCommand(new AnonCommand(this));
+        this.registerCommand(new PoopCommand(this));
+        this.registerCommand(new SettingsCommand(this));
+        this.registerCommand(new ArchiveCommand(this));
+        this.registerCommand(new SetRulesCommand(this));
+        this.registerCommand(new EditRulesCommand(this));
+        this.registerCommand(new SyscallCommand(this));
 
         this.registerGame(UnoGame, "uno");
         this.registerGame(ChessGame, "chess");
@@ -354,11 +354,11 @@ export default class MSSM {
             }
 
             if (message.isAutocomplete()) {
-                await cmd.autocomplete(message, this);
+                await cmd.autocomplete(message);
             } else if (message.isChatInputCommand()) {
                 try {
                     if (cmd.getName() !== "hand") cmd.log.silly(`${this.getUser(message).displayName} has run /${cmd.getName()}`);
-                    await cmd.execute(message, this, this.getUserV2(message.user.id));
+                    await cmd.execute(message, this.getUserV2(message.user.id));
                 } catch (error) {
                     this.log.error(error);
                     try {

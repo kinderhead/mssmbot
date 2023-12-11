@@ -1,5 +1,4 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, CacheType, ChatInputCommandInteraction, ComponentType, EmbedBuilder, ModalBuilder, ModalActionRowComponentBuilder, SlashCommandBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
-import MSSM from "../bot.js";
 import Command from "../command.js";
 import { calcWinLoss } from "../games/chess.js";
 import { createCustomId, embedPager, quickModal, shorten } from "../lib/utils.js";
@@ -14,10 +13,10 @@ export default class StatusCommand extends Command {
             .addUserOption(arg => arg.setName("user").setDescription("User").setRequired(true))
     }
 
-    public async execute(msg: ChatInputCommandInteraction<CacheType>, bot: MSSM) {
+    public async execute(msg: ChatInputCommandInteraction<CacheType>) {
         await msg.deferReply();
 
-        var user = bot.getUserV2(msg.options.getUser("user").id);
+        var user = this.bot.getUserV2(msg.options.getUser("user").id);
 
         var totalStars = 0;
 
@@ -25,7 +24,7 @@ export default class StatusCommand extends Command {
             totalStars += i.stars;
         }
 
-        const level = bot.getLevelFromXP(user.xp);
+        const level = this.bot.getLevelFromXP(user.xp);
         const defaultEmbed = new EmbedBuilder()
             .setTitle(user.discord.displayName)
             .setThumbnail(user.discord.displayAvatarURL())
@@ -33,7 +32,7 @@ export default class StatusCommand extends Command {
             .setColor(user.discord.displayHexColor)
             .addFields(
                 { name: "Level", value: level.toString(), inline: true },
-                { name: "Level progress", value: `XP: ${user.xp}/${bot.getXPFromLevel(level + 1) + 1}`, inline: true },
+                { name: "Level progress", value: `XP: ${user.xp}/${this.bot.getXPFromLevel(level + 1) + 1}`, inline: true },
                 { name: '\u200B', value: '\u200B' },
                 { name: "QOTD posts", value: (user.polls.length + user.questions.length).toString(), inline: true },
                 { name: "Polls answered", value: user.poll_answers.length.toString(), inline: true },
@@ -52,7 +51,7 @@ export default class StatusCommand extends Command {
             if (user.questions.length > i) {
                 if (user.questions[i]?.asked === true) {
                     try {
-                        q = { name: "Question: " + user.questions[i].question, value: `[Link](${(await bot.qotd.qotdChannel.messages.fetch(user.questions[i].link)).url})` };
+                        q = { name: "Question: " + user.questions[i].question, value: `[Link](${(await this.bot.qotd.qotdChannel.messages.fetch(user.questions[i].link)).url})` };
                     } catch {
 
                     }
@@ -63,7 +62,7 @@ export default class StatusCommand extends Command {
             if (user.polls.length > i) {
                 if (user.polls[i]?.asked === true) {
                     try {
-                        q = { name: "Poll: " + user.polls[i].title, value: `[Link](${(await bot.qotd.qotdChannel.messages.fetch(user.polls[i].link)).url})` };
+                        q = { name: "Poll: " + user.polls[i].title, value: `[Link](${(await this.bot.qotd.qotdChannel.messages.fetch(user.polls[i].link)).url})` };
                     } catch {
 
                     }
@@ -74,14 +73,14 @@ export default class StatusCommand extends Command {
             if (p !== null) latestQuestions.push(p);
         }
 
-        var [chessWin, chessLoss] = await calcWinLoss(user.id, bot);
+        var [chessWin, chessLoss] = await calcWinLoss(user.id, this.bot);
 
         var starboardPosts = [];
         user.starboard.sort((a, b) => a.date.getTime() - b.date.getTime());
 
         for (let i = 0; i < Math.min(5, user.starboard.length); i++) {
             try {
-                var starboardMsg = await bot.getChannel(user.starboard[i].channelId).messages.fetch(user.starboard[i].id);
+                var starboardMsg = await this.bot.getChannel(user.starboard[i].channelId).messages.fetch(user.starboard[i].id);
                 var name = starboardMsg.content === "" ? "No text" : starboardMsg.content;
                 starboardPosts.push({ name: name, value: `[Link](${starboardMsg.url})` });
             } catch (e) {
