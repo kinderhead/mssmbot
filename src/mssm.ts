@@ -2,7 +2,6 @@ import { PrismaClient, UserData } from '@prisma/client';
 import { APIEmbed, ActivityType, Attachment, Awaitable, CacheType, ChatInputCommandInteraction, Client, EmbedBuilder, Events, GatewayIntentBits, GuildBasedChannel, GuildMember, Interaction, Message, PartialGuildMember, Partials, REST, Role, Routes, SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder, TextChannel, ThreadAutoArchiveDuration, User, channelMention, roleMention, userMention } from 'discord.js';
 import fs from 'fs';
 
-import util from 'node:util';
 import { createStream } from "rotating-file-stream";
 import { ILogObj, Logger } from 'tslog';
 import Command from './command.js';
@@ -50,6 +49,7 @@ import { EmbedResource, StringOpts, StringResource } from './lib/resource.js';
 import { Memory, Storage } from './lib/storage.js';
 import { InteractionSendable, isValidUrl, values } from './lib/utils.js';
 import TestCommand from './commands/test.js';
+import Bot, { DEBUG } from './lib/bot.js';
 
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -57,18 +57,9 @@ export function choose<T>(arr: T[]) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
-export const DEFAULT_LOGGER = new Logger<ILogObj>({ name: "MSSM", type: "pretty", hideLogPositionForProduction: true, prettyLogTimeZone: "local", minLevel: 2, prettyLogTemplate: "{{yyyy}}.{{mm}}.{{dd}} {{hh}}:{{MM}}:{{ss}}:{{ms}} {{logLevelName}}\t[{{name}}] " });
-export const LOGGER_STREAM = createStream("bot.log", {
-    size: "100M",
-    interval: "1d",
-    path: "/home/daniel/mssmbot/logs/"
-});
+const config = JSON.parse(fs.readFileSync("config.json").toString());
 
-export const DEBUG = process.argv.includes("--debug");
-
-export default class MSSM {
-    public components: Component[] = [];
-    public commands: Command[] = [];
+export default class MSSM extends Bot<MSSMUser> {
     public games: { [name: string]: new (host: GuildMember, baseChannel: TextChannel, bot: MSSM, type: string, quiet?: boolean, crashed?: boolean) => Game } = {};
 
     public hands: { [name: string]: (msg: ChatInputCommandInteraction<CacheType>) => Promise<void> | void } = {};
@@ -76,17 +67,13 @@ export default class MSSM {
     public activeGames: Game[] = [];
     public chessGames: { [id: number]: ChessGameData } = {};
 
-    private secret: string;
-    private clientID: string;
-
-    public client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildPresences, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessageReactions], partials: [Partials.Channel, Partials.Message, Partials.Reaction] });
     public lichess: Lichess;
 
     public people: GuildMember[] = [];
 
     public users: { [id: string]: MSSMUser } = {};
 
-    public db: PrismaClient;
+    public db: PrismaClient = new PrismaClient();
     public memory = Storage.make<Memory>("memory.json", new Memory());
 
     public welcomeChannel: TextChannel;
@@ -95,47 +82,18 @@ export default class MSSM {
     public xpBanList = ["750202680114282595", "739339459161751553", "739338796067323994", "752355433955721288", "742500057143574648", "789982492413001730", "1039979628397338646"];
     public xpCooldown: { [id: string]: Date } = {};
 
-    public readonly log = DEFAULT_LOGGER;
-    public logChannel: TextChannel;
-
-    public hasStarted = false;
-
     constructor() {
-        // DEFAULT_LOGGER.attachTransport(obj => {
-        //     const meta = obj['_meta'] as IMeta;
-        //     let parentString = meta.parentNames?.join(':') || '';
-        //     if (parentString) { parentString = `${parentString}:`; }
-
-        //     LOGGER_STREAM.write(`${meta.date.toISOString()} ${meta.logLevelName}\t[${parentString}${meta.name}] ${obj[0]}` + "\n");
-        // });
-
-        // Me not like this
-        const oldlog = console.log;
-        console.log = (message?: any, ...optionalParams: any[]) => {
-            var txt: string = message;
-            if (optionalParams.length != 0) {
-                txt = util.format(message, optionalParams);
-            }
-            oldlog(txt);
-
-            if (this.hasStarted && !txt.includes("anon") && !txt.includes("DEBUG")) {
-                var msg = "```ansi\n" + txt.substring(42).trim() + "\n```";
-
-                if ((txt.includes("ERROR") || txt.includes("FATAL")) && !DEBUG) {
-                    msg = `${roleMention("752345386617798798")}\n` + msg;
+        super(config["client"], config["secret"],
+            new Client(
+                {
+                    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildPresences, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessageReactions],
+                    partials: [Partials.Channel, Partials.Message, Partials.Reaction]
                 }
+            )
+        );
+    }
 
-                this.logChannel.send(msg);
-            }
-
-            txt = txt.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
-            LOGGER_STREAM.write(txt + "\n");
-        }
-
-        console.log("");
-
-        this.db = new PrismaClient();
-
+    protected override init() {
         this.addComponent(new Starboard(this));
         this.addComponent(new BotLogger(this));
         this.addComponent(new CatHandler(this));
@@ -174,28 +132,17 @@ export default class MSSM {
         this.registerGame(UnoGame, "uno");
         this.registerGame(ChessGame, "chess");
 
-        const config = JSON.parse(fs.readFileSync("config.json").toString());
-        this.clientID = config["client"];
-        this.secret = config["secret"];
-
-        this.client.once(Events.ClientReady, this.onLogIn.bind(this));
-
-        this.client.on(Events.InteractionCreate, this.onInteraction.bind(this));
-        this.client.on(Events.MessageCreate, this.onMessage.bind(this));
-        this.client.on(Events.GuildMemberAdd, this.onNewMember.bind(this));
-        this.client.on(Events.GuildMemberRemove, this.onMemberLeave.bind(this));
-
-        this.client.on(Events.Error, e => { this.log.fatal(e); });
-
         this.lichess = new Lichess(config["lichess"]);
     }
 
-    public async run() {
-        try {
-            await this.client.login(this.secret);
-        } finally {
-            await this.db.$disconnect();
-        }
+    // Fix this at some point
+    public registerCommand(command: Command<MSSMUser, MSSM>) {
+        // @ts-expect-error
+        this.commands.push(command);
+    }
+
+    public async onClose() {
+        await this.db.$disconnect();
     }
 
     public async syncUser(user: GuildMember) {
@@ -232,9 +179,8 @@ export default class MSSM {
         // }
     }
 
-    public async onLogIn(c: Client) {
-        this.log.info("Logging in");
-        this.log.silly("Bot in " + this.client.guilds.cache.size + " servers");
+    public async onLogin(c: Client) {
+        await super.onLogin(c);
 
         var promisesToAwait: (Promise<any> | Awaitable<any>)[] = [];
 
@@ -250,10 +196,6 @@ export default class MSSM {
         this.welcomeChannel = this.getChannel("739335818518331496");
 
         promisesToAwait.push(this.setupDataMap());
-
-        for (const i of this.components) {
-            promisesToAwait.push(i.init());
-        }
 
         for (const i in this.memory.games) {
             this.log.warn("Recovering a game of " + i);
@@ -294,8 +236,6 @@ export default class MSSM {
 
         this.log.info("Waiting for processes to finish");
         await Promise.all(promisesToAwait);
-
-        this.hasStarted = true;
 
         if (DEBUG) {
             this.log.info("Debugging bot. Ready");
@@ -345,33 +285,6 @@ export default class MSSM {
         }
 
         this.memory.save();
-    }
-
-    public async onInteraction(message: Interaction) {
-        if (message.isAutocomplete() || message.isChatInputCommand()) {
-            const cmd = this.commands.find(i => i.getName() == message.commandName);
-            if (!cmd) {
-                this.log.error("Cannot find command " + message.commandName);
-                return;
-            }
-
-            if (message.isAutocomplete()) {
-                await cmd.autocomplete(message);
-            } else if (message.isChatInputCommand()) {
-                try {
-                    if (cmd.getName() !== "hand") cmd.log.silly(`${this.getUser(message).displayName} has run /${cmd.getName()}`);
-                    await cmd.execute(message, this.getUserV2(message.user.id));
-                } catch (error) {
-                    this.log.error(error);
-                    try {
-                        if (message.replied || message.deferred) await message.editReply("An error occured running this command");
-                        else await message.reply({ content: "An error occured running this command", ephemeral: true });
-                    } catch (e) {
-                        this.log.error("Error reporting error :(", e);
-                    }
-                }
-            }
-        }
     }
 
     public getLevelFromXP(xp: number) {
@@ -438,10 +351,6 @@ export default class MSSM {
         if (component instanceof Muckbang) this.muckbang = component;
     }
 
-    public registerCommand(command: Command) {
-        this.commands.push(command);
-    }
-
     public registerGame(game: new (host: GuildMember, baseChannel: TextChannel, bot: MSSM, type: string, quiet?: boolean, crashed?: boolean) => Game, name: string) {
         this.games[name] = game;
     }
@@ -455,16 +364,14 @@ export default class MSSM {
     }
 
     public async refreshCommands() {
-        const rest = new REST().setToken(this.secret);
-
         const cmds: (SlashCommandBuilder | SlashCommandSubcommandsOnlyBuilder | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">)[] = [];
 
         this.commands.forEach(i => {
             cmds.push(i.create());
         });
 
-        ["739332910620082208"].forEach(async i => {
-            await rest.put(Routes.applicationGuildCommands(this.clientID, i), { body: cmds })
+        this.client.guilds.cache.forEach(async i => {
+            await i.commands.set(cmds);
         });
 
         this.log.info("Refreshed commands");
@@ -597,7 +504,7 @@ export default class MSSM {
         this.memory.changeloglastdate = date;
 
         var desc = `
-* Added an indicator to indicate whether the bot is being debugged or is running normally
+* Fixed empty anon message
         `;
 
         if (this.memory.changeloglastdesc === desc) return;

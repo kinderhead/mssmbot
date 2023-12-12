@@ -4,8 +4,9 @@ import Command from "../command.js";
 import { Poll, Question } from "../lib/storage.js";
 import { createCustomId, embedBuilder } from "../lib/utils.js";
 import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class QOTDCommand extends Command {
+export default class QOTDCommand extends Command<MSSMUser, MSSM> {
     private activeManagers: string[] = [];
 
     public getName() { return "qotd"; }
@@ -245,131 +246,6 @@ export default class QOTDCommand extends Command {
 
         embed.addFields({ name: "\u200B", value: "Id: " + post.id });
 
-        const response = await msg.reply({ embeds: [embed], components: [row], ephemeral: true });
-
-        const collector = response.createMessageComponentCollector({ componentType: ComponentType.Button, filter: async i => i.user.id === msg.user.id, time: 240000 });
-
-        var waitingForEdit = false;
-
-        collector.on("collect", async selection => {
-            try {
-                if (selection.customId === "cancel") {
-                    await response.delete();
-                    await selection.reply({ content: "Cancelled", ephemeral: true });
-                    collector.stop();
-                    return;
-                } else if (selection.customId === "hijack") {
-                    var thing = this.bot.qotd.questionQueue.queue.splice(idex, 1)[0];
-                    this.bot.qotd.questionQueue.queue.unshift(thing);
-                    this.bot.qotd.questionQueue.save();
-                    await selection.reply({ content: "This will now be the next question asked", ephemeral: true });
-                    collector.stop();
-                    return;
-                }
-
-                const editModal = new ModalBuilder()
-                    .setCustomId("edit-modal")
-                    .setTitle("Edit");
-
-                var showModal = true;
-                if (post.type == "question") {
-                    if (selection.customId === "edit") {
-                        if (typeof post.question === "string") {
-                            var question = post.question;
-
-                            // if (question.length >= 100) {
-                            //     question = question.slice(0, 96) + "...";
-                            // }
-
-                            editModal.addComponents(new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(new TextInputBuilder().setCustomId("edit-modal-input").setLabel("Question").setValue(question).setStyle(TextInputStyle.Short)));
-                        } else {
-                            var question = post.question.title;
-
-                            if (question.length >= 100) {
-                                question = question.slice(0, 96) + "...";
-                            }
-
-                            showModal = false;
-
-                            await embedBuilder(user.discord, selection.reply.bind(selection), this.bot, EmbedBuilder.from(post.question), e => {
-                                (this.bot.qotd.questionQueue.queue[idex] as Question).question = e;
-                                this.bot.db.questionData.update({ where: { id: post.id }, data: { question: JSON.stringify(e) } });
-                                this.bot.qotd.questionQueue.save();
-                            });
-                            return;
-                        }
-                    } else if (selection.customId === "delete") {
-                        this.bot.qotd.questionQueue.queue.splice(idex, 1);
-                        await this.bot.db.userData.update({ where: { id: user.id }, data: { questions: { delete: { id: post.id } } } });
-                        this.bot.db.questionData.delete({ where: { id: post.id } });
-                    }
-                } else if (post.type == "poll") {
-                    if (selection.customId === "edit") {
-                        var title = post.title;
-                        var opts = post.options.join("|");
-
-                        // if (title.length >= 100) {
-                        //     title = title.slice(0, 96) + "...";
-                        // }
-
-                        // if (opts.length >= 100) {
-                        //     opts = opts.slice(0, 96) + "...";
-                        // }
-
-                        editModal.addComponents(new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
-                            new TextInputBuilder().setCustomId("edit-modal-title").setLabel("Title").setValue(title).setStyle(TextInputStyle.Short),
-                        ), new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
-                            new TextInputBuilder().setCustomId("edit-modal-options").setLabel("Options").setValue(opts).setStyle(TextInputStyle.Short)
-                        ));
-                    } else if (selection.customId === "delete") {
-                        this.bot.qotd.questionQueue.queue.splice(idex, 1);
-                        await this.bot.db.userData.update({ where: { id: user.id }, data: { polls: { delete: { id: post.id } } } });
-                        this.bot.db.pollData.delete({ where: { id: post.id } });
-                    }
-                }
-
-
-                if (selection.customId === "edit") {
-                    if (showModal) {
-                        await selection.showModal(editModal);
-                        if (!waitingForEdit) {
-                            const result = await selection.awaitModalSubmit({ filter: i => i.customId === "edit-modal", time: 60000 });
-                            waitingForEdit = true;
-
-                            if (post.type == "question") {
-                                var newQuestion = result.fields.getTextInputValue("edit-modal-input");
-                                newQuestion = newQuestion === "" ? post.question as string : newQuestion;
-
-                                (this.bot.qotd.questionQueue.queue[idex] as Question).question = newQuestion;
-                                await this.bot.db.questionData.update({ where: { id: post.id }, data: { question: newQuestion } });
-                            } else if (post.type == "poll") {
-                                var newTitle = result.fields.getTextInputValue("edit-modal-title");
-                                newTitle = newTitle === "" ? post.title : newTitle;
-                                var newOptions = result.fields.getTextInputValue("edit-modal-options").split("|");
-                                newOptions = newOptions.length <= 1 ? post.options : newOptions;
-
-                                (this.bot.qotd.questionQueue.queue[idex] as Poll).title = newTitle;
-                                (this.bot.qotd.questionQueue.queue[idex] as Poll).options = newOptions;
-
-                                await this.bot.db.pollData.update({ where: { id: post.id }, data: { options: { deleteMany: {} } } });
-                                await this.bot.db.pollData.update({ where: { id: post.id }, data: { title: newTitle, options: { createMany: { data: newOptions.map(i => { return { option: i }; }) } } } });
-                            }
-
-                            await response.delete();
-
-                            await result.reply({ content: "Edit successful", ephemeral: true });
-                        }
-                    }
-                } else if (selection.customId === "delete") {
-                    await response.delete();
-                    await selection.reply({ content: "Deletion successful", ephemeral: true });
-                }
-            } catch (e) {
-                this.log.error(e);
-            } finally {
-                this.bot.qotd.questionQueue.save();
-            }
-        });
     }
 
     public async doomsday(msg: ChatInputCommandInteraction<CacheType>) {

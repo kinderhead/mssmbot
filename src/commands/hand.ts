@@ -1,7 +1,9 @@
 import { CacheType, ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import Command from "../command.js";
+import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class HandCommand extends Command {
+export default class HandCommand extends Command<MSSMUser, MSSM> {
     public getName() { return "hand"; }
 
     public create() {

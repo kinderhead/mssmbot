@@ -2,8 +2,9 @@ import { APIEmbed, ButtonStyle, CacheType, ChatInputCommandInteraction, EmbedBui
 import Command from "../command.js";
 import { buttonHelper, createCustomId, embedBuilder, quickActionRow, quickModal, quickMultiModal } from "../lib/utils.js";
 import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class ApplyCommand extends Command {
+export default class ApplyCommand extends Command<MSSMUser, MSSM> {
     public getName() { return "apply"; }
 
     public create() {

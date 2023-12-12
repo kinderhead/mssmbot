@@ -2,6 +2,8 @@ import { CacheType, ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuild
 import Command from "../command.js";
 import { calcWinLoss } from "../games/chess.js";
 import { expandAndHandleEmbed } from "../lib/utils.js";
+import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
 interface Position {
     user: string;
@@ -9,7 +11,7 @@ interface Position {
     display: string;
 }
 
-export default class LeaderboardCommand extends Command {
+export default class LeaderboardCommand extends Command<MSSMUser, MSSM> {
     public getName() { return "leaderboard"; }
 
     public create() {

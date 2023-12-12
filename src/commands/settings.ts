@@ -3,8 +3,9 @@ import Command from "../command.js";
 import { getInfoEmbeds } from "../lib/info_messages.js";
 import { settingsHelper } from "../lib/utils.js";
 import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class SettingsCommand extends Command {
+export default class SettingsCommand extends Command<MSSMUser, MSSM> {
     public getName() { return "settings"; }
 
     public create() {

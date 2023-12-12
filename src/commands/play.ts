@@ -1,8 +1,10 @@
 import { AutocompleteInteraction, CacheType, ChatInputCommandInteraction, SlashCommandBuilder, TextChannel } from "discord.js";
 import Command from "../command.js";
 import { autocompleteOptions } from "../lib/utils.js";
+import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class PlayCommand extends Command {
+export default class PlayCommand extends Command<MSSMUser, MSSM> {
     public getName() { return "play"; }
 
     public create() {

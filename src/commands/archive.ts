@@ -1,7 +1,9 @@
 import { CacheType, CategoryChannel, ChatInputCommandInteraction, GuildChannel, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import Command from "../command.js";
+import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class ArchiveCommand extends Command {
+export default class ArchiveCommand extends Command<MSSMUser, MSSM> {
     public getName() { return "archive"; }
 
     public create() {

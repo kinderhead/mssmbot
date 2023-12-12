@@ -1,13 +1,13 @@
 import { Prisma, UserData } from "@prisma/client";
-import MSSM from "../bot.js";
+import MSSM from "../mssm.js";
 import ChessGameData from "./chess.js";
+import Club from "./club.js";
 import DataMapper from "./mapper.js";
+import MegaPollOptionData from "./mega_poll_option.js";
+import Poll from "./poll.js";
 import PollQuestion from "./poll_question_data.js";
 import Question from "./question.js";
 import StarboardData from "./starboard.js";
-import MegaPollOptionData from "./mega_poll_option.js";
-import Poll from "./poll.js";
-import Club from "./club.js";
 
 const fullUser = Prisma.validator<Prisma.UserDataDefaultArgs>()({
     include: {

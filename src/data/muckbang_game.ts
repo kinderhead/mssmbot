@@ -1,12 +1,12 @@
 import { MuckbangGameData } from "@prisma/client";
+import MSSM from "../mssm.js";
 import DataMapper from "./mapper.js";
-import MSSM from "../bot.js";
 
 export default class MuckbangGame extends DataMapper<MuckbangGameData> implements MuckbangGameData {
     public constructor(bot: MSSM, data: MuckbangGameData) {
         super(bot, data, bot.muckbang.games);
     }
-    
+
     public async refresh() {
 
     }

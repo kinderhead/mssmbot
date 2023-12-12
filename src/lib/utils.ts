@@ -1,9 +1,11 @@
 import { TextInputBuilder } from "@discordjs/builders";
 import { diffChars } from "diff";
 import { APIEmbed, APIEmbedField, APIModalInteractionResponseCallbackData, ActionRowBuilder, AnyComponentBuilder, AutocompleteInteraction, AwaitModalSubmitOptions, ButtonBuilder, ButtonInteraction, ButtonStyle, CacheType, ComponentType, EmbedBuilder, GuildMember, InteractionReplyOptions, InteractionResponse, JSONEncodable, Message, MessagePayload, ModalActionRowComponentBuilder, ModalBuilder, ModalComponentData, ModalSubmitInteraction, StringSelectMenuBuilder, StringSelectMenuInteraction, StringSelectMenuOptionBuilder, TextInputStyle, WebhookMessageEditOptions } from "discord.js";
-import MSSM, { DEFAULT_LOGGER } from "../bot.js";
+import MSSM from "../mssm.js";
 
 export function discordDiff(a: string, b: string) {
+    a = a || "";
+    b = b || "";
     var diff = diffChars(escapeMarkdown(a), escapeMarkdown(b));
     var res = "";
 
@@ -147,7 +149,7 @@ export async function settingsHelper(user: GuildMember, msg: InteractionSendable
         try {
             int = await message.awaitMessageComponent({ filter: i => i.user.id === user.id && (i.customId === doneId || options.map(i => custom + i.name).includes(i.customId)), componentType: ComponentType.Button });
         } catch (e) {
-            DEFAULT_LOGGER.error(e);
+            bot.log.error(e);
             await message.edit({ embeds: [embed], components: [] });
             return;
         }
@@ -389,7 +391,7 @@ export async function quickModal(title: string, label: string, def: string, styl
         const str = res.fields.getTextInputValue(id);
         return str === "" ? def : str;
     } catch (e) {
-        DEFAULT_LOGGER.error(e);
+        console.error(e);
         return def;
     }
 }
@@ -420,7 +422,7 @@ export async function quickMultiModal(title: string, label1: string, def1: strin
         const str2 = res.fields.getTextInputValue(id2);
         return [str1 === "" ? def1 : str1, str2 === "" ? def2 : str2];
     } catch (e) {
-        DEFAULT_LOGGER.error(e);
+        console.error(e);
         return [def1, def2];
     }
 }
@@ -540,7 +542,7 @@ export function getFunctionArgs(originalFunc: Function): null | string[] {
     if (paramsString.length === 0) {
         return [];
     }
-    
+
     const params = paramsString.split(',').map(e => e.trim());
     return params;
 }

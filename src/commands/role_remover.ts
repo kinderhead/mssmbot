@@ -1,7 +1,9 @@
 import { CacheType, ChatInputCommandInteraction, PermissionFlagsBits, Role, SlashCommandBuilder } from "discord.js";
 import Command from "../command.js";
+import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class RoleRemoverCommand extends Command {
+export default class RoleRemoverCommand extends Command<MSSMUser, MSSM> {
     public getName() { return "role-remover"; }
 
     public create() {

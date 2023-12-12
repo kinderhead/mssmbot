@@ -2,8 +2,9 @@ import { AutocompleteInteraction, CacheType, ChatInputCommandInteraction, EmbedB
 import Command from "../command.js";
 import MSSMUser from "../data/user.js";
 import { settingsHelper, values } from "../lib/utils.js";
+import MSSM from "../mssm.js";
 
-export default class ClubCommand extends Command {
+export default class ClubCommand extends Command<MSSMUser, MSSM> {
     public getName() { return "clubs"; }
 
     public create() {

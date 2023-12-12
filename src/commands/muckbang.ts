@@ -3,9 +3,9 @@ import Command from "../command.js";
 import MuckbangGame from "../data/muckbang_game.js";
 import MSSMUser from "../data/user.js";
 import { autocompleteOptions, buttonHelper, expandAndHandleEmbed, getNextDayOfWeek, values } from "../lib/utils.js";
-import { choose } from "../bot.js";
+import MSSM, { choose } from "../mssm.js";
 
-export default class MuckbangCommand extends Command {
+export default class MuckbangCommand extends Command<MSSMUser, MSSM> {
     public getName() { return "muckbang"; }
 
     public create() {

@@ -2,8 +2,10 @@ import { ButtonBuilder, ButtonStyle, CacheType, ChatInputCommandInteraction, Emb
 import Command from "../command.js";
 import { createCustomId, quickActionRow } from "../lib/utils.js";
 import MegaPollData from "../data/mega_poll.js";
+import MSSM from "../mssm.js";
+import MSSMUser from "../data/user.js";
 
-export default class MegaPollCommand extends Command {
+export default class MegaPollCommand extends Command<MSSMUser, MSSM> {
     public getName() { return "mega-poll"; }
 
     public create() {

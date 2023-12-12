@@ -1,9 +1,9 @@
-import { bold, ButtonStyle, CacheType, ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder, TextInputStyle } from "discord.js";
-import MSSM from "../bot.js";
+import { CacheType, ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import Command from "../command.js";
-import { buttonHelper, quickModal } from "../lib/utils.js";
+import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class WhoIsCommand extends Command {
+export default class WhoIsCommand extends Command<MSSMUser, MSSM> {
     public getName() { return "whois"; }
 
     public create() {

@@ -1,8 +1,10 @@
 import { ButtonBuilder, ButtonInteraction, ButtonStyle, CacheType, ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import Command from "../command.js";
 import { createCustomId, embedBuilder, embedPager } from "../lib/utils.js";
+import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class EditRulesCommand extends Command {
+export default class EditRulesCommand extends Command<MSSMUser, MSSM> {
     public getName() { return "edit-rules"; }
 
     public create() {

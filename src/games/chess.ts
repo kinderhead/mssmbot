@@ -1,8 +1,8 @@
 import { BISHOP, BLACK, Chess, KING, KNIGHT, PAWN, QUEEN, ROOK, WHITE } from "chess.ts";
 import { EmbedBuilder, GuildMember, Message } from "discord.js";
-import MSSM from "../bot.js";
 import Game, { BasicOpts, desc, name } from "../game.js";
 import { ChessData } from "../lib/storage.js";
+import MSSM from "../mssm.js";
 
 export default class ChessGame extends Game<ChessOpts> {
     public game: Chess;

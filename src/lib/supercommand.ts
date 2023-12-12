@@ -2,8 +2,9 @@ import { CacheType, ChatInputCommandInteraction, PermissionFlagsBits, SlashComma
 import "reflect-metadata";
 import Command from "../command.js";
 import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 import { getFunctionArgs } from "./utils.js";
-import MSSM from "../bot.js";
+import Bot from "./bot.js";
 
 export interface SuperCommandArg {
     index: number;
@@ -32,7 +33,7 @@ export function param(description: string, required: boolean = true) {
 
 const routeKey = Symbol("routes")
 export function cmd<T extends Function>(description: string) {
-    return (target: SuperCommand, propertyName: string, descriptor: TypedPropertyDescriptor<T>) => {
+    return (target: Object, propertyName: string, descriptor: TypedPropertyDescriptor<T>) => {
         var method = descriptor.value!;
 
         var argData: SuperCommandArg[] = Reflect.getOwnMetadata(argsKey, target, propertyName) || [];
@@ -50,7 +51,7 @@ export function cmd<T extends Function>(description: string) {
     }
 }
 
-export default abstract class SuperCommand extends Command {
+export default abstract class SuperCommand<TUser, TBot extends Bot<TUser>> extends Command<TUser, TBot> {
     private cmdBuilder: SlashCommandBuilder;
 
     public routes: SuperCommandRoute[] = [];
@@ -58,7 +59,7 @@ export default abstract class SuperCommand extends Command {
     public abstract get description(): string;
     public abstract get modOnly(): boolean;
 
-    constructor(bot: MSSM) {
+    constructor(bot: TBot) {
         super(bot);
         this.routes = Reflect.getMetadata(routeKey, this) || []
     }

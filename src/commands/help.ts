@@ -1,8 +1,10 @@
 import { CacheType, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import Command from "../command.js";
 import { getInfoEmbeds } from "../lib/info_messages.js";
+import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class HelpCommand extends Command {
+export default class HelpCommand extends Command<MSSMUser, MSSM> {
     public getName() { return "help"; }
 
     public create() {

@@ -2,8 +2,10 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, CacheType, ChatInputComma
 import Command from "../command.js";
 import { calcWinLoss } from "../games/chess.js";
 import { createCustomId, embedPager, quickModal, shorten } from "../lib/utils.js";
+import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class StatusCommand extends Command {
+export default class StatusCommand extends Command<MSSMUser, MSSM> {
     public getName() { return "status"; }
 
     public create() {

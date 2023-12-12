@@ -1,8 +1,8 @@
 import { PollQuestionData } from "@prisma/client";
+import MSSM from "../mssm.js";
 import DataMapper from "./mapper.js";
-import MSSM from "../bot.js";
-import MSSMUser from "./user.js";
 import Poll from "./poll.js";
+import MSSMUser from "./user.js";
 
 export default class PollQuestion extends DataMapper<PollQuestionData> implements PollQuestionData {
     public poll: Poll;
@@ -11,7 +11,7 @@ export default class PollQuestion extends DataMapper<PollQuestionData> implement
     public constructor(bot: MSSM, data: PollQuestionData) {
         super(bot, data, bot.qotd.pollQuestions);
     }
-    
+
     protected override set<TKey extends keyof PollQuestionData>(name: TKey, value: PollQuestionData[TKey]) {
         (async () => {
             await this.bot.db.pollQuestionData.update({ where: { id: this.obj.id }, data: { [name]: value } });

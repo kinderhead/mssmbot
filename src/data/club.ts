@@ -1,6 +1,6 @@
 import { ClubData } from "@prisma/client";
+import MSSM from "../mssm.js";
 import DataMapper from "./mapper.js";
-import MSSM from "../bot.js";
 import MSSMUser from "./user.js";
 
 export default class Club extends DataMapper<ClubData> implements ClubData {

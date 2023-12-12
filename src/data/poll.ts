@@ -1,8 +1,8 @@
 import { PollData } from "@prisma/client";
+import MSSM from "../mssm.js";
 import DataMapper from "./mapper.js";
-import MSSM from "../bot.js";
-import MSSMUser from "./user.js";
 import PollQuestion from "./poll_question_data.js";
+import MSSMUser from "./user.js";
 
 export default class Poll extends DataMapper<PollData> implements PollData {
     public author: MSSMUser;
@@ -20,7 +20,7 @@ export default class Poll extends DataMapper<PollData> implements PollData {
 
     public override async refresh() {
         this.author = this.bot.getUserV2(this.obj.authorId);
-        this.options = this.fetchArrayFactory((await this.bot.db.pollData.findUnique({ where: { id: this.obj.id }, include: {options: true} })).options, PollQuestion, this.bot.qotd.pollQuestions);
+        this.options = this.fetchArrayFactory((await this.bot.db.pollData.findUnique({ where: { id: this.obj.id }, include: { options: true } })).options, PollQuestion, this.bot.qotd.pollQuestions);
     }
 
     public async reload() {

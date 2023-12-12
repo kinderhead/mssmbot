@@ -1,5 +1,5 @@
 import { MetaQuestion } from "@prisma/client";
-import MSSM from "../bot.js";
+import MSSM from "../mssm.js";
 import DataMapper from "./mapper.js";
 
 export default class MetaQuestionData extends DataMapper<MetaQuestion> implements MetaQuestion {
@@ -8,7 +8,7 @@ export default class MetaQuestionData extends DataMapper<MetaQuestion> implement
     }
 
     public async refresh() {
-        
+
     }
 
     public async reload() {

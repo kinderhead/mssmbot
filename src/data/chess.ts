@@ -1,6 +1,6 @@
 import { ChessData } from "@prisma/client";
+import MSSM from "../mssm.js";
 import DataMapper from "./mapper.js";
-import MSSM from "../bot.js";
 import MSSMUser from "./user.js";
 
 export default class ChessGameData extends DataMapper<ChessData> implements ChessData {
@@ -25,7 +25,7 @@ export default class ChessGameData extends DataMapper<ChessData> implements Ches
             await this.bot.db.chessData.update({ where: { id: this.obj.id }, data: { [name]: value } });
         })();
     }
-    
+
     // yeah yeah yeah
     id: number;
     pgn: string;

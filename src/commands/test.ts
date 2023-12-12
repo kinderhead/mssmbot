@@ -1,8 +1,9 @@
 import { ChatInputCommandInteraction } from "discord.js";
 import MSSMUser from "../data/user.js";
 import SuperCommand, { cmd, param } from "../lib/supercommand.js";
+import MSSM from "../mssm.js";
 
-export default class TestCommand extends SuperCommand {
+export default class TestCommand extends SuperCommand<MSSMUser, MSSM> {
     public get description(): string {
         return "Test"
     }

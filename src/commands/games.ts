@@ -2,8 +2,10 @@ import { CacheType, ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuild
 import Command from "../command.js";
 import { getResultPretty } from "../games/chess.js";
 import { expandAndHandleEmbed, values } from "../lib/utils.js";
+import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class GamesCommand extends Command {
+export default class GamesCommand extends Command<MSSMUser, MSSM> {
     public getName() { return "games"; }
 
     public create() {

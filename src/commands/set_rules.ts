@@ -1,7 +1,9 @@
 import { CacheType, ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import Command from "../command.js";
+import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class SetRulesCommand extends Command {
+export default class SetRulesCommand extends Command<MSSMUser, MSSM> {
     public getName() { return "set-rules"; }
 
     public create() {

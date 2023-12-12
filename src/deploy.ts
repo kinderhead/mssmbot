@@ -1,4 +1,4 @@
-import MSSM from "./bot.js";
+import MSSM from "./mssm.js";
 
 var bot = new MSSM();
 (async () => {

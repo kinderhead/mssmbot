@@ -1,9 +1,9 @@
 import { CacheType, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
-import MSSM from "../bot.js";
 import Command from "../command.js";
-import { getInfoEmbeds } from "../lib/info_messages.js";
+import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class ModQuestionCommand extends Command {
+export default class ModQuestionCommand extends Command<MSSMUser, MSSM> {
     public getName() { return "mod-send"; }
 
     public create() {
@@ -14,6 +14,6 @@ export default class ModQuestionCommand extends Command {
     }
 
     public async execute(msg: ChatInputCommandInteraction<CacheType>) {
-        
+
     }
 }

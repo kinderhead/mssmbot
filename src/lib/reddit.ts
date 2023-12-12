@@ -1,6 +1,7 @@
 import axios from "axios";
-import MSSM, { DEFAULT_LOGGER } from "../bot.js";
 import { EmbedBuilder } from "discord.js";
+import MSSM from "../mssm.js";
+import { DEFAULT_LOGGER } from "./bot.js";
 
 export interface RedditPost {
     title: string;
@@ -54,13 +55,13 @@ export default class Reddit {
             case RedditPostType.TEXT:
                 embed.setDescription(post.selftext);
                 break;
-            
+
             case RedditPostType.VIDEO:
                 embed.setDescription(`Video`).setThumbnail(post.thumbnail);
-            
+
             case RedditPostType.IMAGE:
                 embed.setImage(post.url_overridden_by_dest);
-        
+
             default:
                 break;
         }

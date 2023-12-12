@@ -5,8 +5,9 @@ import { MetaQuestion, PollData } from "@prisma/client";
 import MetaQuestionData from "../data/meta_question.js";
 import Poll from "../data/poll.js";
 import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class MetaQuestionsCommand extends Command {
+export default class MetaQuestionsCommand extends Command<MSSMUser, MSSM> {
     public getName() { return "meta-board"; }
 
     public create() {

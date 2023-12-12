@@ -2,8 +2,10 @@ import { CacheType, ChatInputCommandInteraction, SlashCommandBuilder } from "dis
 import Command from "../command.js";
 import { embedBuilder } from "../lib/utils.js";
 import Reddit from "../lib/reddit.js";
+import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class ToolsCommand extends Command {
+export default class ToolsCommand extends Command<MSSMUser, MSSM> {
     public getName() { return "tools"; }
 
     public create() {

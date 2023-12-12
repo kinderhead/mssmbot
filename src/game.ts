@@ -1,5 +1,5 @@
 import { APIEmbedField, ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ColorResolvable, ComponentType, EmbedBuilder, GuildMember, Message, MessageCollector, ModalActionRowComponentBuilder, ModalBuilder, PermissionFlagsBits, TextChannel, TextInputBuilder, TextInputStyle, ThreadChannel } from "discord.js";
-import MSSM from "./bot.js";
+import MSSM from "./mssm.js";
 
 import "reflect-metadata";
 import Loggable from "./lib/logutils.js";

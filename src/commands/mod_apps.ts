@@ -2,8 +2,9 @@ import { APIEmbed, ButtonBuilder, ButtonStyle, CacheType, ChatInputCommandIntera
 import Command from "../command.js";
 import MSSMUser from "../data/user.js";
 import { createCustomId, embedPager } from "../lib/utils.js";
+import MSSM from "../mssm.js";
 
-export default class ModAppsCommand extends Command {
+export default class ModAppsCommand extends Command<MSSMUser, MSSM> {
     public getName() { return "mod-apps"; }
 
     public create() {

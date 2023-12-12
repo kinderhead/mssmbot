@@ -1,7 +1,6 @@
 import { Awaitable, ClientEvents, Events, GuildEmoji, GuildMember, Message, MessageReaction, PartialGuildMember, PartialMessage, PartialMessageReaction, PartialUser, User } from "discord.js";
-import MSSM from "../bot.js";
+import MSSM from "../mssm.js";
 import Loggable from "./logutils.js";
-import DataMapper from "../data/mapper.js";
 
 const typeKey = Symbol("type");
 export function name(type: Events) {

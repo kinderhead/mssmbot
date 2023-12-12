@@ -1,9 +1,10 @@
-import { CacheType, CategoryChannel, ChatInputCommandInteraction, GuildChannel, PermissionFlagsBits, SlashCommandBuilder, Message } from "discord.js";
-import MSSM from "../bot.js";
-import Command from "../command.js";
 import { createObjectCsvWriter } from "csv-writer";
+import { CacheType, ChatInputCommandInteraction, Message, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import Command from "../command.js";
+import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class SyscallCommand extends Command {
+export default class SyscallCommand extends Command<MSSMUser, MSSM> {
     public getName() { return "syscall"; }
 
     public create() {

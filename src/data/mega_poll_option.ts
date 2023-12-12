@@ -1,6 +1,6 @@
 import { MegaPollOption } from "@prisma/client";
+import MSSM from "../mssm.js";
 import DataMapper from "./mapper.js";
-import MSSM from "../bot.js";
 import MegaPollData from "./mega_poll.js";
 import MSSMUser from "./user.js";
 

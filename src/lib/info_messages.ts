@@ -1,7 +1,7 @@
-import { APIEmbedField, ColorResolvable, EmbedBuilder, channelMention, roleMention, userMention } from "discord.js";
-import MSSM from "../bot.js";
+import { APIEmbedField, ColorResolvable, EmbedBuilder, channelMention, userMention } from "discord.js";
 import mc from "minecraftstatuspinger";
 import { ServerStatus } from "minecraftstatuspinger/dist/types.js";
+import MSSM from "../mssm.js";
 
 export function getInfoEmbeds(bot: MSSM) {
     return [
@@ -40,7 +40,7 @@ export function getInfoEmbeds(bot: MSSM) {
                 { name: "`uno`", value: "Max players: 16\n\nUno. Don't forget to say uno! If someone forgets remind them by saying uno. Winners gain 5 xp + the amount of people in the game." },
                 { name: "`chess`", value: "Max players: 2\n\nChess. Games are uploaded to Lichess when completed. Time limits and score are WIP." }
             ),
-        
+
         new EmbedBuilder()
             .setTitle("Clubs")
             .setDescription(`Some clubs have decided to move to Discord. The list of clubs can be found in <#1155497438623305769>.`)
@@ -85,7 +85,7 @@ export function getModInfoEmbeds(bot: MSSM) {
             .setDescription("These are all of the mod only commands. If you want more control (because many things are hard coded and should not be) then I can add more commands.")
             .setThumbnail(bot.client.user.displayAvatarURL())
             .setColor("White"),
-        
+
         new EmbedBuilder()
             .setTitle("QOTD")
             .setDescription(`Varios QOTD related commands.`)
@@ -95,7 +95,7 @@ export function getModInfoEmbeds(bot: MSSM) {
                 { name: "`/qotd-send`", value: "Sends the next QOTD post." },
                 { name: "`/qotd-close-poll <id>`", value: "Close a poll and release the results with the given ID. The ID can be found in the footer of QOTD messages." },
                 { name: "`/qotd manage > Hijack`", value: "When editing your QOTD posts you can move it to the top if necessary." },
-        ),
+            ),
 
         new EmbedBuilder()
             .setTitle("Meta questions")
@@ -105,8 +105,8 @@ export function getModInfoEmbeds(bot: MSSM) {
                 { name: "`/meta-board post <question>`", value: "Posts a question in the #meta-questions-board channel." },
                 { name: "`/meta-board poll <title> <options>`", value: "Posts a poll just like QOTD in the #meta-questions-board channel." },
                 { name: "`/meta-board manage`", value: "Manage all posts." },
-        ),
-        
+            ),
+
         new EmbedBuilder()
             .setTitle("Channel setups")
             .setDescription(`Sets up a few custom channels' features.`)
@@ -116,7 +116,7 @@ export function getModInfoEmbeds(bot: MSSM) {
                 { name: "`/set-info mod`", value: "Creates and remembers the mod only #mssm-bot-info message in the channel." },
                 { name: "`/set-count`", value: "Sets the counting channel and starts the count." },
                 { name: "`/set-rules`", value: "Sets the rules channel and sends the rules." },
-        ),
+            ),
 
         new EmbedBuilder()
             .setTitle("Miscellaneous")
@@ -127,7 +127,7 @@ export function getModInfoEmbeds(bot: MSSM) {
                 { name: "`/add-xp <user> <amount>`", value: "Gives a user an amount of xp. The amount can be negative to remove xp. Don't use this to give xp to yourself." },
                 { name: "`/archive <channel>`", value: "Archive a channel." },
                 { name: "`/log <message> [severity]`", value: "Sends a message in #bot-log." },
-        ),
+            ),
     ];
 }
 

@@ -1,7 +1,9 @@
 import { APIEmbed, CacheType, ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import Command from "../command.js";
+import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class QOTDQueueCommand extends Command {
+export default class QOTDQueueCommand extends Command<MSSMUser, MSSM> {
     public getName() { return "qotd-queue"; }
 
     public create() {
@@ -18,10 +20,10 @@ export default class QOTDQueueCommand extends Command {
                 idex++;
 
                 if (i.type === "question") {
-                    var data = await this.bot.db.questionData.findUnique({ where: { id: i.id } });
+                    var data = this.bot.qotd.questions[i.id];
                     return { name: idex + ". " + (data.isEmbed ? `Embed: ${(i.question as APIEmbed).title}` : i.question as string), value: "Question by " + this.bot.getUser(data.authorId).displayName + ". ID: " + i.id };
                 } else {
-                    return { name: idex + ". " + i.title, value: "Poll by " + this.bot.getUser((await this.bot.db.pollData.findUnique({ where: { id: i.id } })).authorId).displayName + ". ID: " + i.id };
+                    return { name: idex + ". " + i.title, value: "Poll by " + this.bot.qotd.polls[i.id].author.discord.displayName + ". ID: " + i.id };
                 }
             })));
 

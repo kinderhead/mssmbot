@@ -1,6 +1,6 @@
-import { GuildMember, APIEmbed, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
-import MSSM from "../bot.js";
-import { buttonHelper, createCustomId, embedBuilder, InteractionSendable, quickActionRow, quickModal } from "./utils.js";
+import { APIEmbed, ButtonStyle, EmbedBuilder, GuildMember, TextInputStyle } from "discord.js";
+import MSSM from "../mssm.js";
+import { InteractionSendable, buttonHelper, embedBuilder, quickModal } from "./utils.js";
 
 export abstract class ResourceType<T, TOpts = {}> {
     public abstract get(user: GuildMember, msg: InteractionSendable, bot: MSSM, opts: TOpts): Promise<T>;
@@ -31,9 +31,9 @@ export class StringResource extends ResourceType<string, StringOpts> {
         const embed = new EmbedBuilder()
             .setTitle("Create plain text")
             .setDescription("Due to discord being hard you have to press another button :(")
-        
+
         const int = await buttonHelper(embed, [[{ label: "Press me or else", style: ButtonStyle.Success }, i => i]], msg, true);
-        
+
         return await quickModal("Typing time", "Text:", "Type away", TextInputStyle.Paragraph, int, opts.maxLength);
     }
 }

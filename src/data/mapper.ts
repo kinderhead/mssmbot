@@ -1,6 +1,5 @@
-import ts from "typescript";
-import MSSM from "../bot.js";
 import Loggable from "../lib/logutils.js";
+import MSSM from "../mssm.js";
 
 export default abstract class DataMapper<TOriginal extends { id: string | number }> extends Loggable {
     public bot: MSSM;
@@ -15,7 +14,7 @@ export default abstract class DataMapper<TOriginal extends { id: string | number
         }
 
         super();
-        
+
         this.bot = bot;
         this.obj = data;
 
