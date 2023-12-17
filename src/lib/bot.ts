@@ -1,16 +1,14 @@
-import { Client, Events, GuildMember, Interaction, Message, PartialGuildMember, TextChannel, roleMention } from "discord.js";
+import { Client, Events, GuildBasedChannel, GuildMember, Interaction, Message, PartialGuildMember, Role, SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder, TextChannel, roleMention } from "discord.js";
 import util from 'node:util';
-import { createStream } from "rotating-file-stream";
+import { RotatingFileStream, createStream } from "rotating-file-stream";
 import { ILogObj, Logger } from "tslog";
 import Component from "./component.js";
 import Command from "../command.js";
 
-export const DEFAULT_LOGGER = new Logger<ILogObj>({ name: "MSSM", type: "pretty", hideLogPositionForProduction: true, prettyLogTimeZone: "local", minLevel: 2, prettyLogTemplate: "{{yyyy}}.{{mm}}.{{dd}} {{hh}}:{{MM}}:{{ss}}:{{ms}} {{logLevelName}}\t[{{name}}] " });
-export const LOGGER_STREAM = createStream("bot.log", {
-    size: "100M",
-    interval: "1d",
-    path: "/home/daniel/mssmbot/logs/"
-});
+export const LOG_CONFIG = {
+    DEFAULT_LOGGER: new Logger<ILogObj>({ name: "Bot", type: "pretty", hideLogPositionForProduction: false, prettyLogTimeZone: "local", minLevel: 2, prettyLogTemplate: "{{yyyy}}.{{mm}}.{{dd}} {{hh}}:{{MM}}:{{ss}}:{{ms}} {{fileNameWithLine}}\t{{logLevelName}}\t[{{name}}] " }),
+    LOGGER_STREAM: null as RotatingFileStream
+}
 
 export const DEBUG = process.argv.includes("--debug");
 
@@ -20,8 +18,9 @@ export default abstract class Bot<TUser = GuildMember> {
 
     public client: Client;
 
-    public readonly log = DEFAULT_LOGGER;
+    public readonly log = LOG_CONFIG.DEFAULT_LOGGER;
     public logChannel: TextChannel;
+    public errorPing: Role;
     
     public components: Component[] = [];
     public commands: Command<TUser, this>[] = [];
@@ -42,18 +41,20 @@ export default abstract class Bot<TUser = GuildMember> {
             }
             oldlog(txt);
 
-            if (this.hasStarted && !txt.includes("anon") && !txt.includes("DEBUG")) {
+            if (this.logChannel && this.hasStarted && !txt.includes("anon") && !txt.includes("DEBUG")) {
                 var msg = "```ansi\n" + txt.substring(42).trim() + "\n```";
 
-                if ((txt.includes("ERROR") || txt.includes("FATAL")) && !DEBUG) {
-                    msg = `${roleMention("752345386617798798")}\n` + msg;
+                if (this.errorPing && ((txt.includes("ERROR") || txt.includes("FATAL")) && !DEBUG)) {
+                    msg = `${roleMention(this.errorPing.id)}\n` + msg;
                 }
 
                 this.logChannel.send(msg);
             }
 
-            txt = txt.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
-            LOGGER_STREAM.write(txt + "\n");
+            if (LOG_CONFIG.LOGGER_STREAM != null) {
+                txt = txt.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
+                LOG_CONFIG.LOGGER_STREAM.write(txt + "\n");
+            }
         }
 
         console.log("");
@@ -129,5 +130,48 @@ export default abstract class Bot<TUser = GuildMember> {
 
     public async onClose() {
         
+    }
+
+    public async refreshCommands() {
+        const cmds: (SlashCommandBuilder | SlashCommandSubcommandsOnlyBuilder | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">)[] = [];
+
+        this.commands.forEach(i => {
+            cmds.push(i.create());
+        });
+
+        this.client.guilds.cache.forEach(async i => {
+            await i.commands.set(cmds);
+        });
+
+        this.log.info("Refreshed commands");
+    }
+
+    public getChannel<T extends GuildBasedChannel = TextChannel>(id: string): T {
+        for (const i of this.client.guilds.cache.values()) {
+            var ret = i.channels.cache.get(id) as T;
+            if (ret !== undefined) {
+                return ret;
+            }
+        }
+
+        throw new Error("Unable to find channel with id " + id);
+    }
+
+    public userExists(id: string) {
+        for (const i of this.client.guilds.cache.values()) {
+            if (i.members.cache.has(id)) return true;
+        }
+
+        return false;
+    }
+
+    public getRole(id: string): Role {
+        for (const i of this.client.guilds.cache.values()) {
+            if (i.roles.cache.has(id)) {
+                return i.roles.cache.get(id);
+            }
+        }
+
+        throw new Error("Unable to find role with id " + id);
     }
 }

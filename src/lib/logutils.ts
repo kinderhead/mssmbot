@@ -1,5 +1,5 @@
-import { DEFAULT_LOGGER } from "./bot.js";
+import { LOG_CONFIG } from "./bot.js";
 
 export default class Loggable {
-    public readonly log = DEFAULT_LOGGER.getSubLogger({ name: this.constructor.name });
+    public readonly log = LOG_CONFIG.DEFAULT_LOGGER.getSubLogger({ name: this.constructor.name });
 }

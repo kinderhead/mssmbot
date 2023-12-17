@@ -5,7 +5,7 @@ export default abstract class DataMapper<TOriginal extends { id: string | number
     public bot: MSSM;
 
     protected obj: TOriginal;
-
+    protected shouldRefresh = true;
     protected timeSinceLastReload: Date;
 
     public constructor(bot: MSSM, data: TOriginal, registry: { [key: string | number]: DataMapper<TOriginal> }) {
@@ -22,11 +22,12 @@ export default abstract class DataMapper<TOriginal extends { id: string | number
 
         var proxy = new Proxy(this, {
             get(target, prop) {
-                target.checkForRefresh();
+                var out = target[prop as keyof typeof target];
+                if (target.shouldRefresh && typeof out != "function") target.checkForRefresh();
                 if (target.obj.hasOwnProperty(prop)) {
                     return target.obj[prop as keyof typeof target.obj];
                 }
-                return target[prop as keyof typeof target];
+                return out;
             },
             set(target, prop, value) {
                 if (target.obj.hasOwnProperty(prop)) {
@@ -50,6 +51,19 @@ export default abstract class DataMapper<TOriginal extends { id: string | number
     public abstract refresh(): Promise<void>;
     public abstract reload(): Promise<void>;
     protected abstract set<TKey extends keyof TOriginal>(name: TKey, value: TOriginal[TKey]): void;
+
+    public withoutRefresh<T>(func: (obj: this) => T): T {
+        this.shouldRefresh = false;
+        var res: T;
+        
+        try {
+            res = func(this);
+        } finally {
+            this.shouldRefresh = true;
+        }
+
+        return res;
+    }
 
     protected async checkForRefresh() {
         if (Date.now() > this.timeSinceLastReload.getTime() + (5 * 60000)) {

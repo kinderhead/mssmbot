@@ -113,23 +113,23 @@ export default class QOTD extends Component {
     }
 
     public getActiveMetaQuestions() {
-        return values(this.metaQuestions).filter(i => i.active);
+        return values(this.metaQuestions).filter(i => i.withoutRefresh(() => i.active));
     }
 
     public getActiveMetaPolls() {
-        return values(this.polls).filter(i => !i.meta_is_done && i.channel == "1139634512230367335");
+        return values(this.polls).filter(i => i.withoutRefresh(() => !i.meta_is_done && i.channel == "1139634512230367335"));
     }
 
     public getActivePolls() {
-        return values(this.polls).filter(i => i.asked && i.open);
+        return values(this.polls).filter(i => i.withoutRefresh(() => i.asked && i.open));
     }
 
     public getActiveQOTDPolls() {
-        return values(this.polls).filter(i => i.asked && i.open && i.channel === "942269186061774870");
+        return values(this.polls).filter(i => i.withoutRefresh(() => i.asked && i.open && i.channel === "942269186061774870"));
     }
 
     public getActiveMegaPolls() {
-        return values(this.megaPolls).filter(i => i.open);
+        return values(this.megaPolls).filter(i => i.withoutRefresh(() => i.open));
     }
 
     public scheduleQotd() {

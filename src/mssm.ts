@@ -49,7 +49,7 @@ import { EmbedResource, StringOpts, StringResource } from './lib/resource.js';
 import { Memory, Storage } from './lib/storage.js';
 import { InteractionSendable, isValidUrl, values } from './lib/utils.js';
 import TestCommand from './commands/test.js';
-import Bot, { DEBUG } from './lib/bot.js';
+import Bot, { DEBUG, LOG_CONFIG } from './lib/bot.js';
 
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -58,6 +58,13 @@ export function choose<T>(arr: T[]) {
 }
 
 const config = JSON.parse(fs.readFileSync("config.json").toString());
+
+LOG_CONFIG.DEFAULT_LOGGER.settings.name = "MSSM";
+LOG_CONFIG.LOGGER_STREAM = createStream("bot.log", {
+    size: "100M",
+    interval: "1d",
+    path: "/home/daniel/mssmbot/logs/"
+});
 
 export default class MSSM extends Bot<MSSMUser> {
     public games: { [name: string]: new (host: GuildMember, baseChannel: TextChannel, bot: MSSM, type: string, quiet?: boolean, crashed?: boolean) => Game } = {};
@@ -194,6 +201,7 @@ export default class MSSM extends Bot<MSSMUser> {
         this.levelChannel = this.getChannel("1140018125149044817");
         this.logChannel = this.getChannel("739339459161751553");
         this.welcomeChannel = this.getChannel("739335818518331496");
+        this.errorPing = this.getRole("752345386617798798");
 
         promisesToAwait.push(this.setupDataMap());
 
@@ -363,37 +371,12 @@ export default class MSSM extends Bot<MSSMUser> {
         setTimeout(this.refreshMinecraft.bind(this), 30000);
     }
 
-    public async refreshCommands() {
-        const cmds: (SlashCommandBuilder | SlashCommandSubcommandsOnlyBuilder | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">)[] = [];
-
-        this.commands.forEach(i => {
-            cmds.push(i.create());
-        });
-
-        this.client.guilds.cache.forEach(async i => {
-            await i.commands.set(cmds);
-        });
-
-        this.log.info("Refreshed commands");
-    }
-
     public isUserPlaying(user: User | GuildMember | UserData) {
         for (const i of this.activeGames) {
             if (i.isUserPlaying(user as GuildMember)) return true;
         }
 
         return false;
-    }
-
-    public getChannel<T extends GuildBasedChannel = TextChannel>(id: string): T {
-        for (const i of this.client.guilds.cache.values()) {
-            var ret = i.channels.cache.get(id) as T;
-            if (ret !== undefined) {
-                return ret;
-            }
-        }
-
-        throw new Error("Unable to find channel with id " + id);
     }
 
     public createEmbedFromMessage(msg: Message): [EmbedBuilder, Attachment?] {
@@ -433,14 +416,6 @@ export default class MSSM extends Bot<MSSMUser> {
         return [embed, sendoff];
     }
 
-    public userExists(id: string) {
-        for (const i of this.client.guilds.cache.values()) {
-            if (i.members.cache.has(id)) return true;
-        }
-
-        return false;
-    }
-
     public getUserV2(id: string) {
         return this.users[id];
     }
@@ -478,16 +453,6 @@ export default class MSSM extends Bot<MSSMUser> {
         }
 
         throw new Error("Unable to find user with id " + id);
-    }
-
-    public getRole(id: string): Role {
-        for (const i of this.client.guilds.cache.values()) {
-            if (i.roles.cache.has(id)) {
-                return i.roles.cache.get(id);
-            }
-        }
-
-        throw new Error("Unable to find role with id " + id);
     }
 
     public sendChangelog() {

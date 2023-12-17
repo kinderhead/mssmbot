@@ -9,21 +9,6 @@ import PollQuestion from "./poll_question_data.js";
 import Question from "./question.js";
 import StarboardData from "./starboard.js";
 
-const fullUser = Prisma.validator<Prisma.UserDataDefaultArgs>()({
-    include: {
-        chess_games_black: true,
-        chess_games_white: true,
-        manager_of: true,
-        mega_poll_answers: true,
-        officer_of: true,
-        poll_answers: true,
-        polls: true,
-        questions: true,
-        starboard: true
-    }
-});
-
-export type FullUser = Prisma.UserDataGetPayload<typeof fullUser>;
 export default class MSSMUser extends DataMapper<UserData> implements UserData {
     public questions: Question[];
     public polls: Poll[];
