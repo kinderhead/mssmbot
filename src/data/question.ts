@@ -1,9 +1,9 @@
 import { QuestionData } from "@prisma/client";
 import MSSM from "../mssm.js";
-import DataMapper from "./mapper.js";
 import MSSMUser from "./user.js";
+import { DataMapper } from "botinator";
 
-export default class Question extends DataMapper<QuestionData> implements QuestionData {
+export default class Question extends DataMapper<MSSM, QuestionData> implements QuestionData {
     public author: MSSMUser;
 
     public constructor(bot: MSSM, data: QuestionData) {

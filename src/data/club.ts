@@ -1,9 +1,9 @@
 import { ClubData } from "@prisma/client";
 import MSSM from "../mssm.js";
-import DataMapper from "./mapper.js";
 import MSSMUser from "./user.js";
+import { DataMapper } from "botinator";
 
-export default class Club extends DataMapper<ClubData> implements ClubData {
+export default class Club extends DataMapper<MSSM, ClubData> implements ClubData {
     public manager: MSSMUser;
     public officers: MSSMUser[];
 

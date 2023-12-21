@@ -1,8 +1,8 @@
 import { MetaQuestion } from "@prisma/client";
 import MSSM from "../mssm.js";
-import DataMapper from "./mapper.js";
+import { DataMapper } from "botinator";
 
-export default class MetaQuestionData extends DataMapper<MetaQuestion> implements MetaQuestion {
+export default class MetaQuestionData extends DataMapper<MSSM, MetaQuestion> implements MetaQuestion {
     public constructor(bot: MSSM, data: MetaQuestion) {
         super(bot, data, bot.qotd.metaQuestions);
     }

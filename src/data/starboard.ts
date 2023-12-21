@@ -1,9 +1,9 @@
 import { StarboardMessage } from "@prisma/client";
 import MSSM from "../mssm.js";
-import DataMapper from "./mapper.js";
 import MSSMUser from "./user.js";
+import { DataMapper } from "botinator";
 
-export default class StarboardData extends DataMapper<StarboardMessage> implements StarboardMessage {
+export default class StarboardData extends DataMapper<MSSM, StarboardMessage> implements StarboardMessage {
     public author: MSSMUser;
 
     public constructor(bot: MSSM, data: StarboardMessage) {

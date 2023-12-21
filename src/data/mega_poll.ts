@@ -1,9 +1,9 @@
 import { MegaPoll } from "@prisma/client";
 import MSSM from "../mssm.js";
-import DataMapper from "./mapper.js";
 import MegaPollOptionData from "./mega_poll_option.js";
+import { DataMapper } from "botinator";
 
-export default class MegaPollData extends DataMapper<MegaPoll> implements MegaPoll {
+export default class MegaPollData extends DataMapper<MSSM, MegaPoll> implements MegaPoll {
     public options: MegaPollOptionData[];
 
     public constructor(bot: MSSM, data: MegaPoll) {

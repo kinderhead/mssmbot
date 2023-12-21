@@ -1,9 +1,9 @@
 import { ChessData } from "@prisma/client";
 import MSSM from "../mssm.js";
-import DataMapper from "./mapper.js";
 import MSSMUser from "./user.js";
+import { DataMapper } from "botinator";
 
-export default class ChessGameData extends DataMapper<ChessData> implements ChessData {
+export default class ChessGameData extends DataMapper<MSSM, ChessData> implements ChessData {
     public white: MSSMUser;
     public black: MSSMUser;
 
