@@ -1,12 +1,13 @@
+import { Component, values } from "botinator";
 import { EmbedBuilder, channelMention } from "discord.js";
 import ClubCommand from "../commands/club.js";
 import CreateClubCommand from "../commands/create_club.js";
 import SetClubsCommand from "../commands/set_clubs.js";
 import Club from "../data/club.js";
-import Component from "../lib/component.js";
-import { values } from "../lib/utils.js";
+import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class Clubs extends Component {
+export default class Clubs extends Component<MSSMUser, MSSM> {
     public clubs: string[] = [];
     public clubData: { [id: number]: Club } = {};
 

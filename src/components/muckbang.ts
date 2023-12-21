@@ -1,10 +1,11 @@
-import { Awaitable, EmbedBuilder, TextChannel } from "discord.js";
-import Component from "../lib/component.js";
+import { Component } from "botinator";
+import { EmbedBuilder, TextChannel } from "discord.js";
 import MuckbangCommand from "../commands/muckbang.js";
-import { MuckbangGameData } from "@prisma/client";
 import MuckbangGame from "../data/muckbang_game.js";
+import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class Muckbang extends Component {
+export default class Muckbang extends Component<MSSMUser, MSSM> {
     public channel: TextChannel;
 
     public games: { [id: number]: MuckbangGame } = {};
@@ -12,7 +13,7 @@ export default class Muckbang extends Component {
     public async init() {
         this.channel = this.bot.getChannel("1037857900997132399");
         this.bot.registerCommand(new MuckbangCommand(this.bot));
-        
+
         for (const i of await this.bot.db.muckbangGameData.findMany()) {
             this.games[i.id] = new MuckbangGame(this.bot, i);
         }

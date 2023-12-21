@@ -1,7 +1,9 @@
-import { GuildEmoji, Awaitable, Message } from "discord.js";
-import Component from "../lib/component.js";
+import { Component } from "botinator";
+import { Awaitable, GuildEmoji, Message } from "discord.js";
+import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class CatHandler extends Component {
+export default class CatHandler extends Component<MSSMUser, MSSM> {
     public catEmojiList: string[];
     public catChannel = "1139362238151536670";
 

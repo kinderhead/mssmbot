@@ -1,8 +1,7 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, CacheType, ChatInputCommandInteraction, ComponentType, EmbedBuilder, ModalBuilder, ModalActionRowComponentBuilder, SlashCommandBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
-import Command from "../command.js";
-import { calcWinLoss } from "../games/chess.js";
-import { createCustomId, embedPager, quickModal, shorten } from "../lib/utils.js";
+import { Command, embedPager } from "botinator";
+import { CacheType, ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import MSSMUser from "../data/user.js";
+import { calcWinLoss } from "../games/chess.js";
 import MSSM from "../mssm.js";
 
 export default class StatusCommand extends Command<MSSMUser, MSSM> {
@@ -44,7 +43,7 @@ export default class StatusCommand extends Command<MSSMUser, MSSM> {
                 { name: '\u200B', value: '\u200B' },
                 { name: 'Starboard stars', value: totalStars.toString(), inline: true },
                 { name: 'Starboard posts', value: user.starboard.length.toString(), inline: true },
-        );
+            );
 
         var latestQuestions = [];
 
@@ -97,8 +96,8 @@ export default class StatusCommand extends Command<MSSMUser, MSSM> {
             .setColor(user.discord.displayHexColor)
             .addFields(
                 latestQuestions
-        );
-        
+            );
+
         const gameEmbed = new EmbedBuilder()
             .setTitle(user.discord.displayName)
             .setThumbnail(user.discord.displayAvatarURL())
@@ -107,8 +106,8 @@ export default class StatusCommand extends Command<MSSMUser, MSSM> {
             .addFields(
                 { name: "Uno win/loss ratio", value: `${user.uno_wins}/${user.uno_losses}`, inline: true },
                 { name: "Chess win/loss ratio.", value: `${chessWin}/${chessLoss}`, inline: true }
-        );
-        
+            );
+
         const countingEmbed = new EmbedBuilder()
             .setTitle(user.discord.displayName)
             .setThumbnail(user.discord.displayAvatarURL())
@@ -118,7 +117,7 @@ export default class StatusCommand extends Command<MSSMUser, MSSM> {
                 { name: "Counted", value: user.times_counted.toString(), inline: true },
                 { name: "Failed to count", value: user.times_failed.toString(), inline: true },
                 { name: "Saves", value: user.saves.toString(), inline: true },
-        );
+            );
 
         const starboardEmbed = new EmbedBuilder()
             .setTitle(user.discord.displayName)
@@ -127,8 +126,8 @@ export default class StatusCommand extends Command<MSSMUser, MSSM> {
             .setColor(user.discord.displayHexColor)
             .addFields(
                 starboardPosts
-        );
-        
+            );
+
         await embedPager([defaultEmbed, qotdEmbed, gameEmbed, countingEmbed, starboardEmbed], msg.editReply.bind(msg), false);
     }
 }

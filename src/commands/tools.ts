@@ -1,8 +1,8 @@
+import { Command } from "botinator";
 import { CacheType, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
-import Command from "../command.js";
-import { embedBuilder } from "../lib/utils.js";
-import Reddit from "../lib/reddit.js";
 import MSSMUser from "../data/user.js";
+import Reddit from "../lib/reddit.js";
+import { embedBuilder } from "../lib/utils.js";
 import MSSM from "../mssm.js";
 
 export default class ToolsCommand extends Command<MSSMUser, MSSM> {

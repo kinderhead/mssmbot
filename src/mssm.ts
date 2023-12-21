@@ -4,7 +4,6 @@ import fs from 'fs';
 
 import { createStream } from "rotating-file-stream";
 import { ILogObj, Logger } from 'tslog';
-import Command from './command.js';
 import AddXPCommand from './commands/add_xp.js';
 import AnonCommand from './commands/anon.js';
 import ApplyCommand from './commands/apply.js';
@@ -42,14 +41,12 @@ import MSSMUser from './data/user.js';
 import Game from './game.js';
 import ChessGame from './games/chess.js';
 import UnoGame from './games/uno.js';
-import Component from './lib/component.js';
 import { getInfoEmbeds, getMinecraftEmbeds, getModInfoEmbeds } from './lib/info_messages.js';
 import Lichess from './lib/lichess.js';
 import { EmbedResource, StringOpts, StringResource } from './lib/resource.js';
 import { Memory, Storage } from './lib/storage.js';
-import { InteractionSendable, isValidUrl, values } from './lib/utils.js';
 import TestCommand from './commands/test.js';
-import Bot, { DEBUG, LOG_CONFIG } from './lib/bot.js';
+import { LOG_CONFIG, Bot, Command, Component, DEBUG, InteractionSendable, isValidUrl, values } from "botinator";
 
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -348,7 +345,8 @@ export default class MSSM extends Bot<MSSMUser> {
     public logging: BotLogger;
     public clubs: Clubs;
     public muckbang: Muckbang;
-    public addComponent(component: Component) {
+    public addComponent(component: Component<MSSMUser, MSSM>) {
+        // @ts-expect-error
         this.components.push(component);
 
         if (component instanceof Starboard) this.starboard = component;

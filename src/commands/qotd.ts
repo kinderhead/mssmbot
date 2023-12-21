@@ -1,8 +1,5 @@
-import { PollData, QuestionData, UserData } from "@prisma/client";
-import { APIEmbed, ActionRowBuilder, ButtonBuilder, ButtonStyle, CacheType, ChatInputCommandInteraction, ComponentType, EmbedBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalSubmitInteraction, PermissionFlagsBits, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction, StringSelectMenuOptionBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
-import Command from "../command.js";
-import { Poll, Question } from "../lib/storage.js";
-import { createCustomId, embedBuilder } from "../lib/utils.js";
+import { Command, createCustomId } from "botinator";
+import { APIEmbed, ActionRowBuilder, ButtonBuilder, ButtonStyle, CacheType, ChatInputCommandInteraction, EmbedBuilder, ModalSubmitInteraction, PermissionFlagsBits, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction, StringSelectMenuOptionBuilder } from "discord.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";
 

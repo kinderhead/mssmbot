@@ -1,7 +1,6 @@
+import { Command, createCustomId, embedPager } from "botinator";
 import { APIEmbed, ButtonBuilder, ButtonStyle, CacheType, ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import Command from "../command.js";
 import MSSMUser from "../data/user.js";
-import { createCustomId, embedPager } from "../lib/utils.js";
 import MSSM from "../mssm.js";
 
 export default class ModAppsCommand extends Command<MSSMUser, MSSM> {

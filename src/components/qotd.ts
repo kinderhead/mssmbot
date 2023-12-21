@@ -1,4 +1,4 @@
-import { PollData } from "@prisma/client";
+import { Component, createCustomId, quickActionRow, shorten, values } from "botinator";
 import { APIEmbed, ComponentType, EmbedBuilder, GuildMember, Message, MessageReaction, ReactionCollector, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextChannel, User, roleMention } from "discord.js";
 import ClosePollCommand from "../commands/close_poll.js";
 import MegaPollCommand from "../commands/mega_poll.js";
@@ -12,11 +12,11 @@ import MetaQuestionData from "../data/meta_question.js";
 import mPollData from "../data/poll.js";
 import PollQuestion from "../data/poll_question_data.js";
 import QuestionData from "../data/question.js";
-import Component from "../lib/component.js";
 import { Poll, Question, QueueDataStorage, Storage } from "../lib/storage.js";
-import { createCustomId, quickActionRow, shorten, values } from "../lib/utils.js";
+import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class QOTD extends Component {
+export default class QOTD extends Component<MSSMUser, MSSM> {
     public qotdChannel: TextChannel;
     public metaQuestionsChannel: TextChannel;
 

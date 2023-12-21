@@ -1,8 +1,8 @@
+import { Command, buttonHelper, createCustomId, quickActionRow } from "botinator";
 import { APIEmbed, ButtonStyle, CacheType, ChatInputCommandInteraction, EmbedBuilder, ModalBuilder, SlashCommandBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
-import Command from "../command.js";
-import { buttonHelper, createCustomId, embedBuilder, quickActionRow, quickModal, quickMultiModal } from "../lib/utils.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";
+import { embedBuilder } from "../lib/utils.js";
 
 export default class ApplyCommand extends Command<MSSMUser, MSSM> {
     public getName() { return "apply"; }
@@ -20,9 +20,9 @@ export default class ApplyCommand extends Command<MSSMUser, MSSM> {
         const embed = new EmbedBuilder()
             .setTitle("Mod Application")
             .setDescription("READ THIS BEFORE STARTING\n\nRequirements:\n* Your application will be shown to everyone for the vote\n* You must be a current student OR know for certain that you will be coming back if you are taking a year off\n* Include who you are and why you want to be mod\n* Include what you will do to improve the server\n* Say something funny (not required)\n* Note that I will remove your application if it does not fulfill these requirements. You can still tweak it and apply again\n\nHow to use this thing:\nYou have 2 options. I recommend pressing the quickstart button, but you can also start from scratch. The thing you are submitting is a special message like ones found in #mssm-this.bot-info or Uno. These messages, called \"embeds\" by discord, can contain a single image, fancy formatting, footers, and more. I've created an editor for it because I was bored and now I'm putting it to good use. Once you submit, you can edit your embed again by using `/apply` and pressing the first button followed by navigating to your embed (if more than one is saved) and selecting it. Complicated, I know. If you need help ping the admin.");
-        
+
         this.log.info(`${user.discord.displayName} is editing the mod app`);
-        
+
         const res = await buttonHelper(embed, [
             [{ label: "Create, select, or edit message", style: ButtonStyle.Primary }, async i => {
                 await i.update("Loading embed builder...");
@@ -41,8 +41,8 @@ export default class ApplyCommand extends Command<MSSMUser, MSSM> {
                         quickActionRow(new TextInputBuilder().setCustomId("what").setLabel("What will you do?").setStyle(TextInputStyle.Paragraph).setMaxLength(1024).setRequired(true)),
                         quickActionRow(new TextInputBuilder().setCustomId("funny").setLabel("Funny (not required)").setStyle(TextInputStyle.Paragraph).setMaxLength(1024).setRequired(false)),
                         quickActionRow(new TextInputBuilder().setCustomId("slogan").setLabel("Slogan (not required)").setStyle(TextInputStyle.Short).setMaxLength(256).setRequired(false)),
-                );
-                
+                    );
+
                 await i.showModal(modal);
                 const submit = await i.awaitModalSubmit({ filter: i => i.customId === modalId, time: 36000000 });
                 var embed = new EmbedBuilder();

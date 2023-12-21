@@ -1,7 +1,9 @@
-import { GuildEmoji, Awaitable, Message } from "discord.js";
-import Component from "../lib/component.js";
+import { Component } from "botinator";
+import { Message } from "discord.js";
+import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class H extends Component {
+export default class H extends Component<MSSMUser, MSSM> {
     public async onMessage(msg: Message<boolean>) {
         if (msg.channelId === "1039979628397338646") {
             if (msg.content.toLowerCase().includes("h")) {

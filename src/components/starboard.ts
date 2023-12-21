@@ -1,10 +1,12 @@
-import { MessageReaction, PartialMessageReaction, User, PartialUser, Message, EmbedBuilder, channelMention, TextChannel, Awaitable, Attachment } from "discord.js";
-import Component from "../lib/component.js";
+import { Component } from "botinator";
+import { Attachment, EmbedBuilder, Message, MessageReaction, PartialMessageReaction, PartialUser, TextChannel, User, channelMention } from "discord.js";
 import StarboardData from "../data/starboard.js";
+import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class Starboard extends Component {
+export default class Starboard extends Component<MSSMUser, MSSM> {
     public readonly starEmojis = ["✨", "⭐", "🌟", "💫"];
-    public starboardChannel: TextChannel; 
+    public starboardChannel: TextChannel;
 
     public starboardPosts: { [id: string]: StarboardData } = {};
 

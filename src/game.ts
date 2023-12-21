@@ -1,10 +1,8 @@
 import { APIEmbedField, ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ColorResolvable, ComponentType, EmbedBuilder, GuildMember, Message, MessageCollector, ModalActionRowComponentBuilder, ModalBuilder, PermissionFlagsBits, TextChannel, TextInputBuilder, TextInputStyle, ThreadChannel } from "discord.js";
 import MSSM from "./mssm.js";
-
 import "reflect-metadata";
-import Loggable from "./lib/logutils.js";
 import { GameData } from "./lib/storage.js";
-import { createCustomId } from "./lib/utils.js";
+import { Loggable, createCustomId } from "botinator";
 
 export default abstract class Game<TOpts extends BasicOpts = BasicOpts> extends Loggable {
     public abstract minPlayers(): number;

@@ -1,6 +1,5 @@
+import { Command, autocompleteOptions } from "botinator";
 import { AutocompleteInteraction, CacheType, ChatInputCommandInteraction, SlashCommandBuilder, TextChannel } from "discord.js";
-import Command from "../command.js";
-import { autocompleteOptions } from "../lib/utils.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";
 

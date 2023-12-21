@@ -1,4 +1,4 @@
-import Loggable from "../lib/logutils.js";
+import { Loggable } from "botinator";
 import MSSM from "../mssm.js";
 
 export default abstract class DataMapper<TOriginal extends { id: string | number }> extends Loggable {

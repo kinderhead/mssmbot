@@ -1,8 +1,7 @@
+import { Command, expandAndHandleEmbed, values } from "botinator";
 import { CacheType, ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from "discord.js";
-import Command from "../command.js";
-import { getResultPretty } from "../games/chess.js";
-import { expandAndHandleEmbed, values } from "../lib/utils.js";
 import MSSMUser from "../data/user.js";
+import { getResultPretty } from "../games/chess.js";
 import MSSM from "../mssm.js";
 
 export default class GamesCommand extends Command<MSSMUser, MSSM> {

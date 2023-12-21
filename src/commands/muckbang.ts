@@ -1,8 +1,7 @@
+import { Command, autocompleteOptions, buttonHelper, expandAndHandleEmbed, getNextDayOfWeek, values } from "botinator";
 import { AutocompleteInteraction, ButtonStyle, CacheType, ChatInputCommandInteraction, EmbedBuilder, GuildScheduledEventEntityType, GuildScheduledEventPrivacyLevel, PermissionFlagsBits, SlashCommandBuilder, VoiceBasedChannel, channelMention, time } from "discord.js";
-import Command from "../command.js";
 import MuckbangGame from "../data/muckbang_game.js";
 import MSSMUser from "../data/user.js";
-import { autocompleteOptions, buttonHelper, expandAndHandleEmbed, getNextDayOfWeek, values } from "../lib/utils.js";
 import MSSM, { choose } from "../mssm.js";
 
 export default class MuckbangCommand extends Command<MSSMUser, MSSM> {

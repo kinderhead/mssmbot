@@ -1,8 +1,7 @@
+import { Command, expandAndHandleEmbed } from "botinator";
 import { CacheType, ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from "discord.js";
-import Command from "../command.js";
-import { calcWinLoss } from "../games/chess.js";
-import { expandAndHandleEmbed } from "../lib/utils.js";
 import MSSMUser from "../data/user.js";
+import { calcWinLoss } from "../games/chess.js";
 import MSSM from "../mssm.js";
 
 interface Position {

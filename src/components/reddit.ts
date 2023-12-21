@@ -1,8 +1,10 @@
-import { GuildEmoji, Awaitable, Message, TextChannel } from "discord.js";
-import Component from "../lib/component.js";
+import { Component } from "botinator";
+import { Awaitable, TextChannel } from "discord.js";
 import Reddit from "../lib/reddit.js";
+import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class RedditComponent extends Component {
+export default class RedditComponent extends Component<MSSMUser, MSSM> {
     public dwing: TextChannel;
 
     public init(): Awaitable<void> {

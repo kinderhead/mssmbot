@@ -1,9 +1,10 @@
-import { Message, PartialMessage, Awaitable, EmbedBuilder, channelMention, Attachment } from "discord.js";
+import { Component, discordDiff } from "botinator";
+import { Attachment, EmbedBuilder, Message, PartialMessage, channelMention } from "discord.js";
 import LogCommand from "../commands/log.js";
-import Component from "../lib/component.js";
-import { discordDiff } from "../lib/utils.js";
+import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class BotLogger extends Component {
+export default class BotLogger extends Component<MSSMUser, MSSM> {
     public ignoreIds: string[] = [];
 
     public init() {
@@ -26,7 +27,7 @@ export default class BotLogger extends Component {
             embed.setDescription(discordDiff(old.content === "" ? "No text" : old.content, edited.content === "" ? "No text" : edited.content))
 
             this.bot.logChannel.send({ embeds: [embed], files: data[1] == null ? [] : [data[1]] });
-        } catch(e) {
+        } catch (e) {
             this.log.error(e);
         }
     }
@@ -45,7 +46,7 @@ export default class BotLogger extends Component {
             if (msg.author != null) {
                 data = this.bot.createEmbedFromMessage(msg);
                 embed = data[0].setTitle(`Message deleted in ${channelMention(msg.channelId)}`);
-            
+
                 if (msg.attachments.size != 0) {
                     embed.setImage(msg.attachments.first().url);
                 }

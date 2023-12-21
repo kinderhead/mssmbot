@@ -1,6 +1,5 @@
+import { Command, quickModal } from "botinator";
 import { CacheType, ChatInputCommandInteraction, SlashCommandBuilder, TextInputStyle } from "discord.js";
-import Command from "../command.js";
-import { quickModal } from "../lib/utils.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";
 

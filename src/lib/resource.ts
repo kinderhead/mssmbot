@@ -1,6 +1,7 @@
 import { APIEmbed, ButtonStyle, EmbedBuilder, GuildMember, TextInputStyle } from "discord.js";
 import MSSM from "../mssm.js";
-import { InteractionSendable, buttonHelper, embedBuilder, quickModal } from "./utils.js";
+import { InteractionSendable, buttonHelper, quickModal } from "botinator";
+import { embedBuilder } from "./utils.js";
 
 export abstract class ResourceType<T, TOpts = {}> {
     public abstract get(user: GuildMember, msg: InteractionSendable, bot: MSSM, opts: TOpts): Promise<T>;

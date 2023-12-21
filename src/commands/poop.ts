@@ -1,5 +1,5 @@
+import { Command } from "botinator";
 import { CacheType, ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, userMention } from "discord.js";
-import Command from "../command.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";
 

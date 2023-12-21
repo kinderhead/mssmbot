@@ -1,5 +1,5 @@
-import { CacheType, ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import Command from "../command.js";
+import { Command } from "botinator";
+import { CacheType, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";
 

@@ -1,7 +1,6 @@
+import { Command, settingsHelper, values } from "botinator";
 import { AutocompleteInteraction, CacheType, ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder, channelMention } from "discord.js";
-import Command from "../command.js";
 import MSSMUser from "../data/user.js";
-import { settingsHelper, values } from "../lib/utils.js";
 import MSSM from "../mssm.js";
 
 export default class ClubCommand extends Command<MSSMUser, MSSM> {
@@ -125,7 +124,7 @@ export default class ClubCommand extends Command<MSSMUser, MSSM> {
             return;
         }
 
-        await settingsHelper(user.discord, msg.editReply.bind(msg), this.bot, new EmbedBuilder().setTitle("Club Settings"), [
+        await settingsHelper(user.discord, msg.editReply.bind(msg), new EmbedBuilder().setTitle("Club Settings"), [
             { default: club.desc, name: "Description", desc: "", on_change: (i: string) => { club.desc = i } },
             { default: club.meetingTime ?? "TBD", name: "Meeting time", desc: "", on_change: (i: string) => { club.meetingTime = i } },
             { default: club.meetingLocation ?? "TBD", name: "Meeting location", desc: "", on_change: (i: string) => { club.meetingLocation = i } },

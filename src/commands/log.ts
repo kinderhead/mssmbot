@@ -1,5 +1,5 @@
+import { Command } from "botinator";
 import { CacheType, ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import Command from "../command.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";
 
@@ -26,31 +26,31 @@ export default class LogCommand extends Command<MSSMUser, MSSM> {
 
     public async execute(msg: ChatInputCommandInteraction<CacheType>) {
         var severity = msg.options.getString("severity", false);
-        switch (severity == null ? "INFO": severity) {
+        switch (severity == null ? "INFO" : severity) {
             case "SILLY":
                 this.log.silly(msg.options.getString("message"));
                 break;
-            
+
             case "DEBUG":
                 this.log.debug(msg.options.getString("message"));
                 break;
-            
+
             case "INFO":
                 this.log.info(msg.options.getString("message"));
                 break;
-            
+
             case "WARN":
                 this.log.warn(msg.options.getString("message"));
                 break;
-            
+
             case "ERROR":
                 this.log.error(msg.options.getString("message"));
                 break;
-            
+
             case "FATAL":
                 this.log.fatal(msg.options.getString("message"));
                 break;
-            
+
             default:
                 break;
         }

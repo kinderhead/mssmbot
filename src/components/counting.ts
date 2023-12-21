@@ -1,11 +1,12 @@
-import { GuildEmoji, Awaitable, Message, MessageReaction, PartialMessageReaction, PartialUser, User } from "discord.js";
-import Component from "../lib/component.js";
+import { Component } from "botinator";
+import { Awaitable, Message, MessageReaction, PartialMessageReaction, PartialUser, User } from "discord.js";
 
 import { evaluate } from 'mathjs';
 import CountingCommand from "../commands/counting.js";
 import MSSMUser from "../data/user.js";
+import MSSM from "../mssm.js";
 
-export default class Counting extends Component {
+export default class Counting extends Component<MSSMUser, MSSM> {
     public init(): Awaitable<void> {
         this.bot.registerCommand(new CountingCommand(this.bot));
     }

@@ -1,6 +1,6 @@
+import { Command } from "botinator";
 import { createObjectCsvWriter } from "csv-writer";
 import { CacheType, ChatInputCommandInteraction, Message, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import Command from "../command.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";
 

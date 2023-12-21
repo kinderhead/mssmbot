@@ -1,7 +1,5 @@
+import { ButtonHelperCallback, Command, QuickButton, SelectHelperCallback, buttonHelper, selectHelper, shorten } from "botinator";
 import { ButtonInteraction, ButtonStyle, CacheType, ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder, ThreadAutoArchiveDuration, roleMention } from "discord.js";
-import Command from "../command.js";
-import { ButtonHelperCallback, QuickButton, SelectHelperCallback, buttonHelper, selectHelper, shorten } from "../lib/utils.js";
-import { MetaQuestion, PollData } from "@prisma/client";
 import MetaQuestionData from "../data/meta_question.js";
 import Poll from "../data/poll.js";
 import MSSMUser from "../data/user.js";
@@ -89,7 +87,7 @@ export default class MetaQuestionsCommand extends Command<MSSMUser, MSSM> {
 
         const embed = new EmbedBuilder()
             .setTitle("Manage posts");
-        
+
         const choice = choices[await selectHelper(embed, builtChoices, msg.editReply.bind(msg))];
 
         if ("question" in choice) {
