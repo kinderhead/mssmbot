@@ -51,6 +51,7 @@ export default class QOTDCommand extends Command<MSSMUser, MSSM> {
         } else if (msg.options.getSubcommand() === "manage") {
             if (user.discord.permissions.missing(PermissionFlagsBits.ModerateMembers)) {
                 await msg.reply({ ephemeral: true, content: "This command is under construction" });
+                return;
             }
             await this.manage(msg, user);
         } else if (msg.options.getSubcommand() === "doomsday") {

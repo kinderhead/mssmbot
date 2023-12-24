@@ -139,12 +139,6 @@ export default class MSSM extends Bot<MSSMUser> {
         this.lichess = new Lichess(config["lichess"]);
     }
 
-    // Fix this at some point
-    public registerCommand(command: Command<MSSMUser, MSSM>) {
-        // @ts-expect-error
-        this.commands.push(command);
-    }
-
     public async onClose() {
         await this.db.$disconnect();
     }
@@ -152,7 +146,7 @@ export default class MSSM extends Bot<MSSMUser> {
     public async syncUser(user: GuildMember) {
         var data = await this.db.userData.findUnique({ where: { id: user.id } });
         if (data == null) {
-            await this.db.userData.create({ data: { id: user.id } });
+            data = await this.db.userData.create({ data: { id: user.id } });
             this.log.info("Created data for user " + user.displayName);
         } else if (data.bio.length > 2048) {
             this.log.warn(`${user.displayName}'s bio is too long`);
@@ -346,7 +340,6 @@ export default class MSSM extends Bot<MSSMUser> {
     public clubs: Clubs;
     public muckbang: Muckbang;
     public addComponent(component: Component<MSSMUser, MSSM>) {
-        // @ts-expect-error
         this.components.push(component);
 
         if (component instanceof Starboard) this.starboard = component;
@@ -414,7 +407,7 @@ export default class MSSM extends Bot<MSSMUser> {
         return [embed, sendoff];
     }
 
-    public getUserV2(id: string) {
+    public getUserV2(id: string, guild: string = "") {
         return this.users[id];
     }
 
