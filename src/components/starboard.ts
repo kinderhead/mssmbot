@@ -46,6 +46,13 @@ export default class Starboard extends Component<MSSMUser, MSSM> {
 
                 var user = this.bot.getUserV2(msg.author.id);
 
+                var lastMonth = new Date()
+                lastMonth.setMonth(lastMonth.getMonth() - 1);
+                if (reaction.message.createdAt.getDate() < lastMonth.getDate()) {
+                    this.log.info(`${reaction.users.cache.last().displayName} was naughty and starred an old post. ${reaction.message.createdAt.getDate()} < ${lastMonth.getDate()}`);
+                    return;
+                }
+
                 this.log.info(`Message "${msg.content}" was sent to starboard with ${count} stars`);
                 var msgData = this.getStarMessage(msg, count);
                 var starMsg = await this.starboardChannel.send({ embeds: [msgData[0]], files: msgData[1] === null ? [] : [msgData[1]] });

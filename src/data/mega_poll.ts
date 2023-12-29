@@ -12,6 +12,9 @@ export default class MegaPollData extends DataMapper<MSSM, MegaPoll> implements 
 
     public async refresh() {
         this.options = this.fetchArrayFactory(await this.bot.db.megaPollOption.findMany({ where: { pollId: this.obj.id } }), MegaPollOptionData, this.bot.qotd.megaPollQuestions);
+        for (const i of this.options) {
+            await i.refresh();
+        }
     }
 
     public async reload() {

@@ -178,8 +178,6 @@ export default class MSSM extends Bot<MSSMUser> {
     }
 
     public async onLogin(c: Client) {
-        await super.onLogin(c);
-
         var promisesToAwait: (Promise<any> | Awaitable<any>)[] = [];
 
         for (const i of this.client.guilds.cache.values()) {
@@ -194,7 +192,8 @@ export default class MSSM extends Bot<MSSMUser> {
         this.welcomeChannel = this.getChannel("739335818518331496");
         this.errorPing = this.getRole("752345386617798798");
 
-        promisesToAwait.push(this.setupDataMap());
+        await this.setupDataMap();
+        await super.onLogin(c);
 
         for (const i in this.memory.games) {
             this.log.warn("Recovering a game of " + i);
@@ -306,7 +305,6 @@ export default class MSSM extends Bot<MSSMUser> {
             data = user;
         }
 
-        data.xp += amount;
         data.need_message = this.getLevelFromXP(data.xp) < this.getLevelFromXP(data.xp + amount);
 
         if (this.getLevelFromXP(data.xp) < this.getLevelFromXP(data.xp + amount)) {
@@ -314,6 +312,8 @@ export default class MSSM extends Bot<MSSMUser> {
         }
 
         this.log.silly(`Giving ${data.discord.displayName} ${amount} xp`);
+
+        data.xp += amount;
 
         if (data.need_message) {
             await this.levelChannel.send(`${data.levelup_ping ? userMention(data.id) : data.discord.displayName} has leveled up! They are now level ${this.getLevelFromXP(data.xp)}`);
@@ -460,7 +460,7 @@ export default class MSSM extends Bot<MSSMUser> {
         this.memory.changeloglastdate = date;
 
         var desc = `
-* Fixed empty anon message
+* New starboard posts can only be added if it's a month old
         `;
 
         if (this.memory.changeloglastdesc === desc) return;

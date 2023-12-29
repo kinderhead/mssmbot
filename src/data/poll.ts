@@ -21,6 +21,9 @@ export default class Poll extends DataMapper<MSSM, PollData> implements PollData
     public override async refresh() {
         this.author = this.bot.getUserV2(this.obj.authorId);
         this.options = this.fetchArrayFactory((await this.bot.db.pollData.findUnique({ where: { id: this.obj.id }, include: { options: true } })).options, PollQuestion, this.bot.qotd.pollQuestions);
+        for (const i of this.options) {
+            await i.refresh();
+        }
     }
 
     public async reload() {
