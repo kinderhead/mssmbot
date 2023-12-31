@@ -115,6 +115,9 @@ export default class QOTDCommand extends Command<MSSMUser, MSSM> {
         if (options.length > 9) {
             await msg.reply({ content: "Too many options. Please try again", ephemeral: true });
             return;
+        } else if (options.length < 2) {
+            await msg.reply({ content: "You need at least 2 options", ephemeral: true });
+            return;
         }
 
         const poll = await user.createPoll(title, options);
