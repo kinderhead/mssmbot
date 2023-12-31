@@ -48,8 +48,8 @@ export default class Starboard extends Component<MSSMUser, MSSM> {
 
                 var lastMonth = new Date()
                 lastMonth.setMonth(lastMonth.getMonth() - 1);
-                if (reaction.message.createdAt.getDate() < lastMonth.getDate()) {
-                    this.log.info(`${reaction.users.cache.last().displayName} was naughty and starred an old post. ${reaction.message.createdAt.getDate()} < ${lastMonth.getDate()}`);
+                if (reaction.message.createdAt.getTime() < lastMonth.getTime()) {
+                    this.log.info(`Someone was naughty and starred an old post. ${reaction.message.createdAt.getTime()} < ${lastMonth.getTime()}`);
                     return;
                 }
 
