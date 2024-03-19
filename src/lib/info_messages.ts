@@ -73,6 +73,7 @@ export function getInfoEmbeds(bot: MSSM) {
                 { name: "`/tools embed-builder`", value: "Create and save special bot messages." },
                 { name: "`/tools message-count`", value: "Displays the number of messages sent today." },
                 { name: "`/tools msg-converter`", value: "Transforms the last sent message into an embed." },
+                { name: "`/outreach`", value: "Set up a private channel with Student Support in <#1212799151847247892>" },
                 { name: "`/help`", value: "Displays this message." }
             )
     ];
@@ -160,26 +161,26 @@ export async function getMinecraftEmbeds(bot: MSSM) {
 
     return [
         new EmbedBuilder()
-            .setTitle("Skyfactory 4 Server")
+            .setTitle("PvP Server")
             .setColor("DarkGold")
-            .setDescription("[Modpack download link](https://legacy.curseforge.com/minecraft/modpacks/skyfactory-4)\nNon MSSM ip address: 24.39.61.178\nLocal MSSM ip address: 192.168.15.254\n\nFor the time being, you need a Minecraft account to join (rip Xavier)."),
+            .setDescription("Non MSSM ip address: 24.39.61.178\nLocal MSSM ip address: 192.168.2.254\n\nFor the time being, you need a Minecraft account to join (rip Xavier)."),
         new EmbedBuilder()
             .setTitle("Server Status")
             .setColor(color)
             .setDescription(desc)
             .setFields(...fields)
             .setFooter({ text: "To connect your Minecraft and Discord accounts use /settings" }),
-        new EmbedBuilder()
-            .setTitle("Commands")
-            .setColor("Blue")
-            .addFields(
-                { name: "`/topography spawn`", value: "Teleport to spawn. Players are encouraged to build around spawn." },
-                { name: "`/topography island home`", value: "Teleport to your island. This will create an island if you don't have one." },
-                { name: "`/topography invite <player>`", value: "Invite a player to your island." },
-                { name: "`/topography accept`", value: "Accept a player's invite." },
-                { name: "`/tofe invite <player>`", value: "Invite a player to share achievements with you. I'd recommend doing this if you invite a player to join your island." },
-                { name: "`/tofe info`", value: "Shows info about your team." },
-            )
+        // new EmbedBuilder()
+        //     .setTitle("Commands")
+        //     .setColor("Blue")
+        //     .addFields(
+        //         { name: "`/topography spawn`", value: "Teleport to spawn. Players are encouraged to build around spawn." },
+        //         { name: "`/topography island home`", value: "Teleport to your island. This will create an island if you don't have one." },
+        //         { name: "`/topography invite <player>`", value: "Invite a player to your island." },
+        //         { name: "`/topography accept`", value: "Accept a player's invite." },
+        //         { name: "`/tofe invite <player>`", value: "Invite a player to share achievements with you. I'd recommend doing this if you invite a player to join your island." },
+        //         { name: "`/tofe info`", value: "Shows info about your team." },
+        //     )
     ];
 }
 

@@ -76,9 +76,9 @@ export default class MSSMUser extends DataMapper<MSSM, UserData> implements User
             this.bot.clubs.clubData
         );
 
-        if (this.obj.saves > 3) {
-            this.obj.saves = 3;
-            this.set("saves", 3);
+        if (this.obj.saves > 1) {
+            this.obj.saves = 1;
+            this.set("saves", 1);
         } else if (this.obj.saves < 0) {
             this.obj.saves = 0;
             this.set("saves", 0);

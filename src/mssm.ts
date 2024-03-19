@@ -47,6 +47,7 @@ import { EmbedResource, StringOpts, StringResource } from './lib/resource.js';
 import { Memory, Storage } from './lib/storage.js';
 import TestCommand from './commands/test.js';
 import { LOG_CONFIG, Bot, Command, Component, DEBUG, InteractionSendable, isValidUrl, values } from "botinator";
+import OutreachCommand from './commands/outreach.js';
 
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -132,6 +133,7 @@ export default class MSSM extends Bot<MSSMUser> {
         this.registerCommand(new EditRulesCommand(this));
         this.registerCommand(new SyscallCommand(this));
         this.registerCommand(new TestCommand(this));
+        this.registerCommand(new OutreachCommand(this));
 
         this.registerGame(UnoGame, "uno");
         this.registerGame(ChessGame, "chess");
@@ -460,7 +462,7 @@ export default class MSSM extends Bot<MSSMUser> {
         this.memory.changeloglastdate = date;
 
         var desc = `
-* New starboard posts can only be added if it's a month old
+* Counting saves capped to 1
         `;
 
         if (this.memory.changeloglastdesc === desc) return;

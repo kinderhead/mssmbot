@@ -83,12 +83,13 @@ export default class MuckbangCommand extends Command<MSSMUser, MSSM> {
         var gameName = msg.options.getString("game");
 
         if (!gameName) {
-            gameName = choose(Object.keys(this.bot.muckbang.games));
+            gameName = choose(Object.values(this.bot.muckbang.games)).name;
         }
 
         var game = values(this.bot.muckbang.games).find(i => i.name === gameName);
         if (!game) {
-            await msg.editReply("Invalid game");
+            await msg.editReply("Invalid game " + gameName);
+            return;
         }
 
         var timeIndex = msg.options.getString("time") ?? "1";

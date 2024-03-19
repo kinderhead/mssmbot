@@ -23,7 +23,8 @@ export default class CatHandler extends Component<MSSMUser, MSSM> {
             for (const e of i.emojis.cache.values()) {
                 if (e.name.toLowerCase().includes("cat") || ["__", "que", "nyoom"].includes(e.name)) {
                     this.log.silly("Found cat emoji: ", e.toString());
-                    this.catEmojiList.push(e.toString());
+                    // Discord cringe alert
+                    this.catEmojiList.push(`<:${e.name}:${e.id}>`);
                 }
             }
         }

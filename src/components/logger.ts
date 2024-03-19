@@ -13,14 +13,14 @@ export default class BotLogger extends Component<MSSMUser, MSSM> {
 
     public async onMessageEdit(old: Message<boolean> | PartialMessage, edited: Message<boolean> | PartialMessage) {
         try {
-            if (edited.author?.bot || Date.now() - edited.createdAt?.getTime() < 1000) return;
-
             if (this.ignoreIds.includes(edited.id)) {
                 this.ignoreIds.splice(this.ignoreIds.indexOf(edited.id), 1);
                 return;
             }
 
             edited = await edited.fetch();
+
+            if (edited.author.bot) return;
 
             var data = this.bot.createEmbedFromMessage(edited);
             var embed = data[0].setTitle(`Message edited in ${channelMention(edited.channelId)}`);

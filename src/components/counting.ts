@@ -82,8 +82,8 @@ export default class Counting extends Component<MSSMUser, MSSM> {
     public giveSave(user: MSSMUser, amount: number) {
         user.saves += amount;
 
-        if (user.saves > 3) {
-            user.saves = 3;
+        if (user.saves > 1) {
+            user.saves = 1;
         }
     }
 }
