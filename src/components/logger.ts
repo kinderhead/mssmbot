@@ -28,7 +28,7 @@ export default class BotLogger extends Component<MSSMUser, MSSM> {
 
             this.bot.logChannel.send({ embeds: [embed], files: data[1] == null ? [] : [data[1]] });
         } catch (e) {
-            this.log.error(e);
+            this.log.warn(e);
         }
     }
 
@@ -56,7 +56,7 @@ export default class BotLogger extends Component<MSSMUser, MSSM> {
 
             this.bot.logChannel.send({ embeds: [embed], files: (!data || data[1] == null) ? [] : [data[1]] });
         } catch (e) {
-            this.log.error(e);
+            this.log.warn(e);
         }
     }
 }
