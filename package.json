@@ -15,6 +15,7 @@
   "dependencies": {
     "@prisma/client": "^5.1.1",
     "axios": "^1.4.0",
+    "botinator": "file:../botinator",
     "chess.ts": "^0.16.2",
     "csv-writer": "^1.6.0",
     "diff": "^5.1.0",
