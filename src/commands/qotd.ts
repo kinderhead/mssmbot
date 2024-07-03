@@ -125,7 +125,7 @@ export default class QOTDCommand extends Command<MSSMUser, MSSM> {
         this.bot.qotd.questionQueue.queue.push({ type: "poll", title: title, options: options, id: poll.id });
         this.bot.qotd.questionQueue.save();
 
-        var lvlup = await this.bot.addXP(user, 8);
+        await this.bot.addXP(user, 8);
 
         await msg.reply({ content: "Poll queued", ephemeral: true });
 

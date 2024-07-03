@@ -1,9 +1,9 @@
 import { PrismaClient, UserData } from '@prisma/client';
-import { APIEmbed, ActivityType, Attachment, Awaitable, CacheType, ChatInputCommandInteraction, Client, EmbedBuilder, Events, GatewayIntentBits, GuildBasedChannel, GuildMember, Interaction, Message, PartialGuildMember, Partials, REST, Role, Routes, SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder, TextChannel, ThreadAutoArchiveDuration, User, channelMention, roleMention, userMention } from 'discord.js';
+import { APIEmbed, ActivityType, Attachment, Awaitable, CacheType, ChatInputCommandInteraction, Client, EmbedBuilder, GatewayIntentBits, GuildMember, Message, PartialGuildMember, Partials, TextChannel, User, channelMention, userMention } from 'discord.js';
 import fs from 'fs';
 
+import { Bot, Component, DEBUG, InteractionSendable, LOG_CONFIG, isValidUrl, values } from "botinator";
 import { createStream } from "rotating-file-stream";
-import { ILogObj, Logger } from 'tslog';
 import AddXPCommand from './commands/add_xp.js';
 import AnonCommand from './commands/anon.js';
 import ApplyCommand from './commands/apply.js';
@@ -15,6 +15,7 @@ import HelpCommand from './commands/help.js';
 import KillCommand from './commands/kill.js';
 import LeaderboardCommand from './commands/leaderboard.js';
 import ModAppsCommand from './commands/mod_apps.js';
+import OutreachCommand from './commands/outreach.js';
 import PlayCommand from './commands/play.js';
 import PoopCommand from './commands/poop.js';
 import RefreshCommand from './commands/refresh.js';
@@ -25,6 +26,7 @@ import SetRulesCommand from './commands/set_rules.js';
 import SettingsCommand from './commands/settings.js';
 import StatusCommand from './commands/status.js';
 import SyscallCommand from './commands/syscall.js';
+import TestCommand from './commands/test.js';
 import ToolsCommand from './commands/tools.js';
 import WhoIsCommand from './commands/whois.js';
 import CatHandler from './components/cat.js';
@@ -45,9 +47,6 @@ import { getInfoEmbeds, getMinecraftEmbeds, getModInfoEmbeds } from './lib/info_
 import Lichess from './lib/lichess.js';
 import { EmbedResource, StringOpts, StringResource } from './lib/resource.js';
 import { Memory, Storage } from './lib/storage.js';
-import TestCommand from './commands/test.js';
-import { LOG_CONFIG, Bot, Command, Component, DEBUG, InteractionSendable, isValidUrl, values } from "botinator";
-import OutreachCommand from './commands/outreach.js';
 
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -61,7 +60,7 @@ LOG_CONFIG.DEFAULT_LOGGER.settings.name = "MSSM";
 LOG_CONFIG.LOGGER_STREAM = createStream("bot.log", {
     size: "100M",
     interval: "1d",
-    path: "/home/daniel/mssmbot/logs/"
+    path: "~/mssmbot/logs/"
 });
 
 export default class MSSM extends Bot<MSSMUser> {
@@ -214,12 +213,12 @@ export default class MSSM extends Bot<MSSMUser> {
             var msg = await channel.messages.fetch(this.memory.infoid);
             msg.edit({ embeds: getInfoEmbeds(this) });
 
-            if (channel.threads.cache.size == 0) {
-                var thread = await channel.threads.create({ name: "Changelog", reason: "Changelog", autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek });
-                thread.send("Changelog for those interested. Unmute this thread to receive updates.");
-                this.memory.changelogthreadid = thread.id;
-                this.memory.save();
-            }
+            // if (channel.threads.cache.size == 0) {
+            //     var thread = await channel.threads.create({ name: "Changelog", reason: "Changelog", autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek });
+            //     thread.send("Changelog for those interested. Unmute this thread to receive updates.");
+            //     this.memory.changelogthreadid = thread.id;
+            //     this.memory.save();
+            // }
         }
 
         if (this.memory.modinfoid !== "") {
@@ -289,41 +288,37 @@ export default class MSSM extends Bot<MSSMUser> {
 
     public getLevelFromXP(xp: number) {
         if (xp <= 0) return 0;
-        return Math.floor((Math.sqrt(xp + 4) - 2) / 1.5);
+        return Math.ceil((Math.sqrt(xp + 4) - 2) / 1.5);
     }
 
     public getXPFromLevel(level: number) {
         if (level <= 0) return 0;
-        return Math.floor(((9 * (level ** 2)) / 4) + (6 * level));
+        return Math.floor(((9 * (level ** 2)) / 4) + (6 * level)); // things look to be the same, was it an edit you made earlier today?
     }
 
-    public async addXP(user: string, amount: number): Promise<boolean>;
-    public async addXP(user: MSSMUser, amount: number): Promise<boolean>;
-    public async addXP(user: MSSMUser | string, amount: number): Promise<boolean> {
+    public async addXP(user: string, amount: number): Promise<void>;
+    public async addXP(user: MSSMUser, amount: number): Promise<void>;
+    public async addXP(user: MSSMUser | string, amount: number): Promise<void> {
         var data: MSSMUser;
-        if (typeof (user) === "string") {
-            data = this.getUserV2(user);
+        if (typeof(user) === "string") {
+            data = this.getUserV2(user); 
         } else {
             data = user;
         }
 
-        data.need_message = this.getLevelFromXP(data.xp) < this.getLevelFromXP(data.xp + amount);
-
-        if (this.getLevelFromXP(data.xp) < this.getLevelFromXP(data.xp + amount)) {
-            this.counting.giveSave(data, .25);
-        }
+        // the function starts here
+        var need_message = this.getLevelFromXP(data.xp) < this.getLevelFromXP(data.xp + amount);
+        // maybe something down here?
 
         this.log.silly(`Giving ${data.discord.displayName} ${amount} xp`);
 
         data.xp += amount;
 
-        if (data.need_message) {
+        if (need_message) {
+            this.counting.giveSave(data, .25); 
             await this.levelChannel.send(`${data.levelup_ping ? userMention(data.id) : data.discord.displayName} has leveled up! They are now level ${this.getLevelFromXP(data.xp)}`);
-            data.need_message = false;
             this.log.info(`${data.discord.displayName} leveled up`);
         }
-
-        return data.need_message;
     }
 
     public async requireResource(type: "embed", user: GuildMember, msg: InteractionSendable, opts: {}): Promise<APIEmbed>;

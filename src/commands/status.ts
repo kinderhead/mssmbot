@@ -33,7 +33,7 @@ export default class StatusCommand extends Command<MSSMUser, MSSM> {
             .setColor(user.discord.displayHexColor)
             .addFields(
                 { name: "Level", value: level.toString(), inline: true },
-                { name: "Level progress", value: `XP: ${user.xp}/${this.bot.getXPFromLevel(level + 1) + 1}`, inline: true },
+                { name: "Level progress", value: `XP: ${user.xp}/${this.bot.getXPFromLevel(level + 1)}`, inline: true },
                 { name: '\u200B', value: '\u200B' },
                 { name: "QOTD posts", value: (user.polls.length + user.questions.length).toString(), inline: true },
                 { name: "Polls answered", value: user.poll_answers.length.toString(), inline: true },
