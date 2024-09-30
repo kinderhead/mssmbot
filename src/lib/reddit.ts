@@ -43,7 +43,7 @@ export default class Reddit {
             bot.memory.save();
             return data;
         } catch (e) {
-            LOG_CONFIG.DEFAULT_LOGGER.error(e);
+            //LOG_CONFIG.DEFAULT_LOGGER.warn("Error doing le reddit");
             return [];
         }
     }

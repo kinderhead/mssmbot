@@ -7,12 +7,12 @@ export default class H extends Component<MSSMUser, MSSM> {
     public async onMessage(msg: Message<boolean>) {
         if (msg.channelId === "1039979628397338646") {
             if (msg.content.toLowerCase().includes("h")) {
-                this.log.warn(`${this.bot.getUserV2(msg.id).discord.displayName} was very naughty and did H.`);
+                this.log.warn(`${this.bot.getUserV2(msg.author.id).discord.displayName} was very naughty and did H.`);
                 await msg.delete();
             }
         } else if (msg.channelId === "789982492413001730") {
             if (!msg.content.toLowerCase().includes("h")) {
-                this.log.warn(`${this.bot.getUserV2(msg.id).discord.displayName} was very naughty and did not H.`);
+                this.log.warn(`${this.bot.getUserV2(msg.author.id).discord.displayName} was very naughty and did not H.`);
                 await msg.delete();
             }
         }

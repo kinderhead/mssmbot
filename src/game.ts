@@ -327,7 +327,7 @@ export default abstract class Game<TOpts extends BasicOpts = BasicOpts> extends 
 
         await this.bot.addXP(user.id, baseXP + this.players.length)
 
-        await this.bot.counting.giveSave(this.bot.getUserV2(user.id), 1);
+        this.bot.counting.giveSave(this.bot.getUserV2(user.id), 1);
 
         if (this.crashed) {
             this.options = await this.init();

@@ -293,7 +293,7 @@ export default class MSSM extends Bot<MSSMUser> {
 
     public getXPFromLevel(level: number) {
         if (level <= 0) return 0;
-        return Math.floor(((9 * (level ** 2)) / 4) + (6 * level)); // things look to be the same, was it an edit you made earlier today?
+        return Math.floor(((9 * (level ** 2)) / 4) + (6 * level));
     }
 
     public async addXP(user: string, amount: number): Promise<void>;
@@ -306,9 +306,7 @@ export default class MSSM extends Bot<MSSMUser> {
             data = user;
         }
 
-        // the function starts here
-        var need_message = this.getLevelFromXP(data.xp) < this.getLevelFromXP(data.xp + amount);
-        // maybe something down here?
+        var need_message = (this.getLevelFromXP(data.xp) < this.getLevelFromXP(data.xp + amount) && (this.getLevelFromXP(data.xp - 1) == this.getLevelFromXP((data.xp - 1) + amount)));
 
         this.log.silly(`Giving ${data.discord.displayName} ${amount} xp`);
 

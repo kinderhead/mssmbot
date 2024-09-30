@@ -14,12 +14,12 @@ export default class ApplyCommand extends Command<MSSMUser, MSSM> {
     }
 
     public async execute(msg: ChatInputCommandInteraction<CacheType>, user: MSSMUser) {
-        msg.reply({ ephemeral: true, content: "Mod apps are closed at this time." });
-        return;
+        // msg.reply({ ephemeral: true, content: "Mod apps are closed at this time." });
+        // return;
 
         const embed = new EmbedBuilder()
             .setTitle("Mod Application")
-            .setDescription("READ THIS BEFORE STARTING\n\nRequirements:\n* Your application will be shown to everyone for the vote\n* You must be a current student OR know for certain that you will be coming back if you are taking a year off\n* Include who you are and why you want to be mod\n* Include what you will do to improve the server\n* Say something funny (not required)\n* Note that I will remove your application if it does not fulfill these requirements. You can still tweak it and apply again\n\nHow to use this thing:\nYou have 2 options. I recommend pressing the quickstart button, but you can also start from scratch. The thing you are submitting is a special message like ones found in #mssm-this.bot-info or Uno. These messages, called \"embeds\" by discord, can contain a single image, fancy formatting, footers, and more. I've created an editor for it because I was bored and now I'm putting it to good use. Once you submit, you can edit your embed again by using `/apply` and pressing the first button followed by navigating to your embed (if more than one is saved) and selecting it. Complicated, I know. If you need help ping the admin.");
+            .setDescription("READ THIS BEFORE STARTING\n\nRequirements:\n* Your application will be shown to everyone for the vote\n* You must be a current, non-senior student\n* Include who you are and why you want to be mod\n* Include what you will do to improve the server\n* Say something funny (not required)\n* Note that I will remove your application if it does not fulfill these requirements. You can still tweak it and apply again\n\nHow to use this thing:\nYou have 2 options. I recommend pressing the quickstart button, but you can also start from scratch. The thing you are submitting is a special message like ones found in #mssm-bot-info or Uno. These messages, called \"embeds\" by discord, can contain a single image, fancy formatting, footers, and more. I've created an editor for it because I was bored and now I'm putting it to good use. Once you submit, you can edit your embed again by using `/apply` and pressing the first button followed by navigating to your embed (if more than one is saved) and selecting it. Complicated, I know. If you need help ping the admin.");
 
         this.log.info(`${user.discord.displayName} is editing the mod app`);
 

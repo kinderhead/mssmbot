@@ -169,6 +169,14 @@ export default class ChessGame extends Game<ChessOpts> {
         }
     }
 
+    override leave(user: GuildMember): "Player not found." | "You are the host. You cannot leave this game." | "DONE" {
+        if (this.hasStarted) {
+            this.stop(true);
+            return "DONE";
+        }
+        else return super.leave(user);
+    }
+
     protected async continueFromCrash() {
         if (this.hasStarted) {
             this.game = new Chess();
