@@ -1,9 +1,9 @@
-import { Command } from "botinator";
+import { Command } from "discord-botinator";
 import { CacheType, ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, userMention } from "discord.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";
 
-export default class PoopCommand extends Command<MSSMUser, MSSM> {
+export default class PoopCommand extends Command<MSSM, MSSMUser> {
     public getName() { return "shit"; }
 
     public create() {

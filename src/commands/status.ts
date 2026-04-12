@@ -1,10 +1,10 @@
-import { Command, embedPager } from "botinator";
+import { Command, embedPager } from "discord-botinator";
 import { CacheType, ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import MSSMUser from "../data/user.js";
 import { calcWinLoss } from "../games/chess.js";
 import MSSM from "../mssm.js";
 
-export default class StatusCommand extends Command<MSSMUser, MSSM> {
+export default class StatusCommand extends Command<MSSM, MSSMUser> {
     public getName() { return "status"; }
 
     public create() {
@@ -17,7 +17,7 @@ export default class StatusCommand extends Command<MSSMUser, MSSM> {
     public async execute(msg: ChatInputCommandInteraction<CacheType>) {
         await msg.deferReply();
 
-        var user = this.bot.getUserV2(msg.options.getUser("user").id);
+        const user = this.bot.getUserV2(msg.options.getUser("user").id);
 
         var totalStars = 0;
 

@@ -2,7 +2,7 @@ import { PrismaClient, UserData } from '@prisma/client';
 import { APIEmbed, ActivityType, Attachment, Awaitable, CacheType, ChatInputCommandInteraction, Client, EmbedBuilder, GatewayIntentBits, GuildMember, Message, PartialGuildMember, Partials, TextChannel, User, channelMention, userMention } from 'discord.js';
 import fs from 'fs';
 
-import { Bot, Component, DEBUG, InteractionSendable, LOG_CONFIG, isValidUrl, values } from "botinator";
+import { Bot, Component, DEBUG, InteractionSendable, LOG_CONFIG, isValidUrl, values } from "discord-botinator";
 import { createStream } from "rotating-file-stream";
 import AddXPCommand from './commands/add_xp.js';
 import AnonCommand from './commands/anon.js';
@@ -43,7 +43,7 @@ import MSSMUser from './data/user.js';
 import Game from './game.js';
 import ChessGame from './games/chess.js';
 import UnoGame from './games/uno.js';
-import { getInfoEmbeds, getMinecraftEmbeds, getModInfoEmbeds } from './lib/info_messages.js';
+import { getInfoEmbeds, getModInfoEmbeds } from './lib/info_messages.js';
 import Lichess from './lib/lichess.js';
 import { EmbedResource, StringOpts, StringResource } from './lib/resource.js';
 import { Memory, Storage } from './lib/storage.js';
@@ -78,7 +78,7 @@ export default class MSSM extends Bot<MSSMUser> {
     public users: { [id: string]: MSSMUser } = {};
 
     public db: PrismaClient = new PrismaClient();
-    public memory = Storage.make<Memory>("memory.json", new Memory());
+    public memory = Storage.make<Memory>("memory/memory.json", new Memory());
 
     public welcomeChannel: TextChannel;
 
@@ -227,9 +227,9 @@ export default class MSSM extends Bot<MSSMUser> {
             msg.edit({ embeds: getModInfoEmbeds(this) });
         }
 
-        if (this.memory.minecraftchannelid !== "") {
-            await this.refreshMinecraft();
-        }
+        // if (this.memory.minecraftchannelid !== "") {
+        //     await this.refreshMinecraft();
+        // }
 
         this.sendChangelog();
 
@@ -349,13 +349,13 @@ export default class MSSM extends Bot<MSSMUser> {
         this.games[name] = game;
     }
 
-    public async refreshMinecraft() {
-        var channel = this.getChannel(this.memory.minecraftchannelid);
-        var msg = await channel.messages.fetch(this.memory.minecraftid);
-        await msg.edit({ embeds: await getMinecraftEmbeds(this) });
+    // public async refreshMinecraft() {
+    //     var channel = this.getChannel(this.memory.minecraftchannelid);
+    //     var msg = await channel.messages.fetch(this.memory.minecraftid);
+    //     await msg.edit({ embeds: await getMinecraftEmbeds(this) });
 
-        setTimeout(this.refreshMinecraft.bind(this), 30000);
-    }
+    //     setTimeout(this.refreshMinecraft.bind(this), 30000);
+    // }
 
     public isUserPlaying(user: User | GuildMember | UserData) {
         for (const i of this.activeGames) {

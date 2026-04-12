@@ -1,9 +1,9 @@
-import { Command } from "botinator";
+import { Command } from "discord-botinator";
 import { CacheType, ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";
 
-export default class WhoIsCommand extends Command<MSSMUser, MSSM> {
+export default class WhoIsCommand extends Command<MSSM, MSSMUser> {
     public getName() { return "whois"; }
 
     public create() {

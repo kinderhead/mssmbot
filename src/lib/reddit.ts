@@ -1,7 +1,7 @@
 import axios from "axios";
 import { EmbedBuilder } from "discord.js";
 import MSSM from "../mssm.js";
-import { LOG_CONFIG } from "botinator";
+import { LOG_CONFIG } from "discord-botinator";
 
 export interface RedditPost {
     title: string;

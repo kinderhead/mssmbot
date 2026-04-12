@@ -1,6 +1,5 @@
 import { APIEmbedField, ColorResolvable, EmbedBuilder, channelMention, userMention } from "discord.js";
-import mc from "minecraftstatuspinger";
-import { ServerStatus } from "minecraftstatuspinger/dist/types.js";
+//import mc from "minecraftstatuspinger";
 import MSSM from "../mssm.js";
 
 export function getInfoEmbeds(bot: MSSM) {
@@ -132,57 +131,57 @@ export function getModInfoEmbeds(bot: MSSM) {
     ];
 }
 
-export async function getMinecraftEmbeds(bot: MSSM) {
-    var res: ServerStatus;
-    var color: ColorResolvable;
-    var desc: string;
-    var fields: APIEmbedField[] = [];
+// export async function getMinecraftEmbeds(bot: MSSM) {
+//     var res: ServerStatus;
+//     var color: ColorResolvable;
+//     var desc: string;
+//     var fields: APIEmbedField[] = [];
 
-    try {
-        res = await mc.lookup({ host: "24.39.61.178" });
-        color = "Green";
-        desc = `${res.status.players.online}/${res.status.players.max}`;
+//     try {
+//         res = await mc.lookup({ host: "24.39.61.178" });
+//         color = "Green";
+//         desc = `${res.status.players.online}/${res.status.players.max}`;
 
-        if (res.status.players.sample) {
-            for (const i of res.status.players.sample) {
-                var user = bot.getAllMembers().find(e => e.minecraft_username === i.name);
+//         if (res.status.players.sample) {
+//             for (const i of res.status.players.sample) {
+//                 var user = bot.getAllMembers().find(e => e.minecraft_username === i.name);
 
-                if (user) {
-                    fields.push({ name: i.name, value: userMention(user.id), inline: true });
-                } else {
-                    fields.push({ name: i.name, value: "\u200B", inline: true });
-                }
-            }
-        }
-    } catch {
-        color = "Red";
-        desc = "Server offline";
-    }
+//                 if (user) {
+//                     fields.push({ name: i.name, value: userMention(user.id), inline: true });
+//                 } else {
+//                     fields.push({ name: i.name, value: "\u200B", inline: true });
+//                 }
+//             }
+//         }
+//     } catch {
+//         color = "Red";
+//         desc = "Server offline";
+//     }
 
-    return [
-        new EmbedBuilder()
-            .setTitle("PvP Server")
-            .setColor("DarkGold")
-            .setDescription("Non MSSM ip address: 24.39.61.178\nLocal MSSM ip address: 192.168.2.254\n\nFor the time being, you need a Minecraft account to join (rip Xavier)."),
-        new EmbedBuilder()
-            .setTitle("Server Status")
-            .setColor(color)
-            .setDescription(desc)
-            .setFields(...fields)
-            .setFooter({ text: "To connect your Minecraft and Discord accounts use /settings" }),
-        // new EmbedBuilder()
-        //     .setTitle("Commands")
-        //     .setColor("Blue")
-        //     .addFields(
-        //         { name: "`/topography spawn`", value: "Teleport to spawn. Players are encouraged to build around spawn." },
-        //         { name: "`/topography island home`", value: "Teleport to your island. This will create an island if you don't have one." },
-        //         { name: "`/topography invite <player>`", value: "Invite a player to your island." },
-        //         { name: "`/topography accept`", value: "Accept a player's invite." },
-        //         { name: "`/tofe invite <player>`", value: "Invite a player to share achievements with you. I'd recommend doing this if you invite a player to join your island." },
-        //         { name: "`/tofe info`", value: "Shows info about your team." },
-        //     )
-    ];
-}
+//     return [
+//         new EmbedBuilder()
+//             .setTitle("PvP Server")
+//             .setColor("DarkGold")
+//             .setDescription("Non MSSM ip address: 24.39.61.178\nLocal MSSM ip address: 192.168.2.254\n\nFor the time being, you need a Minecraft account to join (rip Xavier)."),
+//         new EmbedBuilder()
+//             .setTitle("Server Status")
+//             .setColor(color)
+//             .setDescription(desc)
+//             .setFields(...fields)
+//             .setFooter({ text: "To connect your Minecraft and Discord accounts use /settings" }),
+//         // new EmbedBuilder()
+//         //     .setTitle("Commands")
+//         //     .setColor("Blue")
+//         //     .addFields(
+//         //         { name: "`/topography spawn`", value: "Teleport to spawn. Players are encouraged to build around spawn." },
+//         //         { name: "`/topography island home`", value: "Teleport to your island. This will create an island if you don't have one." },
+//         //         { name: "`/topography invite <player>`", value: "Invite a player to your island." },
+//         //         { name: "`/topography accept`", value: "Accept a player's invite." },
+//         //         { name: "`/tofe invite <player>`", value: "Invite a player to share achievements with you. I'd recommend doing this if you invite a player to join your island." },
+//         //         { name: "`/tofe info`", value: "Shows info about your team." },
+//         //     )
+//     ];
+// }
 
 export function getClubEmbed() {
     return new EmbedBuilder()

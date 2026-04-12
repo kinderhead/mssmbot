@@ -1,11 +1,11 @@
-import { ButtonHelperCallback, Command, QuickButton, SelectHelperCallback, buttonHelper, selectHelper, shorten } from "botinator";
+import { ButtonHelperCallback, Command, QuickButton, SelectHelperCallback, buttonHelper, selectHelper, shorten } from "discord-botinator";
 import { ButtonInteraction, ButtonStyle, CacheType, ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder, ThreadAutoArchiveDuration, roleMention } from "discord.js";
 import MetaQuestionData from "../data/meta_question.js";
 import Poll from "../data/poll.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";
 
-export default class MetaQuestionsCommand extends Command<MSSMUser, MSSM> {
+export default class MetaQuestionsCommand extends Command<MSSM, MSSMUser> {
     public getName() { return "meta-board"; }
 
     public create() {

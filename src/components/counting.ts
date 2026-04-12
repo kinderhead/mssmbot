@@ -1,4 +1,4 @@
-import { Component } from "botinator";
+import { Component } from "discord-botinator";
 import { Awaitable, Message, MessageReaction, PartialMessageReaction, PartialUser, User } from "discord.js";
 
 import { evaluate } from 'mathjs';
@@ -29,6 +29,10 @@ export default class Counting extends Component<MSSMUser, MSSM> {
 
             if (Number.isInteger(num) && num > 0 && this.bot.memory.lasttocount !== msg.author.id) {
                 var user = this.bot.getUserV2(msg.author.id);
+
+                if (!("send" in msg.channel)) {
+                    throw new Error("womp");
+                }
 
                 if (num == this.bot.memory.count + 1) {
                     this.bot.memory.lasttocount = msg.author.id;

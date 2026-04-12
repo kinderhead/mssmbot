@@ -9,11 +9,7 @@
         "experimentalDecorators": true,
         "inlineSourceMap": true,
         "strict": true,
-        "strictNullChecks": false,
-        "paths": {
-            "botinator": ["./node_modules/botinator/src"],
-            "botinator/*": ["./node_modules/botinator/src/*"]
-        }
+        "strictNullChecks": false
     },
     "lib": [
         "ES2020"

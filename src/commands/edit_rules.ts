@@ -1,10 +1,10 @@
-import { Command, createCustomId, embedPager } from "botinator";
+import { Command, createCustomId, embedPager } from "discord-botinator";
 import { ButtonBuilder, ButtonInteraction, ButtonStyle, CacheType, ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";
 import { embedBuilder } from "../lib/utils.js";
 
-export default class EditRulesCommand extends Command<MSSMUser, MSSM> {
+export default class EditRulesCommand extends Command<MSSM, MSSMUser> {
     public getName() { return "edit-rules"; }
 
     public create() {

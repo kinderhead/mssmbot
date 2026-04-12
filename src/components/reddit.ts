@@ -1,4 +1,4 @@
-import { Component } from "botinator";
+import { Component } from "discord-botinator";
 import { Awaitable, TextChannel } from "discord.js";
 import Reddit from "../lib/reddit.js";
 import MSSMUser from "../data/user.js";

@@ -1,9 +1,9 @@
-import { Command, autocompleteOptions } from "botinator";
+import { Command, autocompleteOptions } from "discord-botinator";
 import { AutocompleteInteraction, CacheType, ChatInputCommandInteraction, SlashCommandBuilder, TextChannel } from "discord.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";
 
-export default class PlayCommand extends Command<MSSMUser, MSSM> {
+export default class PlayCommand extends Command<MSSM, MSSMUser> {
     public getName() { return "play"; }
 
     public create() {

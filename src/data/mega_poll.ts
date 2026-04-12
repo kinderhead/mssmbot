@@ -1,7 +1,7 @@
 import { MegaPoll } from "@prisma/client";
 import MSSM from "../mssm.js";
 import MegaPollOptionData from "./mega_poll_option.js";
-import { DataMapper } from "botinator";
+import { DataMapper } from "discord-botinator";
 
 export default class MegaPollData extends DataMapper<MSSM, MegaPoll> implements MegaPoll {
     public options: MegaPollOptionData[];

@@ -1,4 +1,4 @@
-import { Component, values } from "botinator";
+import { Component, values } from "discord-botinator";
 import { EmbedBuilder, channelMention } from "discord.js";
 import ClubCommand from "../commands/club.js";
 import CreateClubCommand from "../commands/create_club.js";

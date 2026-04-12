@@ -2,7 +2,7 @@ import { TextInputBuilder } from "@discordjs/builders";
 import { diffChars } from "diff";
 import { APIEmbed, APIEmbedField, APIModalInteractionResponseCallbackData, ActionRowBuilder, AnyComponentBuilder, AutocompleteInteraction, AwaitModalSubmitOptions, ButtonBuilder, ButtonInteraction, ButtonStyle, CacheType, ComponentType, EmbedBuilder, GuildMember, InteractionReplyOptions, InteractionResponse, JSONEncodable, Message, MessagePayload, ModalActionRowComponentBuilder, ModalBuilder, ModalComponentData, ModalSubmitInteraction, StringSelectMenuBuilder, StringSelectMenuInteraction, StringSelectMenuOptionBuilder, TextInputStyle, WebhookMessageEditOptions } from "discord.js";
 import MSSM from "../mssm.js";
-import { InteractionSendable, createCustomId, embedPager, quickModal, quickMultiModal, shorten } from "botinator";
+import { InteractionSendable, createCustomId, embedPager, quickModal, quickMultiModal, shorten } from "discord-botinator";
 
 var embedBuilders: string[] = [];
 export async function embedBuilder(user: GuildMember, msg: InteractionSendable, bot: MSSM, embed: EmbedBuilder = undefined, callback: (data: APIEmbed) => void = undefined) {

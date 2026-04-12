@@ -1,11 +1,11 @@
-import { Command } from "botinator";
+import { Command } from "discord-botinator";
 import { CacheType, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import MSSMUser from "../data/user.js";
 import Reddit from "../lib/reddit.js";
 import { embedBuilder } from "../lib/utils.js";
 import MSSM from "../mssm.js";
 
-export default class ToolsCommand extends Command<MSSMUser, MSSM> {
+export default class ToolsCommand extends Command<MSSM, MSSMUser> {
     public getName() { return "tools"; }
 
     public create() {

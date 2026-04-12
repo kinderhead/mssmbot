@@ -1,9 +1,9 @@
-import { Command, quickModal } from "botinator";
+import { Command, quickModal } from "discord-botinator";
 import { CacheType, ChatInputCommandInteraction, SlashCommandBuilder, TextInputStyle } from "discord.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";
 
-export default class AnonCommand extends Command<MSSMUser, MSSM> {
+export default class AnonCommand extends Command<MSSM, MSSMUser> {
     public getName() { return "anon"; }
 
     public create() {

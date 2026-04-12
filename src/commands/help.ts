@@ -1,10 +1,10 @@
-import { Command } from "botinator";
+import { Command } from "discord-botinator";
 import { CacheType, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import MSSMUser from "../data/user.js";
 import { getInfoEmbeds } from "../lib/info_messages.js";
 import MSSM from "../mssm.js";
 
-export default class HelpCommand extends Command<MSSMUser, MSSM> {
+export default class HelpCommand extends Command<MSSM, MSSMUser> {
     public getName() { return "help"; }
 
     public create() {

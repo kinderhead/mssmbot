@@ -1,4 +1,4 @@
-import { Component } from "botinator";
+import { Component } from "discord-botinator";
 import { EmbedBuilder, TextChannel } from "discord.js";
 import MuckbangCommand from "../commands/muckbang.js";
 import MuckbangGame from "../data/muckbang_game.js";

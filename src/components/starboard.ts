@@ -1,4 +1,4 @@
-import { Component } from "botinator";
+import { Component } from "discord-botinator";
 import { Attachment, EmbedBuilder, Message, MessageReaction, PartialMessageReaction, PartialUser, TextChannel, User, channelMention } from "discord.js";
 import StarboardData from "../data/starboard.js";
 import MSSMUser from "../data/user.js";

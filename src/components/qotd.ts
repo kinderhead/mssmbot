@@ -1,4 +1,4 @@
-import { Component, createCustomId, quickActionRow, shorten, values } from "botinator";
+import { Component, createCustomId, quickActionRow, shorten, values } from "discord-botinator";
 import { APIEmbed, ComponentType, EmbedBuilder, GuildMember, Message, MessageReaction, ReactionCollector, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextChannel, User, roleMention } from "discord.js";
 import ClosePollCommand from "../commands/close_poll.js";
 import MegaPollCommand from "../commands/mega_poll.js";

@@ -1,4 +1,4 @@
-import { Component, discordDiff } from "botinator";
+import { Component, discordDiff } from "discord-botinator";
 import { Attachment, EmbedBuilder, Message, PartialMessage, channelMention } from "discord.js";
 import LogCommand from "../commands/log.js";
 import MSSMUser from "../data/user.js";

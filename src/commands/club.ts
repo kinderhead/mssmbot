@@ -1,9 +1,9 @@
-import { Command, settingsHelper, values } from "botinator";
+import { Command, settingsHelper, values } from "discord-botinator";
 import { AutocompleteInteraction, CacheType, ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder, channelMention } from "discord.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";
 
-export default class ClubCommand extends Command<MSSMUser, MSSM> {
+export default class ClubCommand extends Command<MSSM, MSSMUser> {
     public getName() { return "clubs"; }
 
     public create() {

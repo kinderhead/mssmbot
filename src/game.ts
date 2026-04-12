@@ -2,7 +2,7 @@ import { APIEmbedField, ActionRowBuilder, ButtonBuilder, ButtonInteraction, Butt
 import MSSM from "./mssm.js";
 import "reflect-metadata";
 import { GameData } from "./lib/storage.js";
-import { Loggable, createCustomId } from "botinator";
+import { Loggable, createCustomId } from "discord-botinator";
 
 export default abstract class Game<TOpts extends BasicOpts = BasicOpts> extends Loggable {
     public abstract minPlayers(): number;

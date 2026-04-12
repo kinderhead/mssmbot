@@ -4,7 +4,6 @@ logs/
 .env
 .env~
 config.json
-prisma/migrations
 memory.json
 queue.json
 msg-count.csv

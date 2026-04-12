@@ -1,9 +1,9 @@
-import { Command, settingsHelper } from "botinator";
+import { Command, settingsHelper } from "discord-botinator";
 import { CacheType, ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";
 
-export default class SettingsCommand extends Command<MSSMUser, MSSM> {
+export default class SettingsCommand extends Command<MSSM, MSSMUser> {
     public getName() { return "settings"; }
 
     public create() {

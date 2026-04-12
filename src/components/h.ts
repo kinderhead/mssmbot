@@ -1,4 +1,4 @@
-import { Component } from "botinator";
+import { Component } from "discord-botinator";
 import { Message } from "discord.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";

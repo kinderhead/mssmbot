@@ -1,9 +1,9 @@
-import { Command, createCustomId } from "botinator";
+import { Command, createCustomId } from "discord-botinator";
 import { APIEmbed, ActionRowBuilder, ButtonBuilder, ButtonStyle, CacheType, ChatInputCommandInteraction, EmbedBuilder, ModalSubmitInteraction, PermissionFlagsBits, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction, StringSelectMenuOptionBuilder } from "discord.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";
 
-export default class QOTDCommand extends Command<MSSMUser, MSSM> {
+export default class QOTDCommand extends Command<MSSM, MSSMUser> {
     private activeManagers: string[] = [];
 
     public getName() { return "qotd"; }

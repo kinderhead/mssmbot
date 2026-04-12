@@ -1,9 +1,9 @@
-import { Command, SuperCommand, cmd, settingsHelper } from "botinator";
+import { Command, SuperCommand, cmd, settingsHelper } from "discord-botinator";
 import { CacheType, ChannelType, ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder, SnowflakeUtil, ThreadAutoArchiveDuration, channelLink, roleMention, userMention } from "discord.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";
 
-export default class OutreachCommand extends SuperCommand<MSSMUser, MSSM> {
+export default class OutreachCommand extends SuperCommand<MSSM, MSSMUser> {
     public static CHANNEL = "1212799151847247892";
     public static ROLE_ID = "1214608351967846451";
 

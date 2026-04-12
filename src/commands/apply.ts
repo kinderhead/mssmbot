@@ -1,10 +1,10 @@
-import { Command, buttonHelper, createCustomId, quickActionRow } from "botinator";
+import { Command, buttonHelper, createCustomId, quickActionRow } from "discord-botinator";
 import { APIEmbed, ButtonStyle, CacheType, ChatInputCommandInteraction, EmbedBuilder, ModalBuilder, SlashCommandBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";
 import { embedBuilder } from "../lib/utils.js";
 
-export default class ApplyCommand extends Command<MSSMUser, MSSM> {
+export default class ApplyCommand extends Command<MSSM, MSSMUser> {
     public getName() { return "apply"; }
 
     public create() {

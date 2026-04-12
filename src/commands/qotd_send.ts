@@ -1,9 +1,9 @@
-import { Command } from "botinator";
+import { Command } from "discord-botinator";
 import { CacheType, ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";
 
-export default class QOTDSendCommand extends Command<MSSMUser, MSSM> {
+export default class QOTDSendCommand extends Command<MSSM, MSSMUser> {
     public getName() { return "qotd-send"; }
 
     public create() {

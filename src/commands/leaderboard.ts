@@ -1,4 +1,4 @@
-import { Command, expandAndHandleEmbed } from "botinator";
+import { Command, expandAndHandleEmbed } from "discord-botinator";
 import { CacheType, ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import MSSMUser from "../data/user.js";
 import { calcWinLoss } from "../games/chess.js";
@@ -10,7 +10,7 @@ interface Position {
     display: string;
 }
 
-export default class LeaderboardCommand extends Command<MSSMUser, MSSM> {
+export default class LeaderboardCommand extends Command<MSSM, MSSMUser> {
     public getName() { return "leaderboard"; }
 
     public create() {

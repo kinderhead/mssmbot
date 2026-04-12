@@ -1,6 +1,6 @@
 import { MuckbangGameData } from "@prisma/client";
 import MSSM from "../mssm.js";
-import { DataMapper } from "botinator";
+import { DataMapper } from "discord-botinator";
 
 export default class MuckbangGame extends DataMapper<MSSM, MuckbangGameData> implements MuckbangGameData {
     public constructor(bot: MSSM, data: MuckbangGameData) {

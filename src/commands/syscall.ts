@@ -1,10 +1,10 @@
-import { Command } from "botinator";
+import { Command } from "discord-botinator";
 import { createObjectCsvWriter } from "csv-writer";
 import { CacheType, ChatInputCommandInteraction, Message, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";
 
-export default class SyscallCommand extends Command<MSSMUser, MSSM> {
+export default class SyscallCommand extends Command<MSSM, MSSMUser> {
     public getName() { return "syscall"; }
 
     public create() {

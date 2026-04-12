@@ -7,7 +7,7 @@ import Poll from "./poll.js";
 import PollQuestion from "./poll_question_data.js";
 import Question from "./question.js";
 import StarboardData from "./starboard.js";
-import { DataMapper } from "botinator";
+import { DataMapper } from "discord-botinator";
 
 export default class MSSMUser extends DataMapper<MSSM, UserData> implements UserData {
     public questions: Question[];

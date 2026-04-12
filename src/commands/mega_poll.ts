@@ -1,10 +1,10 @@
-import { Command, createCustomId, quickActionRow } from "botinator";
+import { Command, createCustomId, quickActionRow } from "discord-botinator";
 import { ButtonBuilder, ButtonStyle, CacheType, ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import MegaPollData from "../data/mega_poll.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";
 
-export default class MegaPollCommand extends Command<MSSMUser, MSSM> {
+export default class MegaPollCommand extends Command<MSSM, MSSMUser> {
     public getName() { return "mega-poll"; }
 
     public create() {

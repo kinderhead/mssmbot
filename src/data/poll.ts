@@ -2,7 +2,7 @@ import { PollData } from "@prisma/client";
 import MSSM from "../mssm.js";
 import PollQuestion from "./poll_question_data.js";
 import MSSMUser from "./user.js";
-import { DataMapper } from "botinator";
+import { DataMapper } from "discord-botinator";
 
 export default class Poll extends DataMapper<MSSM, PollData> implements PollData {
     public author: MSSMUser;

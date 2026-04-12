@@ -1,9 +1,9 @@
-import { Command } from "botinator";
+import { Command } from "discord-botinator";
 import { CacheType, ChatInputCommandInteraction, PermissionFlagsBits, Role, SlashCommandBuilder } from "discord.js";
 import MSSMUser from "../data/user.js";
 import MSSM from "../mssm.js";
 
-export default class RoleRemoverCommand extends Command<MSSMUser, MSSM> {
+export default class RoleRemoverCommand extends Command<MSSM, MSSMUser> {
     public getName() { return "role-remover"; }
 
     public create() {
